@@ -1,5 +1,5 @@
 NAME            =       webserv
-FILES           =       main
+FILES           =       main Parse
 SRCS_DIR        =       srcs/
 OBJS_DIR        =       objs/
 SRCS            =       $(addprefix $(SRCS_DIR), $(addsuffix .cpp, $(FILES)))
@@ -15,7 +15,7 @@ all:
 	make $(NAME)
 
 $(OBJS_DIR)%.o:$(SRCS_DIR)%.cpp
-	$(CPP) $(CFLAGS) -c $< -o $@
+	$(CPP) $(CFLAGS) -I$(INCL) -c $< -o $@
 
 $(NAME): $(OBJS)
 	$(CPP) $(FSAN) $(CFLAGS) -I$(INCL) -o $(NAME) $(SRCS)

@@ -1,32 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/28 20:47:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/05 23:37:53 by suchua           ###   ########.fr       */
+/*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
+/*   Updated: 2023/09/05 23:24:44 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Webserv.hpp"
-#include "Parse.hpp"
+#ifndef __WEBSERV_HPP__
+# define __WEBSERV_HPP__
 
-int	main(int ac, char **av)
-{
-	if (ac != 2)
-	{
-		std::cerr << "Error : Incorrect number of arguments\n";
-		return (1);
-	}
-	try
-	{
-		Parse	parse(av[1]);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-	return (0);
-}
+# include <iostream>
+# include <fstream>
+# include <exception>
+# include <string>
+# include <cstring>
+# include <cstdlib>
+# include <cstdio>
+# include <vector>
+# include <algorithm>
+
+#endif
