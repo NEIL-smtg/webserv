@@ -1,5 +1,5 @@
 NAME            =       webserv
-FILES           =       main Parse
+FILES           =       main Parse ServerBlock
 SRCS_DIR        =       srcs/
 OBJS_DIR        =       objs/
 SRCS            =       $(addprefix $(SRCS_DIR), $(addsuffix .cpp, $(FILES)))

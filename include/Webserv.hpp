@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/06 23:09:08 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/07 00:20:36 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ enum empty
 	EMPTY_PORT,
 	EMPTY_ROOT,
 	EMPTY_INDEX,
-	EMPTY_METHOD
+	EMPTY_METHOD,
+	FILLED
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:25:25 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/06 23:01:02 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/07 00:57:10 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 class InvalidFileException : public std::exception
 {
 	private:
-		const char*	msg;
+		const char *msg;
 	public:
 		InvalidFileException(const char *msg):msg(msg){}
 		const char *what() const throw(){return this->msg;}

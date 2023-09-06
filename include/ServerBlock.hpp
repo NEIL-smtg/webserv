@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:26:46 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/06 22:46:03 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/06 23:27:34 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class ServerBlock
 		void	setPort(int port);
 		void	setRoot(str root);
 		void	setIndex(str index);
+		empty	somethingEmpty();
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/06 23:12:47 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/07 01:06:20 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,10 @@ Parse::Parse(std::string fileName)
 	std::string	line;
 	while (std::getline(infile, line))
 		tokennize(line);
+	// for (iterator i = token.begin(); i != token.end(); i++)
+	// {
+	// 	std::cout << *i << std::endl;
+	// }
 	tokenValidation();
 }
 
@@ -52,13 +56,18 @@ void	Parse::tokennize(std::string line)
 	}
 }
 
+bool	isNum(std::string line)
+{
+	return (line[0] >= '0' && line[0] <= '9');
+}
+
 int	Parse::getPort(iterator i)
 {
 	Parse::iterator	it = i;
 
-	for (; i != token.end(); i++)
+	for (; isNum(*i); i++)
 	{
-		for (int j = 0; (*i)[j]; j++)
+		for (size_t j = 0; (*i)[j]; j++)
 		{
 			if ((*i)[j] < '0' || (*i)[j] > '9')
 				throw InvalidFileException("Error : Invalid port.");		
@@ -74,32 +83,69 @@ int	Parse::getPort(iterator i)
 		std::cerr << "Error creating socket." << std::endl;
 		exit(1);
 	}
-	while (it != token.end())
+	while (isNum(*it))
 	{
+		int port = std::atoi((*it).c_str());
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
-		serverAddr.sin_port = htons(std::atoi((*it).c_str()));
+		serverAddr.sin_port = htons(static_cast<uint16_t>(port));
 		serverAddr.sin_addr.s_addr = INADDR_ANY;
 
 		if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) >= 0)
-			return (std::atoi((*it).c_str()));
-
+		{
+			return (port);
+		}
 		/*
 			Not closing socket fd is in case other
 			server block wants to use the same port
 			hence keeping it occupied
 		*/
-
 		it++;
 	}
-	throw InvalidFileException("Error : socket not available.");
+	throw InvalidFileException("Error : All ports not available.");
+}
+
+bool	isMethod(std::string method)
+{
+	const std::string	met[5] = {"GET", "POST", "HEAD", "OPTION"};
+
+	for (size_t i = 0; i < met->size(); i++)
+	{
+		if (met[i] != method)
+			return (false);
+	}
+	return (true);
+}
+
+void	ExceptionDecider(empty type)
+{
+	if (type == EMPTY_PORT)
+		throw InvalidFileException("Error : Invalid port.");
+ 	if (type == EMPTY_NAME)
+		throw InvalidFileException("Error : empty name.");
+	else if (type == EMPTY_INDEX)
+		throw InvalidFileException("Error : empty index.");
+	else if (type == EMPTY_ROOT)
+		throw InvalidFileException("Error : empty ROOT.");
+	else
+		std::cout << "Parsing completed.." << std::endl;
+}
+
+bool	isHead(std::string line)
+{
+	const std::string head[6] = {"server_name", "listen", "root", "index", "allow_methods"};
+
+	for (size_t i = 0; i < head->size(); i++)
+	{
+		if (line != head[i])
+			return (false);
+	}
+	return (true);
 }
 
 void	Parse::serverCheck(Parse::iterator &i)
 {
-	const std::string	head[6] = {"server_name", "listen", "root", "index", "allow_methods"};
-	const std::string	met[5] = {"GET", "POST", "HEAD", "OPTION"};
-	conf	_conf = NONE;
+	conf		_conf = NONE;
 	ServerBlock	block;
 	
 	if (*(++i) != "{")
@@ -107,19 +153,9 @@ void	Parse::serverCheck(Parse::iterator &i)
 	++i;
 	for (; i != token.end(); i++)
 	{
-		if (_conf == SERVER_NAME)
-			block.setName(*i);
-		else if (_conf == LISTEN)
-		{
-			block.setPort(getPort(i));
-		}
-		else if (_conf == ROOT)
-			block.setRoot(*i);
-		else if (_conf == INDEX)
-			block.setIndex(*i);
-		else if (_conf == ALLOW_METHOD)
-			block.addMethod(*i);
-		else if (*i == "server_name")
+		if (*i == "}")
+			break ;
+		if (*i == "server_name")
 			_conf = SERVER_NAME;
 		else if (*i == "listen")
 			_conf = LISTEN;
@@ -127,25 +163,43 @@ void	Parse::serverCheck(Parse::iterator &i)
 			_conf = ROOT;
 		else if (*i == "index")
 			_conf = INDEX;
-		else if (*i == "allow_methods")
+		else if (*i == "allow_methods" || (_conf == ALLOW_METHOD && isMethod(*i)))
 			_conf = ALLOW_METHOD;
-		else if (*i == "}")
-			break ;
-		else
-			throw InvalidFileException(std::strcat("Invalid syntax : ", (*i).c_str()));
+		if (_conf == NONE)
+		{
+			std::cerr << "Error : Invalid syntax : " + *i << std::endl;
+			throw InvalidFileException("");
+		}
+		++i;
+		if (_conf == SERVER_NAME)
+			block.setName(*i);
+		else if (_conf == LISTEN)
+		{
+			block.setPort(getPort(i));
+			while (isNum(*(i + 1)))
+				++i;
+		}
+		else if (_conf == ROOT)
+			block.setRoot(*i);
+		else if (_conf == INDEX)
+			block.setIndex(*i);
+		else if (_conf == ALLOW_METHOD)
+			block.addMethod(*i);
+		if (_conf != ALLOW_METHOD)
+			_conf = NONE;
 	}
+	if (i == token.end())
+		throw InvalidFileException("Error : Missing }");
+	ExceptionDecider(block.somethingEmpty());
 	this->block.push_back(block);
 }
 
 void	Parse::tokenValidation()
 {
-	iterator	i;
+	iterator	i = token.begin();
 
-	for (i = token.begin(); i != token.end(); i++)
-	{
-		if (*i == "server")
-			serverCheck(i);
-	}
+	if (*i == "server")
+		serverCheck(i);
 }
 
 Parse::~Parse(){}
