@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:25:25 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/06 00:11:29 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/06 23:01:02 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define __PARSE_HPP__
 
 # include "Webserv.hpp"
+# include "ServerBlock.hpp"
 
 class InvalidFileException : public std::exception
 {
@@ -24,11 +25,29 @@ class InvalidFileException : public std::exception
 		const char *what() const throw(){return this->msg;}
 };
 
+typedef enum	conf
+{
+	SERVER_NAME,
+	LISTEN,
+	ROOT,
+	INDEX,
+	ALLOW_METHOD,
+	NONE
+}	conf;
+
 class Parse
 {
 	private:
+		typedef std::vector<std::string>::iterator	iterator;
+		typedef std::string str;
+
+		std::vector<std::string>	token;
+		std::vector<ServerBlock>	block;
+		
 		void	tokennize(std::string line);
-		std::vector<std::string> token;
+		void	tokenValidation();
+		void	serverCheck(iterator &i);
+		int		getPort(iterator i);
 	public:
 		Parse(std::string fileName);
 		~Parse();
