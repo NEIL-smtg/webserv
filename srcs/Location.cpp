@@ -3,26 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/11 19:45:59 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 03:57:45 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
-
-static bool	isMethod(std::string method)
-{
-	const std::string	met[5] = {"GET", "POST", "HEAD", "OPTION"};
-
-	for (size_t i = 0; i < met->size(); i++)
-	{
-		if (met[i] == method)
-			return (true);
-	}
-	return (false);
-}
 
 Location::Location(std::vector<std::string>::iterator &i, std::vector<std::string> &token)
 {
@@ -54,6 +42,8 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		// 	_conf = LC_AUTOINDEX;
 		// else if (*i == "return")
 		// 	_conf = LC_RETURN;
+		else if (*i == "allow_methods" || (_conf == LC_ALLOW && isMethod(*i)))
+			_conf = LC_LIMIT_EXCEPT;
 		else if (*i == "limit_except" || (_conf == LC_LIMIT_EXCEPT && isMethod(*i)))
 			_conf = LC_LIMIT_EXCEPT;
 		// else if (*i == "allow")
@@ -62,7 +52,7 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		// 	_conf = LC_DENY;
 		if (_conf == LC_NONE)
 		{
-			std::cerr << "Error : Invalid syntax : " + *i << std::endl;
+			std::cerr << "Error : Invalid syntax : " + *i;
 			throw InvalidFileException("");
 		}
 		++i;
@@ -84,6 +74,8 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		// 	setAutoIndex(*i);
 		// if (_conf == LC_RETURN)
 		// 	setReturn(*i);
+		if (_conf == LC_ALLOW)
+			addLimitExcept(*i);
 		if (_conf == LC_LIMIT_EXCEPT)
 			addLimitExcept(*i);
 		// if (_conf == LC_ALLOW)
@@ -103,6 +95,9 @@ Location& Location::operator=(const Location& other)
 {
 	if (this == &other)
 		return (*this);
+	this->name = other.name;
+	this->index = other.index;
+	this->methods = other.methods;
 	return (*this);
 }
 
@@ -121,21 +116,43 @@ void	Location::addLimitExcept(std::string method)
 	this->methods.push_back(method);
 }
 
-void	Location::getIndex()
+std::string	Location::getIndex() const
 {
-	std::cout << this->index << std::endl;
+	return this->index;
 }
 
-void	Location::getName()
+std::string	Location::getName() const
 {
-	std::cout << this->name << std::endl;
+	return this->name;
 }
 
-void	Location::getLimitExcept()
+std::vector<std::string>	Location::getMethods() const
+{
+	return this->methods;
+}
+
+void	Location::printLimitExcept()
 {
 	std::vector<std::string>::iterator it;
     for (it = methods.begin(); it != methods.end(); ++it) {
         std::cout << *it << " ";
     }
     std::cout << std::endl;
+}
+
+std::ostream&	operator<<(std::ostream& out, Location& loc)
+{
+	out << "Location : " << loc.getName() << std::endl;
+	out << "INDEX : " << loc.getIndex() << std::endl;
+
+	std::vector<std::string>	met = loc.getMethods();
+	std::vector<std::string>::iterator it;
+
+    for (it = met.begin(); it != met.end(); ++it)
+	{
+        if ((it + 1) != met.end())
+			out << ", ";
+    }
+	out << "\n";
+	return (out);
 }

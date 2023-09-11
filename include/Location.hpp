@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:02:28 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/11 19:28:24 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 01:30:14 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,13 @@ class Location
 		void	setIndex(std::string index);
 		void	setName(std::string name);
 		void	addLimitExcept(std::string method);
-		void	getIndex();
-		void	getName();
-		void	getLimitExcept();
+		void	printLimitExcept();
+		
+		std::string	getIndex() const;
+		std::string	getName() const;
+		std::vector<std::string>	getMethods() const;
 };
+
+std::ostream&	operator<<(std::ostream& out, Location& loc);
 
 #endif

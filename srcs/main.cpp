@@ -3,34 +3,42 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 20:47:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/11 17:08:49 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 04:40:21 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Webserv.hpp"
 #include "Parse.hpp"
+#include "Server.hpp"
 
 int	main(int ac, char **av)
 {
-	std::string ConfigFilename = "config/easy.conf";
-
-	if (ac > 2)
+	if (ac != 1 && ac != 2)
 	{
 		std::cerr << "Error : Incorrect number of arguments\n";
+		std::cerr << "Usage : ./webserv <path_to_config_file>\n";
 		return (1);
 	}
-	else if (ac == 2)
+
+	std::string	ConfigFilename;
+
+	if (ac == 1)
+		ConfigFilename = "config/easy.conf";
+	else
 		ConfigFilename = av[1];
 	try
 	{
 		Parse	parse(ConfigFilename);
+		// Server	server(parse.getBlock());
+		// server.startServer();
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
+		std::cerr << "Usage : ./webserv <path_to_config_file>\n";
+		return (1);
 	}
 	return (0);
 }
