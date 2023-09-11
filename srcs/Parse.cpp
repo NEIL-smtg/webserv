@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
+/*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/07 01:06:20 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/11 19:26:06 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,16 +105,16 @@ int	Parse::getPort(iterator i)
 	throw InvalidFileException("Error : All ports not available.");
 }
 
-bool	isMethod(std::string method)
+static bool	isMethod(std::string method)
 {
 	const std::string	met[5] = {"GET", "POST", "HEAD", "OPTION"};
 
 	for (size_t i = 0; i < met->size(); i++)
 	{
-		if (met[i] != method)
-			return (false);
+		if (met[i] == method)
+			return (true);
 	}
-	return (true);
+	return (false);
 }
 
 void	ExceptionDecider(empty type)
@@ -165,6 +165,8 @@ void	Parse::serverCheck(Parse::iterator &i)
 			_conf = INDEX;
 		else if (*i == "allow_methods" || (_conf == ALLOW_METHOD && isMethod(*i)))
 			_conf = ALLOW_METHOD;
+		else if (*i == "location")
+			_conf = LOCATION;
 		if (_conf == NONE)
 		{
 			std::cerr << "Error : Invalid syntax : " + *i << std::endl;
@@ -185,6 +187,8 @@ void	Parse::serverCheck(Parse::iterator &i)
 			block.setIndex(*i);
 		else if (_conf == ALLOW_METHOD)
 			block.addMethod(*i);
+		else if (_conf == LOCATION)
+			block.addLocation(Location(i, token));
 		if (_conf != ALLOW_METHOD)
 			_conf = NONE;
 	}

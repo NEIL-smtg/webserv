@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
+/*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/07 00:20:36 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/11 18:38:53 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,15 @@
 # include <unistd.h>
 
 # define LOCAL_HOST		"127.0.0.1"
+
+class InvalidFileException : public std::exception
+{
+	private:
+		const char *msg;
+	public:
+		InvalidFileException(const char *msg):msg(msg){}
+		const char *what() const throw(){return this->msg;}
+};
 
 enum empty
 {
