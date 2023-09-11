@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
+/*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 20:47:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/05 23:37:53 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/11 17:08:49 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,18 @@
 
 int	main(int ac, char **av)
 {
-	if (ac != 2)
+	std::string ConfigFilename = "config/easy.conf";
+
+	if (ac > 2)
 	{
 		std::cerr << "Error : Incorrect number of arguments\n";
 		return (1);
 	}
+	else if (ac == 2)
+		ConfigFilename = av[1];
 	try
 	{
-		Parse	parse(av[1]);
+		Parse	parse(ConfigFilename);
 	}
 	catch(const std::exception& e)
 	{

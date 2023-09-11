@@ -1,5 +1,5 @@
 NAME            =       webserv
-FILES           =       main Parse ServerBlock
+FILES           =       main Parse ServerBlock Location
 SRCS_DIR        =       srcs/
 OBJS_DIR        =       objs/
 SRCS            =       $(addprefix $(SRCS_DIR), $(addsuffix .cpp, $(FILES)))
@@ -25,6 +25,7 @@ clean:
 
 fclean: clean 
 	$(RM) $(NAME)
+	$(RM) webserv.dSYM/
 
 re: fclean all
 

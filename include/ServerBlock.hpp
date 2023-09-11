@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:26:46 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/11 17:30:40 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/11 19:39:35 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define __SERVER_BLOCK_HPP__
 
 # include "Webserv.hpp"
+# include "Location.hpp"
 
 class ServerBlock
 {
@@ -24,6 +25,7 @@ class ServerBlock
 		str		root;
 		str		index;
 		std::vector<str>	methods;
+		std::vector<Location>	location;
 
 	public:
 		ServerBlock();
@@ -32,6 +34,7 @@ class ServerBlock
 		ServerBlock& operator=(const ServerBlock& other);
 
 		void	addMethod(str method);
+		void	addLocation(Location location);
 		void	setName(str name);
 		void	setPort(int port);
 		void	setRoot(str root);
@@ -43,6 +46,7 @@ class ServerBlock
 		str		getIndex() const;
 		std::vector<str>	getMethods() const;
 		empty	somethingEmpty();
+		void	printMethods();
 };
 
 std::ostream&	operator<<(std::ostream& out, ServerBlock& sb);

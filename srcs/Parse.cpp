@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/11 19:23:37 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/11 19:44:18 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ int		Parse::getPort(iterator i)
 	throw InvalidFileException("Error : All ports not available.");
 }
 
-bool	isMethod(std::string method)
+static bool	isMethod(std::string method)
 {
 	const std::string	met[5] = {"GET", "POST", "HEAD", "OPTION"};
 
@@ -139,9 +139,9 @@ void	ExceptionDecider(empty type)
 
 bool	isHead(std::string line)
 {
-	const std::string head[5] = {"server_name", "listen", "root", "index", "allow_methods"};
+	const std::string head[6] = {"server_name", "listen", "root", "index", "allow_methods", "location"};
 
-	for (size_t i = 0; i < 5; i++)
+	for (size_t i = 0; i < 6; i++)
 	{
 		if (line == head[i])
 			return (true);
@@ -188,6 +188,8 @@ void	Parse::serverCheck(Parse::iterator &i)
 			_conf = INDEX;
 		else if (*i == "allow_methods" || (_conf == ALLOW_METHOD && isMethod(*i)))
 			_conf = ALLOW_METHOD;
+		else if (*i == "location")
+			_conf = LOCATION;
 		if (_conf == NONE)
 		{
 			std::cerr << "Error : Invalid syntax : " + *i << std::endl;
@@ -208,6 +210,8 @@ void	Parse::serverCheck(Parse::iterator &i)
 			block.setIndex(*i);
 		else if (_conf == ALLOW_METHOD)
 			setMethod(i, block);
+		else if (_conf == LOCATION)
+			block.addLocation(Location(i, token));
 		if (_conf != ALLOW_METHOD)
 			_conf = NONE;
 	}

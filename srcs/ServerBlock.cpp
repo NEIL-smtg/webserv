@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:28:55 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/11 17:32:59 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/11 19:39:30 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,11 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock& other)
 void	ServerBlock::addMethod(str method)
 {
 	this->methods.push_back(method);
+}
+
+void	ServerBlock::addLocation(Location location)
+{
+	this->location.push_back(location);
 }
 
 void	ServerBlock::setName(str name)
@@ -118,5 +123,14 @@ std::ostream&	operator<<(std::ostream& out, ServerBlock& sb)
 			std::cout << ", ";
 	}
 	out << "\n";
-	return (out);	
+	return (out);
+}
+
+void	ServerBlock::printMethods()
+{
+	std::vector<std::string>::iterator it;
+    for (it = methods.begin(); it != methods.end(); ++it) {
+        std::cout << *it << " ";
+    }
+    std::cout << std::endl;
 }
