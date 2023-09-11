@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/07 01:06:20 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/11 19:23:37 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,16 @@ Parse::Parse(std::string fileName)
 	std::string	line;
 	while (std::getline(infile, line))
 		tokennize(line);
-	// for (iterator i = token.begin(); i != token.end(); i++)
-	// {
-	// 	std::cout << *i << std::endl;
-	// }
 	tokenValidation();
+	pathValidation();
+	std::cout << "Parsing completed.." << std::endl;
+	std::vector<ServerBlock>::iterator	i;
+
+	for (i = block.begin(); i != block.end(); i++)
+	{
+		std::cout << *i << std::endl;
+	}
+	
 }
 
 /*
@@ -61,7 +66,7 @@ bool	isNum(std::string line)
 	return (line[0] >= '0' && line[0] <= '9');
 }
 
-int	Parse::getPort(iterator i)
+int		Parse::getPort(iterator i)
 {
 	Parse::iterator	it = i;
 
@@ -86,6 +91,7 @@ int	Parse::getPort(iterator i)
 	while (isNum(*it))
 	{
 		int port = std::atoi((*it).c_str());
+
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
 		serverAddr.sin_port = htons(static_cast<uint16_t>(port));
@@ -111,10 +117,10 @@ bool	isMethod(std::string method)
 
 	for (size_t i = 0; i < met->size(); i++)
 	{
-		if (met[i] != method)
-			return (false);
+		if (met[i] == method)
+			return (true);
 	}
-	return (true);
+	return (false);
 }
 
 void	ExceptionDecider(empty type)
@@ -128,19 +134,36 @@ void	ExceptionDecider(empty type)
 	else if (type == EMPTY_ROOT)
 		throw InvalidFileException("Error : empty ROOT.");
 	else
-		std::cout << "Parsing completed.." << std::endl;
+		return ;
 }
 
 bool	isHead(std::string line)
 {
-	const std::string head[6] = {"server_name", "listen", "root", "index", "allow_methods"};
+	const std::string head[5] = {"server_name", "listen", "root", "index", "allow_methods"};
 
-	for (size_t i = 0; i < head->size(); i++)
+	for (size_t i = 0; i < 5; i++)
 	{
-		if (line != head[i])
-			return (false);
+		if (line == head[i])
+			return (true);
 	}
-	return (true);
+	return (false);
+}
+
+void	Parse::setMethod(Parse::iterator &i, ServerBlock& sb)
+{
+	while (i != token.end() && *i != "}" && isMethod(*i))
+		sb.addMethod(*i++);
+	if (i == token.end() || *i == "}")
+	{
+		--i;
+		return ;
+	}
+	if (!isHead(*i))
+	{
+		std::cerr << "Error : Invalid syntax : " + *i;
+		throw InvalidFileException("");
+	}
+	--i;
 }
 
 void	Parse::serverCheck(Parse::iterator &i)
@@ -184,7 +207,7 @@ void	Parse::serverCheck(Parse::iterator &i)
 		else if (_conf == INDEX)
 			block.setIndex(*i);
 		else if (_conf == ALLOW_METHOD)
-			block.addMethod(*i);
+			setMethod(i, block);
 		if (_conf != ALLOW_METHOD)
 			_conf = NONE;
 	}
@@ -196,10 +219,38 @@ void	Parse::serverCheck(Parse::iterator &i)
 
 void	Parse::tokenValidation()
 {
-	iterator	i = token.begin();
+	iterator	i;
 
-	if (*i == "server")
-		serverCheck(i);
+	for (i = token.begin(); i != token.end(); i++)
+	{
+		if (*i == "server")
+			serverCheck(i);
+	}
+}
+
+void	Parse::pathValidation()
+{
+	std::vector<ServerBlock>::iterator	i;
+
+	for (i = block.begin(); i != block.end(); i++)
+	{
+		std::string	folder = (*i).getRoot();
+		std::string	index = (*i).getRoot() + std::string("/") + (*i).getIndex();
+		std::string	errMsg;
+
+		std::ifstream	in(folder);
+		std::ifstream	in2(index);
+		
+		if (!in)
+			errMsg = folder;
+		else if (!in2)
+			errMsg = index;
+		if (!errMsg.empty())	
+		{
+			std::cerr << "Error : no such file or directory : " << errMsg;
+			throw InvalidFileException("");
+		}
+	}
 }
 
 Parse::~Parse(){}

@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:25:25 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/07 00:57:10 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/11 18:47:11 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ class Parse
 		void	tokenValidation();
 		void	serverCheck(iterator &i);
 		int		getPort(iterator i);
+		void	setMethod(iterator &i, ServerBlock& sb);
+		void	pathValidation();
 	public:
 		Parse(std::string fileName);
 		~Parse();
