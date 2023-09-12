@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 19:30:25 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/13 01:12:06 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ void	Location::addErrorPage(std::vector<std::string>::iterator &i)
 
 	try
 	{
-		err_value = std::stoi(err);
+		err_value = std::atoi(err.c_str());
 		int j = 0;
 		str = (char *)err.c_str();
 		while (str[j])
@@ -179,7 +179,7 @@ void	Location::getSize(std::string size)
 
 	try
 	{
-		client_max_body_size = std::stoi(size);
+		client_max_body_size = std::atoi(size.c_str());
 		int i = 0;
 		str = (char *)size.c_str();
 		while (str[i])

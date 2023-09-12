@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:20:51 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 04:10:10 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/13 04:15:00 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,13 @@ class Server
 {
 	private:
 		const std::vector<ServerBlock>&	_conf;
+		const std::map<int, struct sockaddr_in>&	_socketAddr;
+		const std::map<int, int>&					_socketFD;
+		const std::map<int, struct sockaddr_in>&	_socketFdAddr;
+
+		void	acceptConnection();
 	public:
-		Server(std::vector<ServerBlock>& conf);
+		Server(std::vector<ServerBlock>& conf, std::map<int, struct sockaddr_in>& socketAddr, std::map<int, int>& socketFD, std::map<int, struct sockaddr_in>& _socketFdAddr);
 		~Server();
 		Server(const Server& other);
 		Server&	operator=(const Server& other);

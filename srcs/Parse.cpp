@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 20:20:40 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/13 04:12:17 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ void	Parse::tokennize(std::string line)
 	}
 }
 
-int		Parse::getPort(iterator i)
+int		Parse::getAvailablePort(iterator i)
 {
 	Parse::iterator	it = i;
 
@@ -153,6 +153,7 @@ int		Parse::getPort(iterator i)
 		{
 			setSocketAddr(port, serverAddr);
 			setSocketFD(port, sockfd);
+			setSocketFdAddr(sockfd, serverAddr);
 			return (port);
 		}
 		/*
@@ -216,7 +217,7 @@ void	Parse::serverCheck(Parse::iterator &i)
 			block.setName(*i);
 		else if (_conf == LISTEN)
 		{
-			block.setPort(getPort(i));
+			block.setPort(getAvailablePort(i));
 			while (isNum(*(i + 1)))
 				++i;
 		}
@@ -323,6 +324,16 @@ std::map<int, int>&	Parse::getSocketFD()
 	return this->_socketFD;
 }
 
+void	Parse::setSocketFdAddr(int sockfd, struct sockaddr_in addr)
+{
+	this->_socketFdAddr[sockfd] = addr;
+}
+
+std::map<int, struct sockaddr_in>&	Parse::getSocketFdAddr()
+{
+	return this->_socketFdAddr;
+}
+
 Parse::~Parse(){}
 
 Parse::Parse(const Parse& other) {*this = other;}
@@ -332,5 +343,8 @@ Parse&	Parse::operator=(const Parse& other)
 	if (this == &other)
 		return (*this);
 	this->token = other.token;
+	this->block = other.block;
+	this->_socketAddr = other._socketAddr;
+	this->_socketFD = other._socketFD;
 	return (*this);
 }
