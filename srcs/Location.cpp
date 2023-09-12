@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 15:27:19 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:34:04 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		// 	_conf = LC_AUTOINDEX;
 		// else if (*i == "return")
 		// 	_conf = LC_RETURN;
+		else if (*i == "allow_methods" || (_conf == LC_ALLOW && isMethod(*i)))
+			_conf = LC_LIMIT_EXCEPT;
 		else if (*i == "limit_except" || (_conf == LC_LIMIT_EXCEPT && isMethod(*i)))
 			_conf = LC_LIMIT_EXCEPT;
 		// else if (*i == "allow")
@@ -74,7 +76,7 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		// 	_conf = LC_DENY;
 		if (_conf == LC_NONE)
 		{
-			std::cerr << "Error : Invalid syntax : " + *i << std::endl;
+			std::cerr << "Error : Invalid syntax : " + *i;
 			throw InvalidFileException("");
 		}
 		++i;
@@ -96,6 +98,8 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		// 	setAutoIndex(*i);
 		// if (_conf == LC_RETURN)
 		// 	setReturn(*i);
+		if (_conf == LC_ALLOW)
+			addLimitExcept(*i);
 		if (_conf == LC_LIMIT_EXCEPT)
 			addLimitExcept(i, token);
 		// if (_conf == LC_ALLOW)
@@ -115,6 +119,9 @@ Location& Location::operator=(const Location& other)
 {
 	if (this == &other)
 		return (*this);
+	this->name = other.name;
+	this->index = other.index;
+	this->methods = other.methods;
 	return (*this);
 }
 
@@ -212,14 +219,14 @@ void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector
 	--i;
 }
 
-void	Location::getIndex()
+std::string	Location::getIndex() const
 {
-	std::cout << this->index << std::endl;
+	return this->index;
 }
 
-void	Location::getName()
+std::string	Location::getName() const
 {
-	std::cout << this->name << std::endl;
+	return this->name;
 }
 
 void	Location::getClientMaxBodySize()
@@ -235,10 +242,33 @@ void	Location::getErrorPage()
 }
 
 void	Location::getLimitExcept()
+std::vector<std::string>	Location::getMethods() const
+{
+	return this->methods;
+}
+
+void	Location::printLimitExcept()
 {
 	std::vector<std::string>::iterator it;
     for (it = methods.begin(); it != methods.end(); ++it) {
         std::cout << *it << " ";
     }
     std::cout << std::endl;
+}
+
+std::ostream&	operator<<(std::ostream& out, Location& loc)
+{
+	out << "Location : " << loc.getName() << std::endl;
+	out << "INDEX : " << loc.getIndex() << std::endl;
+
+	std::vector<std::string>	met = loc.getMethods();
+	std::vector<std::string>::iterator it;
+
+    for (it = met.begin(); it != met.end(); ++it)
+	{
+        if ((it + 1) != met.end())
+			out << ", ";
+    }
+	out << "\n";
+	return (out);
 }

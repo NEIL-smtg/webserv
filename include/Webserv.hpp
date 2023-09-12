@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 14:19:03 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:30:36 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,9 @@
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <unistd.h>
-# include <sys/stat.h>
-# include <sys/param.h>
 
 # define LOCAL_HOST		"127.0.0.1"
+# define UINT16_MAX		65536
 
 class InvalidFileException : public std::exception
 {
@@ -49,5 +48,9 @@ enum empty
 	EMPTY_METHOD,
 	FILLED
 };
+
+bool	isNum(std::string line);
+bool	isMethod(std::string method);
+bool	isHead(std::string line);
 
 #endif

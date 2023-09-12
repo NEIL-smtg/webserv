@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerBlock.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:28:55 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/11 19:39:30 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 05:04:27 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock& other)
 	this->root = other.root;
 	this->index = other.index;
 	this->methods = other.methods;
+	this->location = other.location;
 	return (*this);
 }
 
@@ -41,7 +42,7 @@ void	ServerBlock::addMethod(str method)
 	this->methods.push_back(method);
 }
 
-void	ServerBlock::addLocation(Location location)
+void	ServerBlock::addLocation(Location& location)
 {
 	this->location.push_back(location);
 }
@@ -105,6 +106,11 @@ std::vector<std::string>	ServerBlock::getMethods() const
 	return this->methods;
 }
 
+std::vector<Location>	ServerBlock::getLocation() const
+{
+	return this->location;
+}
+
 std::ostream&	operator<<(std::ostream& out, ServerBlock& sb)
 {
 	out << "Server name : " << sb.getName() << std::endl;
@@ -122,7 +128,15 @@ std::ostream&	operator<<(std::ostream& out, ServerBlock& sb)
 		if ((it + 1) != met.end())
 			std::cout << ", ";
 	}
-	out << "\n";
+	out << "\n\n";
+
+	std::vector<Location>	loc = sb.getLocation();
+	std::vector<Location>::iterator	it2 = loc.begin();
+
+	for (; it2 != loc.end(); it2++)
+	{
+		std::cout << *it2;
+	}
 	return (out);
 }
 
