@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 20:47:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 18:18:42 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 18:28:44 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ int	main(int ac, char **av)
 	try
 	{
 		Parse	parse(ConfigFilename);
-		Server	server(parse.getBlock());
-		server.startServer();
+		// Server	server(parse.getBlock());
+		// server.startServer();
 	}
 	catch(const std::exception& e)
 	{

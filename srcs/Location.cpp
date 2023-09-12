@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 18:12:40 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 18:28:31 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,6 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 	}
 	if (i == token.end())
 		throw InvalidFileException("Error : Missing }");
-	std::cout << this->client_max_body_size << std::endl;
 }
 
 Location::~Location(){}
