@@ -6,23 +6,11 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 15:34:04 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:47:46 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
-
-static bool	isMethod(std::string method)
-{
-	const std::string	met[5] = {"GET", "POST", "HEAD", "OPTION"};
-
-	for (size_t i = 0; i < met->size(); i++)
-	{
-		if (met[i] == method)
-			return (true);
-	}
-	return (false);
-}
 
 static bool isLocoHead(std::string locohead)
 {
@@ -99,7 +87,7 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		// if (_conf == LC_RETURN)
 		// 	setReturn(*i);
 		if (_conf == LC_ALLOW)
-			addLimitExcept(*i);
+			addLimitExcept(i, token);
 		if (_conf == LC_LIMIT_EXCEPT)
 			addLimitExcept(i, token);
 		// if (_conf == LC_ALLOW)
@@ -219,32 +207,46 @@ void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector
 	--i;
 }
 
-std::string	Location::getIndex() const
-{
-	return this->index;
-}
-
 std::string	Location::getName() const
 {
 	return this->name;
 }
 
-void	Location::getClientMaxBodySize()
+std::string	Location::getRoot() const
 {
-	std::cout << this->client_max_body_size << std::endl;
+	return this->root;
 }
 
-void	Location::getErrorPage()
+std::string	Location::getIndex() const
+{
+	return this->index;
+}
+
+std::string	Location::getCgiScript() const
+{
+	return this->cgi_script;
+}
+
+std::vector<std::string>	Location::getMethods() const
+{
+	return this->methods;
+}
+
+int	Location::getClientMaxBodySize() const
+{
+	return this->client_max_body_size;
+}
+
+std::map<int, std::string>	Location::getErrorPage() const
+{
+	return this->error_page;
+}
+
+void	Location::printErrorPage()
 {
     for (std::map<int, std::string>::iterator it = error_page.begin(); it != error_page.end(); ++it) {
         std::cout << it->first << ": " << it->second << std::endl;
     }
-}
-
-void	Location::getLimitExcept()
-std::vector<std::string>	Location::getMethods() const
-{
-	return this->methods;
 }
 
 void	Location::printLimitExcept()

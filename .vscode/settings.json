@@ -77,7 +77,8 @@
 		"mutex": "cpp",
 		"optional": "cpp",
 		"stack": "cpp",
-		"cinttypes": "cpp"
+		"cinttypes": "cpp",
+		"__tree": "cpp"
 	},
 	"42header.email": "suchua@student.42.fr"
 }

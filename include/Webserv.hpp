@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 15:30:36 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:49:25 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 # include <unistd.h>
 
 # define LOCAL_HOST		"127.0.0.1"
-# define UINT16_MAX		65536
+// # define UINT16_MAX		65536
 
 class InvalidFileException : public std::exception
 {

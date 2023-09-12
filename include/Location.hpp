@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:02:28 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 15:32:17 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:47:37 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,11 +57,14 @@ class Location
 		void	setClientMaxBodySize(int client_max_body_size);
 		void	addLimitExcept(std::vector<std::string>::iterator &i, std::vector<std::string> &token);
 		void	printLimitExcept();
+		void	printErrorPage();
 		
-		std::string	getIndex() const;
 		std::string	getName() const;
-		void	getClientMaxBodySize();
-		void	getErrorPage();
+		std::string	getRoot() const;
+		std::string	getIndex() const;
+		std::string	getCgiScript() const;
+		std::map<int, std::string>	getErrorPage() const;
+		int	getClientMaxBodySize() const;
 		std::vector<std::string>	getMethods() const;
 };
 
