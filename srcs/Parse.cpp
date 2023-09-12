@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42kl.edu.my>        +#+  +:+       +#+        */
+/*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/11 19:44:18 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 13:41:50 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,12 @@ Parse::Parse(std::string fileName)
 	tokenValidation();
 	pathValidation();
 	std::cout << "Parsing completed.." << std::endl;
-	std::vector<ServerBlock>::iterator	i;
+	// std::vector<ServerBlock>::iterator	i;
 
-	for (i = block.begin(); i != block.end(); i++)
-	{
-		std::cout << *i << std::endl;
-	}
+	// for (i = block.begin(); i != block.end(); i++)
+	// {
+	// 	std::cout << *i << std::endl;
+	// }
 	
 }
 

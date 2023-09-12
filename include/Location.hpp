@@ -6,7 +6,7 @@
 /*   By: lzi-xian <lzi-xian@student.42kl.edu.my>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:02:28 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/11 19:28:24 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:05:03 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,11 @@ class Location
 {
 	private:
 		std::string		name;
+		std::string		root;
 		std::string		index;
+		std::string		cgi_script;
+		std::map<int, std::string>	error_page;
+		int	client_max_body_size;
 		std::vector<std::string>	methods;
 	public:
 		Location(std::vector<std::string>::iterator &i, std::vector<std::string> &token);
@@ -44,11 +48,18 @@ class Location
 		Location(const Location& other);
 		Location& operator=(const Location& other);
 
-		void	setIndex(std::string index);
 		void	setName(std::string name);
-		void	addLimitExcept(std::string method);
+		void	setRoot(std::string root);
+		void	setIndex(std::string index);
+		void	setCgiScript(std::string cgi_script);
+		void	addErrorPage(std::vector<std::string>::iterator &i);
+		void	getSize(std::string size);
+		void	setClientMaxBodySize(int client_max_body_size);
+		void	addLimitExcept(std::vector<std::string>::iterator &i, std::vector<std::string> &token);
 		void	getIndex();
 		void	getName();
+		void	getClientMaxBodySize();
+		void	getErrorPage();
 		void	getLimitExcept();
 };
 

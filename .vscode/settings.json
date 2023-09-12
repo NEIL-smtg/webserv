@@ -77,6 +77,6 @@
 		"mutex": "cpp",
 		"optional": "cpp",
 		"stack": "cpp",
-		"filesystem": "cpp"
+		"__tree": "cpp"
 	}
 }
