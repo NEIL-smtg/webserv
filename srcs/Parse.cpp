@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 18:16:25 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 19:57:15 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ int		Parse::getPort(iterator i)
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
 		serverAddr.sin_port = htons(port);
-		serverAddr.sin_addr.s_addr = INADDR_ANY;
+		serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 		if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) != -1)
 		{
 			setSocketAddr(port, serverAddr);
