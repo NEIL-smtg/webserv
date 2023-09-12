@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 15:49:25 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 18:12:30 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,11 @@
 # include <netinet/in.h>
 # include <unistd.h>
 
-# define LOCAL_HOST		"127.0.0.1"
-// # define UINT16_MAX		65536
+# define	LOCAL_HOST				"127.0.0.1"
+# define	DEFAULT_CLIENT_SIZE		42
+# ifndef	UINT16_MAX
+#  define	UINT16_MAX	65536
+# endif
 
 class InvalidFileException : public std::exception
 {

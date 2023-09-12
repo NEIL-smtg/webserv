@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 15:47:46 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 18:12:40 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,11 @@ static bool isLocoHead(std::string locohead)
 	return (false);
 }
 
-Location::Location(std::vector<std::string>::iterator &i, std::vector<std::string> &token) : client_max_body_size(0)
+Location::Location(std::vector<std::string>::iterator &i, std::vector<std::string> &token)
 {
 	locconf		_conf = LC_NONE;
 	
+	this->client_max_body_size = DEFAULT_CLIENT_SIZE;
 	setName(*i);
 	if (*(++i) != "{")
 		throw InvalidFileException("Missing {");
@@ -97,6 +98,7 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 	}
 	if (i == token.end())
 		throw InvalidFileException("Error : Missing }");
+	std::cout << this->client_max_body_size << std::endl;
 }
 
 Location::~Location(){}
@@ -110,6 +112,10 @@ Location& Location::operator=(const Location& other)
 	this->name = other.name;
 	this->index = other.index;
 	this->methods = other.methods;
+	this->root = other.root;
+	this->cgi_script = other.cgi_script;
+	this->error_page = other.error_page;
+	this->client_max_body_size = other.client_max_body_size;
 	return (*this);
 }
 
@@ -261,16 +267,36 @@ void	Location::printLimitExcept()
 std::ostream&	operator<<(std::ostream& out, Location& loc)
 {
 	out << "Location : " << loc.getName() << std::endl;
-	out << "INDEX : " << loc.getIndex() << std::endl;
+	if (!loc.getRoot().empty())
+		out << "ROOT : " << loc.getRoot() << std::endl;
+	if (!loc.getIndex().empty())
+		out << "INDEX : " << loc.getIndex() << std::endl;
+	if (!loc.getCgiScript().empty())
+		out << "CGI_SCRIPT : " << loc.getCgiScript() << std::endl;
 
 	std::vector<std::string>	met = loc.getMethods();
 	std::vector<std::string>::iterator it;
 
     for (it = met.begin(); it != met.end(); ++it)
 	{
+		out << *it;
         if ((it + 1) != met.end())
 			out << ", ";
     }
+	
+	std::map<int, std::string>	errorPage = loc.getErrorPage();
+	std::map<int, std::string>::iterator	it2;
+
+	if (errorPage.size() > 0)
+		out << "\nERROR_PAGE : \n";
+	for (it2 = errorPage.begin(); it2 != errorPage.end(); it2++)
+	{
+		out << "ERROR : " << (*it2).first << std::endl;
+		out << "PAGE : " << (*it2).second;
+		if (it2 != errorPage.end())
+			out << "\n\n";
+	}
+	
 	out << "\n";
 	return (out);
 }

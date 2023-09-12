@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:02:28 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 15:51:52 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 17:44:23 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,8 @@ class Location
 		std::string	getRoot() const;
 		std::string	getIndex() const;
 		std::string	getCgiScript() const;
-		std::map<int, std::string>	getErrorPage() const;
 		int	getClientMaxBodySize() const;
+		std::map<int, std::string>	getErrorPage() const;
 		std::vector<std::string>	getMethods() const;
 };
 

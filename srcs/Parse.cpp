@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 15:32:45 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/12 18:16:25 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,7 @@ int		Parse::getPort(iterator i)
 		struct sockaddr_in	serverAddr;
 
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
-		if (sockfd < 0)
+		if (sockfd == -1)
 		{
 			std::cerr << "Error creating socket." << std::endl;
 			exit(1);
