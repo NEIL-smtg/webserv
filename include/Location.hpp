@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:02:28 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 17:44:23 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 19:30:30 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ typedef enum	locconf
 class Location
 {
 	private:
-		std::string					name;
+		std::string					directory;
 		std::string					root;
 		std::string					index;
 		std::string					cgi_script;
@@ -48,7 +48,7 @@ class Location
 		Location(const Location& other);
 		Location& operator=(const Location& other);
 
-		void	setName(std::string name);
+		void	setDirectory(std::string directory);
 		void	setRoot(std::string root);
 		void	setIndex(std::string index);
 		void	setCgiScript(std::string cgi_script);
@@ -59,7 +59,7 @@ class Location
 		void	printLimitExcept();
 		void	printErrorPage();
 		
-		std::string	getName() const;
+		std::string	getDirectory() const;
 		std::string	getRoot() const;
 		std::string	getIndex() const;
 		std::string	getCgiScript() const;

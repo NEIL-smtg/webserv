@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 20:47:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 18:28:44 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 19:13:19 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ int	main(int ac, char **av)
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
-		std::cerr << "Usage : ./webserv <path_to_config_file>\n";
 		return (1);
 	}
 	return (0);

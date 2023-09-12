@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 18:16:25 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 20:20:40 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,7 +258,7 @@ void	Parse::pathValidation()
 	for (i = block.begin(); i != block.end(); i++)
 	{
 		std::string	folder = (*i).getRoot();
-		std::string	index = (*i).getRoot() + std::string("/") + (*i).getIndex();
+		std::string	index = folder + std::string("/") + (*i).getIndex();
 		std::string	errMsg;
 
 		std::ifstream	in(folder.c_str());
@@ -272,6 +272,28 @@ void	Parse::pathValidation()
 		{
 			std::cerr << "Error : no such file or directory : " << errMsg;
 			throw InvalidFileException("");
+		}
+		std::vector<Location>::iterator	j;
+		std::vector<Location> lc = (*i).getLocation();
+		for (j = lc.begin(); j != lc.end(); j++)
+		{
+			std::string	str;
+			if (!(*j).getRoot().empty())
+				folder = (*j).getRoot();
+			if (!(*j).getIndex().empty())
+				index = folder + std::string("/") + (*j).getIndex();
+			std::ifstream	in(folder.c_str());
+			std::ifstream	in2(index.c_str());
+			
+			if (!in)
+				errMsg = folder;
+			else if (!in2)
+				errMsg = index;
+			if (!errMsg.empty())	
+			{
+				std::cerr << "Error : no such file or directory : " << errMsg;
+				throw InvalidFileException("");
+			}
 		}
 	}
 }

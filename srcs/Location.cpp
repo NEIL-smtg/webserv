@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 18:28:31 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/12 19:30:25 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 	locconf		_conf = LC_NONE;
 	
 	this->client_max_body_size = DEFAULT_CLIENT_SIZE;
-	setName(*i);
+	setDirectory(*i);
 	if (*(++i) != "{")
 		throw InvalidFileException("Missing {");
 	i++;
@@ -108,7 +108,7 @@ Location& Location::operator=(const Location& other)
 {
 	if (this == &other)
 		return (*this);
-	this->name = other.name;
+	this->directory = other.directory;
 	this->index = other.index;
 	this->methods = other.methods;
 	this->root = other.root;
@@ -118,9 +118,9 @@ Location& Location::operator=(const Location& other)
 	return (*this);
 }
 
-void	Location::setName(std::string name)
+void	Location::setDirectory(std::string directory)
 {
-	this->name = name;
+	this->directory = directory;
 }
 
 void	Location::setIndex(std::string index)
@@ -156,13 +156,20 @@ void	Location::addErrorPage(std::vector<std::string>::iterator &i)
 			j++;
 		}
 		i++;
+		err = (*i);
+		str = (char *)err.c_str();
+		std::ifstream	in(err.c_str());
+		if (!in)
+		{
+			std::cerr << "Error : no such file or directory : " << *i << std::endl;
+			throw InvalidFileException("");
+		}
 		error_page[err_value] = *i;
 	}
 	catch(std::exception &e)
 	{
 		throw InvalidFileException("Error : Invalid argument in error page }");
 	}
-	
 }
 
 void	Location::getSize(std::string size)
@@ -212,9 +219,9 @@ void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector
 	--i;
 }
 
-std::string	Location::getName() const
+std::string	Location::getDirectory() const
 {
-	return this->name;
+	return this->directory;
 }
 
 std::string	Location::getRoot() const
@@ -265,7 +272,7 @@ void	Location::printLimitExcept()
 
 std::ostream&	operator<<(std::ostream& out, Location& loc)
 {
-	out << "Location : " << loc.getName() << std::endl;
+	out << "Location : " << loc.getDirectory() << std::endl;
 	if (!loc.getRoot().empty())
 		out << "ROOT : " << loc.getRoot() << std::endl;
 	if (!loc.getIndex().empty())
