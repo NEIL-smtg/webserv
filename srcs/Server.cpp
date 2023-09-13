@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 13:01:56 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/13 13:05:21 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,6 @@ void	Server::acceptConnection()
 			if (sockfd > maxFD)
 				maxFD = sockfd;
 		}
-		printf("\nListening for incoming connections on port 2000 .....\n");
-		
-		// clear the descriptor set
-		FD_ZERO(&rset);
-		FD_SET(socket_desc, &rset);
 
 		int activity = select(maxFD + 1, &readFds, NULL, NULL, NULL);
 		if (activity == -1)
