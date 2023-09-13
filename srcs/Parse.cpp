@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 16:58:02 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/13 19:39:22 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ bool	isNum(std::string line)
 
 bool	isMethod(std::string method)
 {
-	const std::string	met[5] = {"GET", "POST", "HEAD", "OPTION"};
+	const std::string	met[7] = {"GET", "HEAD", "DELETE", "OPTIONS", "POST", "PUT", "TRACE"};
 
-	for (size_t i = 0; i < met->size(); i++)
+	for (size_t i = 0; i < 7 ; i++)
 	{
 		if (met[i] == method)
 			return (true);

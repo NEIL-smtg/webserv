@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:20:51 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 18:17:18 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/13 19:35:11 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,19 @@
 # include <unistd.h>
 # include <netinet/in.h>
 
+typedef enum method
+{
+	GET, HEAD, DELETE, OPTIONS, POST, PUT, TRACE
+}	method;
+
+typedef struct HttpRequest {
+    std::string method;
+    std::string path;
+    std::map<std::string, std::string> headers;
+    std::string body;
+	enum method	met;
+} HttpRequest;
+
 class Server
 {
 	private:
@@ -29,8 +42,11 @@ class Server
 		const std::map<int, int>&					_socketFD;
 		const std::map<int, struct sockaddr_in>&	_socketFdAddr;
 
-		void	acceptConnection();
-		void	runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket);
+		void			acceptConnection();
+		void			runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket);
+		std::string		generateHttpResponse(char *client_message);
+
+		std::string		doGetMethod(HttpRequest parsedRequest);
 	public:
 		Server(std::vector<ServerBlock>& conf, std::map<int, struct sockaddr_in>& socketAddr, std::map<int, int>& socketFD, std::map<int, struct sockaddr_in>& _socketFdAddr);
 		~Server();

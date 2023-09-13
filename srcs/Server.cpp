@@ -6,13 +6,18 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 18:17:14 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/13 19:36:51 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <fstream>
+#include <sstream>
+#include <map>
 
+/***********************************
+ * SERVER
+***********************************/
 void	Server::startServer()
 {
 	std::map<int, int>::const_iterator	it;
@@ -87,6 +92,73 @@ void	Server::acceptConnection()
 	}
 }
 
+/***********************************
+ * Http Request
+***********************************/
+
+HttpRequest parseHttpRequest(const std::string& httpRequest) {
+	HttpRequest request;
+	const std::string	met[7] = {"GET", "HEAD", "DELETE", "OPTIONS", "POST", "PUT", "TRACE" };
+
+
+	// Split the request into lines
+	std::istringstream requestStream(httpRequest);
+	std::string line;
+
+	// Parse the first line (Request-Line)
+	if (std::getline(requestStream, line)) {
+		std::istringstream requestLineStream(line);
+		requestLineStream >> request.method >> request.path;
+	}
+
+	for (size_t i = 0; i < met->size(); i++)
+	{
+		if (met[i] == request.method)
+		{
+			
+			switch (i)
+			{
+				case 0:
+					request.met = GET;
+					break;
+				case 1:
+					request.met = HEAD;
+					break;
+				case 2:
+					request.met = DELETE;
+					break;
+				case 3:
+					request.met = OPTIONS;
+					break;
+				case 4:
+					request.met = POST;
+					break;
+				case 5:
+					request.met = PUT;
+					break;
+				case 6:
+					request.met = TRACE;
+					break;
+				
+				default:
+					break;
+			}
+			break;
+		}
+	}
+
+	// Parse headers
+	while (std::getline(requestStream, line) && !line.empty()) {
+		size_t separatorPos = line.find(':');
+		if (separatorPos != std::string::npos) {
+			std::string key = line.substr(0, separatorPos);
+			std::string value = line.substr(separatorPos + 2); // Skip the ': ' characters
+			request.headers[key] = value;
+		}
+	}
+	return (request);
+}
+
 void	Server::runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket)
 {
 
@@ -107,41 +179,8 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket)
 
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << client_message << std::endl;
 	
-	// generating server respond (index.html)
-	std::ifstream	input_file;
-	std::string		str;
-	char			c;
-	
-	input_file.open("./error_page/Error_404.html");
-	if (!input_file){
-		perror("Couldn't open index.html file");
-		std::cerr << "failed to open index.html file" << std::endl;
-	}
-	while (!input_file.eof() && input_file >> std::noskipws >> c){
-		str += c;
-	}
-	input_file.close();
-	/// image file
-	// std::ifstream	input_file;
-	// std::string		str;
-	// char			c;
-	
-	// input_file.open("./error_page/Error_404.html");
-	// if (!input_file){
-	// 	perror("Couldn't open index.html file");
-	// 	std::cerr << "failed to open index.html file" << std::endl;
-	// }
-	// while (!input_file.eof() && input_file >> std::noskipws >> c){
-	// 	str += c;
-	// }
-	// input_file.close();
-
-	// Construct the HTTP response
-	std::string httpResponse = "HTTP/1.1 200 OK\r\n";
-	httpResponse += "Content-Type: text/html\r\n";
-	httpResponse += "Content-Length: " + std::to_string(str.length()) + "\r\n";
-	httpResponse += "\r\n"; // End of headers
-	httpResponse += str;
+	std::string	httpResponse = generateHttpResponse(client_message);
+	std::cout << RED << httpResponse << RESET << std::endl;
 
 	// Send the response over the network connection
 	strcpy(server_message, httpResponse.c_str());
@@ -151,12 +190,89 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket)
 		std::cerr << "Couldn't send message at " << newSocket << " server fd socket" << std::endl;
 	}
 	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
+	std::cout << std::endl;
 
 	std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
 	std::cout << std::endl;
 
 	close(newSocket);
 }
+
+/***********************************
+ * Http Response
+***********************************/
+
+std::string	Server::generateHttpResponse(char *client_message)
+{
+	std::string	ret;
+
+	HttpRequest parsedRequest = parseHttpRequest(client_message);
+
+	switch (parsedRequest.met)
+	{
+		case GET:
+			ret = doGetMethod(parsedRequest);
+			break;
+		// case HEAD:
+		// 	doHeadMethod();
+		// 	break;
+		// case DELETE:
+		// 	doDeleteMethod();
+		// 	break;
+		// case OPTIONS:
+		// 	doOptionsMethod();
+		// 	break;
+		// case POST:
+		// 	doPostMethod();
+		// 	break;
+		// case PUT:
+		// 	doPutMethod();
+		// 	break;
+		// case TRACE:
+		// 	doTraceMethod();
+		// 	break;
+		default:
+			break;
+	}
+	return (ret);
+}
+
+/***********************************
+ * Methods
+***********************************/
+
+std::string	Server::doGetMethod(HttpRequest parsedRequest)
+{
+	std::string httpResponse;
+	if (parsedRequest.path == "/")
+	{
+		std::ifstream	input_file;
+		std::string		str;
+		char			c;
+		
+		input_file.open("./error_page/Error_404.html");
+		if (!input_file){
+			perror("Couldn't open index.html file");
+			std::cerr << "failed to open index.html file" << std::endl;
+		}
+		while (!input_file.eof() && input_file >> std::noskipws >> c){
+			str += c;
+		}
+		input_file.close();
+
+		// Construct the HTTP response
+		httpResponse = "HTTP/1.1 200 OK\r\n";
+		httpResponse += "Content-Type: text/html\r\n";
+		httpResponse += "Content-Length: " + std::to_string(str.length()) + "\r\n";
+		httpResponse += "\r\n"; // End of headers
+		httpResponse += str;
+	}
+	return (httpResponse);
+}
+
+/***********************************
+ * Constructors
+***********************************/
 
 Server::Server(std::vector<ServerBlock>& conf, std::map<int, struct sockaddr_in>& socketAddr, std::map<int, int>& socketFD, std::map<int, struct sockaddr_in>&	socketFdAddr)
 : _conf(conf), _socketAddr(socketAddr), _socketFD(socketFD), _socketFdAddr(socketFdAddr){}
