@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:26:46 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 19:37:50 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/13 16:27:54 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class ServerBlock
 		int			port;
 		str			root;
 		str			index;
+		std::map<int, std::string>	error_page;
 		std::vector<str>		methods;
 		std::vector<Location>	location;
 
@@ -34,6 +35,7 @@ class ServerBlock
 		ServerBlock& operator=(const ServerBlock& other);
 
 		void	addMethod(str method);
+		void	addErrorPage(std::vector<std::string>::iterator &i);
 		void	addLocation(Location& location);
 		void	setName(str name);
 		void	setPort(int port);
@@ -44,6 +46,7 @@ class ServerBlock
 		int		getPort() const;
 		str		getRoot() const;
 		str		getIndex() const;
+		std::map<int, std::string>	getErrorPage() const;
 		std::vector<str>		getMethods() const;
 		std::vector<Location>	getLocation() const;
 		empty	somethingEmpty();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:25:25 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 02:20:43 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/13 16:22:45 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ typedef enum	conf
 	LISTEN,
 	ROOT,
 	INDEX,
+	ERROR_PAGE,
 	ALLOW_METHOD,
 	LOCATION,
 	NONE
