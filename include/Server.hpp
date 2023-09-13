@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:20:51 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 13:02:14 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/13 18:17:18 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Server
 		const std::map<int, struct sockaddr_in>&	_socketFdAddr;
 
 		void	acceptConnection();
+		void	runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket);
 	public:
 		Server(std::vector<ServerBlock>& conf, std::map<int, struct sockaddr_in>& socketAddr, std::map<int, int>& socketFD, std::map<int, struct sockaddr_in>& _socketFdAddr);
 		~Server();
