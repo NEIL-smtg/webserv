@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/13 01:12:06 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/13 16:43:54 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -289,20 +289,15 @@ std::ostream&	operator<<(std::ostream& out, Location& loc)
         if ((it + 1) != met.end())
 			out << ", ";
     }
-	
+	out << "\n";
 	std::map<int, std::string>	errorPage = loc.getErrorPage();
 	std::map<int, std::string>::iterator	it2;
-
-	if (errorPage.size() > 0)
-		out << "\nERROR_PAGE : \n";
 	for (it2 = errorPage.begin(); it2 != errorPage.end(); it2++)
 	{
 		out << "ERROR : " << (*it2).first << std::endl;
 		out << "PAGE : " << (*it2).second;
 		if (it2 != errorPage.end())
-			out << "\n\n";
+			out << "\n";
 	}
-	
-	out << "\n";
 	return (out);
 }

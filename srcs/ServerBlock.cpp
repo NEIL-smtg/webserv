@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerBlock.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:28:55 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 05:04:27 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/13 16:44:45 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock& other)
 	this->port = other.port;
 	this->root = other.root;
 	this->index = other.index;
+	this->error_page = other.error_page;
 	this->methods = other.methods;
 	this->location = other.location;
 	return (*this);
@@ -117,25 +118,35 @@ std::ostream&	operator<<(std::ostream& out, ServerBlock& sb)
 	out << "Listening : " << sb.getPort() << std::endl;
 	out << "ROOT : " << sb.getRoot() << std::endl;
 	out << "INDEX FILE : " << sb.getIndex() << std::endl;
+	
 	out << "ALLOW METHODS : ";
-
 	std::vector<std::string> met = sb.getMethods();
 	std::vector<std::string>::iterator	it = met.begin();
-	
 	for  (; it != met.end(); it++)
 	{
 		std::cout << *it;
 		if ((it + 1) != met.end())
 			std::cout << ", ";
 	}
-	out << "\n\n";
+	out << "\n";
+	
+	std::map<int, std::string>	errorPage = sb.getErrorPage();
+	std::map<int, std::string>::iterator	it2;
+	for (it2 = errorPage.begin(); it2 != errorPage.end(); it2++)
+	{
+		out << "ERROR : " << (*it2).first << std::endl;
+		out << "PAGE : " << (*it2).second;
+		if (it2 != errorPage.end())
+			out << "\n";
+	}
+	out << "\n";
 
 	std::vector<Location>	loc = sb.getLocation();
-	std::vector<Location>::iterator	it2 = loc.begin();
-
-	for (; it2 != loc.end(); it2++)
+	std::vector<Location>::iterator	it3 = loc.begin();
+	for (; it3 != loc.end(); it3++)
 	{
-		std::cout << *it2;
+		std::cout << *it3;
+		out << "\n";
 	}
 	return (out);
 }
@@ -147,4 +158,43 @@ void	ServerBlock::printMethods()
         std::cout << *it << " ";
     }
     std::cout << std::endl;
+}
+
+void	ServerBlock::addErrorPage(std::vector<std::string>::iterator &i)
+{
+	int err_value;
+	std::string err = (*i);
+	char *str;
+
+	try
+	{
+		err_value = std::atoi(err.c_str());
+		int j = 0;
+		str = (char *)err.c_str();
+		while (str[j])
+		{
+			if (str[j] < '0' || str[j] > '9')
+				throw InvalidFileException("");
+			j++;
+		}
+		i++;
+		err = (*i);
+		str = (char *)err.c_str();
+		std::ifstream	in(err.c_str());
+		if (!in)
+		{
+			std::cerr << "Error : no such file or directory : " << *i << std::endl;
+			throw InvalidFileException("");
+		}
+		error_page[err_value] = *i;
+	}
+	catch(std::exception &e)
+	{
+		throw InvalidFileException("Error : Invalid argument in error page }");
+	}
+}
+
+std::map<int, std::string>	ServerBlock::getErrorPage() const
+{
+	return this->error_page;
 }

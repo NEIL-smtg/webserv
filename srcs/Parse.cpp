@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 14:46:14 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/13 16:34:10 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ bool	isMethod(std::string method)
 
 bool	isHead(std::string line)
 {
-	const std::string head[6] = {"server_name", "listen", "root", "index", "allow_methods", "location"};
+	const std::string head[7] = {"server_name", "listen", "root", "index", "allow_methods", "location", "error_page"};
 
-	for (size_t i = 0; i < 6; i++)
+	for (size_t i = 0; i < 7; i++)
 	{
 		if (line == head[i])
 			return (true);
@@ -72,12 +72,12 @@ Parse::Parse(std::string fileName)
 	tokenValidation();
 	pathValidation();
 
-	// std::vector<ServerBlock>::iterator	i = block.begin();
+	std::vector<ServerBlock>::iterator	i = block.begin();
 
-	// for (i = block.begin(); i != block.end(); i++)
-	// {
-	// 	std::cout << *i << std::endl;
-	// }
+	for (i = block.begin(); i != block.end(); i++)
+	{
+		std::cout << *i << std::endl;
+	}
 	std::cout << "Parsing completed.." << std::endl;
 }
 
@@ -203,6 +203,8 @@ void	Parse::serverCheck(Parse::iterator &i)
 			_conf = ROOT;
 		else if (*i == "index")
 			_conf = INDEX;
+		else if (*i == "error_page")
+			_conf = ERROR_PAGE;
 		else if (*i == "allow_methods" || (_conf == ALLOW_METHOD && isMethod(*i)))
 			_conf = ALLOW_METHOD;
 		else if (*i == "location")
@@ -225,6 +227,8 @@ void	Parse::serverCheck(Parse::iterator &i)
 			block.setRoot(*i);
 		else if (_conf == INDEX)
 			block.setIndex(*i);
+		else if (_conf == ERROR_PAGE)
+			block.addErrorPage(i);
 		else if (_conf == ALLOW_METHOD)
 			setMethod(i, block);
 		else if (_conf == LOCATION)
