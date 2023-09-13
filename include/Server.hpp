@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:20:51 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 19:44:02 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/13 13:02:14 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,14 @@
 class Server
 {
 	private:
-		typedef std::vector<const ServerBlock>::iterator	iterator;
-		const std::vector<ServerBlock>&				_conf;
+		const std::vector<ServerBlock>&	_conf;
 		const std::map<int, struct sockaddr_in>&	_socketAddr;
 		const std::map<int, int>&					_socketFD;
+		const std::map<int, struct sockaddr_in>&	_socketFdAddr;
+
+		void	acceptConnection();
 	public:
-		Server(std::vector<ServerBlock>& conf, std::map<int, struct sockaddr_in>& _socketAddr, std::map<int, int>& _socketFD);
+		Server(std::vector<ServerBlock>& conf, std::map<int, struct sockaddr_in>& socketAddr, std::map<int, int>& socketFD, std::map<int, struct sockaddr_in>& _socketFdAddr);
 		~Server();
 		Server(const Server& other);
 		Server&	operator=(const Server& other);

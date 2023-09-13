@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:25:25 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 05:13:00 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/13 02:20:43 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class Parse
 		std::vector<std::string>			token;
 		std::vector<ServerBlock>			block;
 		std::map<int, struct sockaddr_in>	_socketAddr;
+		std::map<int, struct sockaddr_in>	_socketFdAddr;
 		std::map<int, int>					_socketFD;
 			
 		void	tokennize(std::string line);
@@ -47,16 +48,19 @@ class Parse
 		void	setMethod(iterator &i, ServerBlock& sb);
 		void	setSocketAddr(int port, struct sockaddr_in addr);
 		void	setSocketFD(int port, int sockfd);
+		void	setSocketFdAddr(int sockfd, struct sockaddr_in addr);
 
-		int		getPort(iterator i);
-		std::map<int, struct sockaddr_in>	&getSocketAddr();
-		std::map<int, int>					&getSocketFD();
+		int		getAvailablePort(iterator i);
 	public:
 		Parse(std::string fileName);
 		~Parse();
 		Parse(const Parse& other);
 		Parse& operator=(const Parse& other);
-		std::vector<ServerBlock>&	getBlock();
+
+		std::vector<ServerBlock>			&getBlock();
+		std::map<int, struct sockaddr_in>	&getSocketAddr();
+		std::map<int, int>					&getSocketFD();
+		std::map<int, struct sockaddr_in>	&getSocketFdAddr();
 };
 
 #endif
