@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/12 18:12:30 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/13 15:44:49 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,14 @@
 # ifndef	UINT16_MAX
 #  define	UINT16_MAX	65536
 # endif
+
+# define RESET "\001\033[0;39m\002"
+# define RED "\001\033[1;91m\002"
+# define GREEN "\001\033[1;32m\002"
+# define YELLOW "\001\033[1;93m\002"
+# define MAGENTA "\001\033[1;95m\002"
+# define GRAY "\001\033[1;90m\002"
+# define BLUE "\033[1;34m"
 
 class InvalidFileException : public std::exception
 {

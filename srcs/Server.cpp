@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 13:05:21 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/13 16:13:43 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ void	Server::startServer()
 			std::cerr << "Error : Failed to listen at port " << it->first << std::endl;
 			exit(EXIT_FAILURE);
 		}
+		std::cout << YELLOW << "[ * ] Listening for incoming connections on port " << BLUE << it->first << YELLOW << " ... " << RESET << std::endl;
 	}
 	acceptConnection();
 }
@@ -54,11 +55,18 @@ void	Server::acceptConnection()
 			perror("select");
 			exit(EXIT_FAILURE);
 		}
+		
+		char server_message[2000], client_message[2000];
+    
+		// Clean buffers:
+		memset(server_message, '\0', sizeof(server_message));
+		memset(client_message, '\0', sizeof(client_message));
 
 		for (it = _socketFD.begin(); it != _socketFD.end(); it++)
 		{
 			int	port = it->first;
 			int sockfd = it->second;
+			
 			
 			if (FD_ISSET(sockfd, &readFds))
 			{
@@ -74,7 +82,25 @@ void	Server::acceptConnection()
 				}
 				else
 				{
-					std::cout << "New connection accepted" << std::endl;
+					std::cout << GREEN << "[ ✅ ] New connection" << YELLOW << " : client with IP "  << BLUE << inet_ntoa(clientAddr.sin_addr) << YELLOW ;
+					std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << newSocket << RESET << std::endl;
+
+					if (recv(newSocket, client_message, sizeof(client_message), 0) < 0)
+					{
+						perror("Couldn't receive");
+						std::cerr << "Couldn't receive message at " << newSocket << " client fd socket" << std::endl;
+                	}
+
+					std::cout << YELLOW << "[ * ] Msg from client: \n" << RESET << client_message << std::endl;
+
+					strcpy(server_message, "This is the server's message.");
+                
+					if (send(newSocket, server_message, strlen(server_message), 0) < 0){
+						perror("Couldn't send");
+						std::cerr << "Couldn't send message at " << newSocket << " server fd socket" << std::endl;
+					}
+
+					close(newSocket);
 				}
 			}
 		}
