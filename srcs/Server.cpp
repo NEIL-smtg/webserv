@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 19:36:51 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/14 13:13:58 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void	Server::acceptConnection()
 
 	std::cout << std::endl;
 	std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
+	std::cout << std::endl;
 	while (true)
 	{
 		fd_set	readFds;
@@ -96,7 +97,8 @@ void	Server::acceptConnection()
  * Http Request
 ***********************************/
 
-HttpRequest parseHttpRequest(const std::string& httpRequest) {
+HttpRequest parseHttpRequest(const std::string& httpRequest)
+{
 	HttpRequest request;
 	const std::string	met[7] = {"GET", "HEAD", "DELETE", "OPTIONS", "POST", "PUT", "TRACE" };
 
@@ -111,7 +113,7 @@ HttpRequest parseHttpRequest(const std::string& httpRequest) {
 		requestLineStream >> request.method >> request.path;
 	}
 
-	for (size_t i = 0; i < met->size(); i++)
+	for (size_t i = 0; i < 7; i++)
 	{
 		if (met[i] == request.method)
 		{
@@ -179,8 +181,17 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket)
 
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << client_message << std::endl;
 	
-	std::string	httpResponse = generateHttpResponse(client_message);
-	std::cout << RED << httpResponse << RESET << std::endl;
+	std::string	httpResponse = generateHttpResponse(client_message, newSocket);
+	if	(httpResponse == "")
+	{
+		std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
+		std::cout << std::endl;
+
+		std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
+		std::cout << std::endl;
+		close(newSocket);
+		return ;
+	}
 
 	// Send the response over the network connection
 	strcpy(server_message, httpResponse.c_str());
@@ -202,7 +213,7 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket)
  * Http Response
 ***********************************/
 
-std::string	Server::generateHttpResponse(char *client_message)
+std::string	Server::generateHttpResponse(char *client_message, int newSocket)
 {
 	std::string	ret;
 
@@ -211,7 +222,7 @@ std::string	Server::generateHttpResponse(char *client_message)
 	switch (parsedRequest.met)
 	{
 		case GET:
-			ret = doGetMethod(parsedRequest);
+			ret = doGetMethod(parsedRequest, newSocket);
 			break;
 		// case HEAD:
 		// 	doHeadMethod();
@@ -241,7 +252,7 @@ std::string	Server::generateHttpResponse(char *client_message)
  * Methods
 ***********************************/
 
-std::string	Server::doGetMethod(HttpRequest parsedRequest)
+std::string	Server::doGetMethod(HttpRequest parsedRequest, int clientSocket)
 {
 	std::string httpResponse;
 	if (parsedRequest.path == "/")
@@ -250,7 +261,7 @@ std::string	Server::doGetMethod(HttpRequest parsedRequest)
 		std::string		str;
 		char			c;
 		
-		input_file.open("./error_page/Error_404.html");
+		input_file.open("./test/index.html");
 		if (!input_file){
 			perror("Couldn't open index.html file");
 			std::cerr << "failed to open index.html file" << std::endl;
@@ -267,11 +278,87 @@ std::string	Server::doGetMethod(HttpRequest parsedRequest)
 		httpResponse += "\r\n"; // End of headers
 		httpResponse += str;
 	}
+	else if (parsedRequest.path == "/404.svg")
+	{
+		// Path to the .svg file you want to send
+		std::string svgFilePath = "./error_page/404.svg";
+
+		// Open the .svg file
+		std::ifstream svgFile(svgFilePath, std::ios::binary | std::ios::ate);
+
+		if (!svgFile.is_open()) {
+			perror("Couldn't open ./error_page/404.svg file");
+			std::cerr << "failed to open ./error_page/404.svg file" << std::endl;
+		}
+
+		// Get the size of the .svg file
+		std::streamsize fileSize = svgFile.tellg();
+		svgFile.seekg(0, std::ios::beg);
+
+		// Construct the HTTP response
+		std::string httpResponse = "HTTP/1.1 200 OK\r\n";
+		httpResponse += "Content-Type: image/svg+xml\r\n";
+		httpResponse += "Content-Length: " + std::to_string(fileSize) + "\r\n";
+		httpResponse += "\r\n"; // End of headers
+
+		// Send the response headers to the client
+		ssize_t bytesSent = send(clientSocket, httpResponse.c_str(), httpResponse.length(), 0);
+
+		if (bytesSent == -1) {
+			perror("Couldn't send");
+			std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
+		}
+
+		// Send the .svg file content to the client
+		char buffer[4096];
+		while (true) {
+			svgFile.read(buffer, sizeof(buffer));
+			ssize_t bytesRead = svgFile.gcount();
+
+			if (bytesRead <= 0)
+				break;
+
+			ssize_t bytesSent = send(clientSocket, buffer, bytesRead, 0);
+
+			if (bytesSent == -1) {
+				perror("Couldn't send");
+				std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
+				break;
+			}
+		}
+
+		// Close the .svg file
+		svgFile.close();
+		return ("");
+	}
+	else
+	{
+		std::ifstream	input_file;
+		std::string		str;
+		char			c;
+		
+		input_file.open("./error_page/Error_404.html");
+		if (!input_file){
+			perror("Couldn't open ./error_page/Error_404.html file");
+			std::cerr << "failed to open ./error_page/Error_404.html file" << std::endl;
+		}
+		while (!input_file.eof() && input_file >> std::noskipws >> c){
+			str += c;
+		}
+		input_file.close();
+
+		// Construct the HTTP response
+		httpResponse = "HTTP/1.1 404 Not Found\r\n";
+		httpResponse += "Content-Type: text/html\r\n";
+		httpResponse += "Content-Length: " + std::to_string(str.length()) + "\r\n";
+		httpResponse += "\r\n"; // End of headers
+		httpResponse += str;
+	}
 	return (httpResponse);
 }
 
 /***********************************
- * Constructors
+ * Constructors & Destructors
 ***********************************/
 
 Server::Server(std::vector<ServerBlock>& conf, std::map<int, struct sockaddr_in>& socketAddr, std::map<int, int>& socketFD, std::map<int, struct sockaddr_in>&	socketFdAddr)
