@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/14 13:13:58 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/14 19:51:38 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void	Server::startServer()
 
 void	Server::acceptConnection()
 {
-	std::map<int, int>::const_iterator	it;
+	std::map<int, int>::const_iterator	ite;
 
 	std::cout << std::endl;
 	std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
@@ -51,9 +51,9 @@ void	Server::acceptConnection()
 		FD_ZERO(&readFds);
 
 		int	maxFD = -1;
-		for (it = _socketFD.begin(); it != _socketFD.end(); it++)
+		for (ite = _socketFD.begin(); ite != _socketFD.end(); ite++)
 		{
-			int sockfd = it->second;
+			int sockfd = ite->second;
 			FD_SET(sockfd, &readFds);
 			if (sockfd > maxFD)
 				maxFD = sockfd;
@@ -66,10 +66,12 @@ void	Server::acceptConnection()
 			exit(EXIT_FAILURE);
 		}
 
-		for (it = _socketFD.begin(); it != _socketFD.end(); it++)
+		std::vector<ServerBlock>::const_iterator	it;
+		
+		for (it = _conf.begin(); it != _conf.end(); it++)
 		{
-			int	port = it->first;
-			int sockfd = it->second;
+			int	port = it->getPort();
+			int sockfd = _socketFD.find(port)->second;
 			
 			
 			if (FD_ISSET(sockfd, &readFds))
@@ -86,7 +88,7 @@ void	Server::acceptConnection()
 				}
 				else
 				{
-					runRequest(clientAddr, port, newSocket);
+					runRequest(clientAddr, newSocket, it);
 				}
 			}
 		}
@@ -161,10 +163,12 @@ HttpRequest parseHttpRequest(const std::string& httpRequest)
 	return (request);
 }
 
-void	Server::runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket)
+void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, std::vector<ServerBlock>::const_iterator it)
 {
 
 	char server_message[2000], client_message[2000];
+	int	port = it->getPort();;
+	
     
 	// Clean buffers:
 	memset(server_message, '\0', sizeof(server_message));
@@ -181,7 +185,7 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket)
 
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << client_message << std::endl;
 	
-	std::string	httpResponse = generateHttpResponse(client_message, newSocket);
+	std::string	httpResponse = generateHttpResponse(client_message, newSocket, it);
 	if	(httpResponse == "")
 	{
 		std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
@@ -213,7 +217,7 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int	port, int newSocket)
  * Http Response
 ***********************************/
 
-std::string	Server::generateHttpResponse(char *client_message, int newSocket)
+std::string	Server::generateHttpResponse(char *client_message, int newSocket, std::vector<ServerBlock>::const_iterator it)
 {
 	std::string	ret;
 
@@ -222,7 +226,7 @@ std::string	Server::generateHttpResponse(char *client_message, int newSocket)
 	switch (parsedRequest.met)
 	{
 		case GET:
-			ret = doGetMethod(parsedRequest, newSocket);
+			ret = doGetMethod(parsedRequest, newSocket, it);
 			break;
 		// case HEAD:
 		// 	doHeadMethod();
@@ -252,92 +256,21 @@ std::string	Server::generateHttpResponse(char *client_message, int newSocket)
  * Methods
 ***********************************/
 
-std::string	Server::doGetMethod(HttpRequest parsedRequest, int clientSocket)
+std::string	Server::doGetMethod(HttpRequest parsedRequest, int clientSocket, std::vector<ServerBlock>::const_iterator it)
 {
 	std::string httpResponse;
-	if (parsedRequest.path == "/")
-	{
-		std::ifstream	input_file;
-		std::string		str;
-		char			c;
-		
-		input_file.open("./test/index.html");
-		if (!input_file){
-			perror("Couldn't open index.html file");
-			std::cerr << "failed to open index.html file" << std::endl;
-		}
-		while (!input_file.eof() && input_file >> std::noskipws >> c){
-			str += c;
-		}
-		input_file.close();
 
-		// Construct the HTTP response
-		httpResponse = "HTTP/1.1 200 OK\r\n";
-		httpResponse += "Content-Type: text/html\r\n";
-		httpResponse += "Content-Length: " + std::to_string(str.length()) + "\r\n";
-		httpResponse += "\r\n"; // End of headers
-		httpResponse += str;
-	}
-	else if (parsedRequest.path == "/404.svg")
-	{
-		// Path to the .svg file you want to send
-		std::string svgFilePath = "./error_page/404.svg";
-
-		// Open the .svg file
-		std::ifstream svgFile(svgFilePath, std::ios::binary | std::ios::ate);
-
-		if (!svgFile.is_open()) {
-			perror("Couldn't open ./error_page/404.svg file");
-			std::cerr << "failed to open ./error_page/404.svg file" << std::endl;
-		}
-
-		// Get the size of the .svg file
-		std::streamsize fileSize = svgFile.tellg();
-		svgFile.seekg(0, std::ios::beg);
-
-		// Construct the HTTP response
-		std::string httpResponse = "HTTP/1.1 200 OK\r\n";
-		httpResponse += "Content-Type: image/svg+xml\r\n";
-		httpResponse += "Content-Length: " + std::to_string(fileSize) + "\r\n";
-		httpResponse += "\r\n"; // End of headers
-
-		// Send the response headers to the client
-		ssize_t bytesSent = send(clientSocket, httpResponse.c_str(), httpResponse.length(), 0);
-
-		if (bytesSent == -1) {
-			perror("Couldn't send");
-			std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
-		}
-
-		// Send the .svg file content to the client
-		char buffer[4096];
-		while (true) {
-			svgFile.read(buffer, sizeof(buffer));
-			ssize_t bytesRead = svgFile.gcount();
-
-			if (bytesRead <= 0)
-				break;
-
-			ssize_t bytesSent = send(clientSocket, buffer, bytesRead, 0);
-
-			if (bytesSent == -1) {
-				perror("Couldn't send");
-				std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
-				break;
-			}
-		}
-
-		// Close the .svg file
-		svgFile.close();
-		return ("");
-	}
+	if (isLocation(parsedRequest.path, it))
+		httpResponse = locationRequest(parsedRequest.path, it);
+	else if (isImgFile(parsedRequest.path))
+		httpResponse = sendFile(parsedRequest.path, clientSocket);
 	else
 	{
 		std::ifstream	input_file;
 		std::string		str;
 		char			c;
 		
-		input_file.open("./error_page/Error_404.html");
+		input_file.open(it->getErrorPage().find(404)->second);
 		if (!input_file){
 			perror("Couldn't open ./error_page/Error_404.html file");
 			std::cerr << "failed to open ./error_page/Error_404.html file" << std::endl;
@@ -351,9 +284,206 @@ std::string	Server::doGetMethod(HttpRequest parsedRequest, int clientSocket)
 		httpResponse = "HTTP/1.1 404 Not Found\r\n";
 		httpResponse += "Content-Type: text/html\r\n";
 		httpResponse += "Content-Length: " + std::to_string(str.length()) + "\r\n";
-		httpResponse += "\r\n"; // End of headers
+		httpResponse += "\r\n";
 		httpResponse += str;
 	}
+	return (httpResponse);
+}
+
+/***********************************
+ * utils
+***********************************/
+
+bool Server::isImgFile(std::string &file)
+{
+	const std::string	type[5] = {".avif", ".gif", ".jpeg", ".png", ".svg" };
+	std::string			check;
+
+	size_t dotPos = file.find_last_of(".");
+    if (dotPos != std::string::npos) {
+        check = file.substr(dotPos);
+    }
+
+	for (size_t i = 0; i < 5; i++)
+	{
+		if (type[i] == check)
+			return (true);
+	}
+	return (false);
+}
+
+std::string Server::sendFile(std::string &path, int clientSocket)
+{
+	std::string file = path.substr(1);
+	std::string type ;
+	size_t dotPos = file.find_last_of(".");
+	if (dotPos != std::string::npos) {
+		type = file.substr(dotPos + 1);
+	}
+
+	// Path to the img file
+	std::string svgFilePath = "";
+	svgFilePath += file;
+
+	// Open the img file
+	std::ifstream svgFile(svgFilePath, std::ios::binary | std::ios::ate);
+
+	if (!svgFile.is_open()) {
+		perror("Couldn't open img file");
+		std::cerr << "failed to open "<< svgFilePath << " file" << std::endl;
+	}
+
+	// Get the size of the img file
+	std::streamsize fileSize = svgFile.tellg();
+	svgFile.seekg(0, std::ios::beg);
+
+	// Construct the HTTP response
+	std::string httpResponse = "HTTP/1.1 200 OK\r\n";
+	if (type == "svg" || type == "xml")
+		httpResponse += "Content-Type: image/svg+xml\r\n";
+	else
+	{
+		httpResponse += "Content-Type: image/";
+		httpResponse += type;
+		httpResponse += "\r\n";
+	}
+	httpResponse += "Content-Length: " + std::to_string(fileSize) + "\r\n";
+	httpResponse += "\r\n"; // End of headers
+
+	// Send the response headers to the client
+	ssize_t bytesSent = send(clientSocket, httpResponse.c_str(), httpResponse.length(), 0);
+
+	if (bytesSent == -1) {
+		perror("Couldn't send");
+		std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
+	}
+
+	// Send the img file content to the client
+	char buffer[4096];
+	while (true) {
+		svgFile.read(buffer, sizeof(buffer));
+		ssize_t bytesRead = svgFile.gcount();
+
+		if (bytesRead <= 0)
+			break;
+
+		ssize_t bytesSent = send(clientSocket, buffer, bytesRead, 0);
+
+		if (bytesSent == -1) {
+			perror("Couldn't send");
+			std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
+			break;
+		}
+	}
+
+	// Close the img file
+	svgFile.close();
+	return ("");
+}
+
+bool	Server::isLocation(std::string &path, std::vector<ServerBlock>::const_iterator sb)
+{
+	std::vector<Location>	loc = (*sb).getLocation();
+	std::vector<Location>::iterator	it = loc.begin();
+	std::string			check = "";
+	std::string			dir = "";
+
+	if (path == "/")
+		return (true);
+	for (; it != loc.end(); it++)
+	{
+		size_t dotPos = path.find_last_of(".");
+		if (dotPos != std::string::npos) {
+			check = path.substr(dotPos);
+		}
+		
+		if (check != ""  && check != ".html")
+		{
+			std::ifstream	input_file;
+			
+			dir = it->getRoot();
+			dir += path;
+			input_file.open(dir);
+			if (input_file){
+				input_file.close();
+				return (true);
+			}
+		}
+		if (path == it->getDirectory())
+			return (true);
+	}
+	return (false);
+}
+
+std::string	Server::locationRequest(std::string &path, std::vector<ServerBlock>::const_iterator sb)
+{
+	std::string 	httpResponse;
+	std::ifstream	input_file;
+	std::string		str;
+	char			c;
+	std::string		dir;
+	std::vector<Location>	loc = (*sb).getLocation();
+	std::vector<Location>::iterator	it = loc.begin();
+	std::string			check = "";
+
+
+	if (path == "/")
+	{
+	dir = sb->getRoot();
+	dir += "/";
+	dir += sb->getIndex();
+
+	input_file.open(dir);
+	if (!input_file){
+		perror("Couldn't open file file");
+		std::cerr << "failed to open " << dir << " file" << std::endl;
+	}
+	while (!input_file.eof() && input_file >> std::noskipws >> c){
+		str += c;
+	}
+	input_file.close();
+
+	httpResponse = "HTTP/1.1 200 OK\r\n";
+	httpResponse += "Content-Type: text/html\r\n";
+	httpResponse += "Content-Length: " + std::to_string(str.length()) + "\r\n";
+	httpResponse += "\r\n";
+	httpResponse += str;
+	return (httpResponse);
+}
+	size_t dotPos = path.find_last_of(".");
+	if (dotPos != std::string::npos) {
+		check = path.substr(dotPos);
+	}
+
+	else if (check != ""  && check != ".html")
+	{
+		dir = it->getRoot();
+		dir += "/";
+		dir += path;
+	}
+	else
+	{
+		dir = sb->getRoot();
+		dir += path;
+		dir += "/";
+		dir += it->getIndex();
+	}
+	
+	input_file.open(dir);
+	if (!input_file){
+		perror("Couldn't open dir file");
+		std::cerr << "failed to open " << dir << " file" << std::endl;
+	}
+	while (!input_file.eof() && input_file >> std::noskipws >> c){
+		str += c;
+	}
+	input_file.close();
+
+	httpResponse = "HTTP/1.1 200 OK\r\n";
+	httpResponse += "Content-Type: text/html\r\n";
+	httpResponse += "Content-Length: " + std::to_string(str.length()) + "\r\n";
+	httpResponse += "\r\n";
+	httpResponse += str;
 	return (httpResponse);
 }
 
