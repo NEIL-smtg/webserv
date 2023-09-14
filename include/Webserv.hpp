@@ -3,29 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 15:44:49 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/14 23:28:37 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __WEBSERV_HPP__
 # define __WEBSERV_HPP__
 
+// streamm
 # include <iostream>
 # include <fstream>
+# include <sstream>
+
+//	std lib
 # include <exception>
 # include <string>
 # include <cstring>
 # include <cstdlib>
 # include <cstdio>
+# include <unistd.h>
+
+//	container
 # include <vector>
 # include <map>
 # include <algorithm>
+
+//	networking
 # include <sys/socket.h>
 # include <netinet/in.h>
-# include <unistd.h>
+# include <arpa/inet.h>
 
 # define	LOCAL_HOST				"127.0.0.1"
 # define	DEFAULT_CLIENT_SIZE		42
@@ -33,13 +42,13 @@
 #  define	UINT16_MAX	65536
 # endif
 
-# define RESET "\001\033[0;39m\002"
-# define RED "\001\033[1;91m\002"
-# define GREEN "\001\033[1;32m\002"
-# define YELLOW "\001\033[1;93m\002"
-# define MAGENTA "\001\033[1;95m\002"
-# define GRAY "\001\033[1;90m\002"
-# define BLUE "\033[1;34m"
+# define	RESET		"\001\033[0;39m\002"
+# define	RED			"\001\033[1;91m\002"
+# define	GREEN		"\001\033[1;32m\002"
+# define	YELLOW		"\001\033[1;93m\002"
+# define	MAGENTA		"\001\033[1;95m\002"
+# define	GRAY		"\001\033[1;90m\002"
+# define	BLUE		"\033[1;34m"
 
 class InvalidFileException : public std::exception
 {
@@ -59,6 +68,11 @@ enum empty
 	EMPTY_METHOD,
 	FILLED
 };
+
+typedef enum httpMethod
+{
+	GET, HEAD, DELETE, OPTIONS, POST, PUT, TRACE
+}	httpMethod;
 
 bool	isNum(std::string line);
 bool	isMethod(std::string method);

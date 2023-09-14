@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 19:39:22 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/14 22:54:52 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,11 +72,11 @@ Parse::Parse(std::string fileName)
 	tokenValidation();
 	pathValidation();
 
-	std::vector<ServerBlock>::iterator	i = block.begin();
+	std::map<int, ServerBlock>::iterator	i = block.begin();
 
 	for (i = block.begin(); i != block.end(); i++)
 	{
-		std::cout << *i << std::endl;
+		std::cout << i->second << std::endl;
 	}
 	std::cout << "Parsing completed.." << std::endl;
 }
@@ -151,9 +151,7 @@ int		Parse::getAvailablePort(iterator i)
 		serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 		if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) != -1)
 		{
-			setSocketAddr(port, serverAddr);
 			setSocketFD(port, sockfd);
-			setSocketFdAddr(sockfd, serverAddr);
 			return (port);
 		}
 		/*
@@ -187,6 +185,7 @@ void	Parse::serverCheck(Parse::iterator &i)
 {
 	conf		_conf = NONE;
 	ServerBlock	block;
+	int			port;
 	
 	if (*(++i) != "{")
 		throw InvalidFileException("Missing {");
@@ -219,7 +218,8 @@ void	Parse::serverCheck(Parse::iterator &i)
 			block.setName(*i);
 		else if (_conf == LISTEN)
 		{
-			block.setPort(getAvailablePort(i));
+			port = getAvailablePort(i);
+			block.setPort(port);
 			while (isNum(*(i + 1)))
 				++i;
 		}
@@ -242,7 +242,7 @@ void	Parse::serverCheck(Parse::iterator &i)
 	if (i == token.end())
 		throw InvalidFileException("Error : Missing }");
 	ExceptionDecider(block.somethingEmpty());
-	this->block.push_back(block);
+	this->block[port] = block;
 }
 
 void	Parse::tokenValidation()
@@ -258,12 +258,13 @@ void	Parse::tokenValidation()
 
 void	Parse::pathValidation()
 {
-	std::vector<ServerBlock>::iterator	i;
+	std::map<int, ServerBlock>::iterator	i;
 
 	for (i = block.begin(); i != block.end(); i++)
 	{
-		std::string	folder = (*i).getRoot();
-		std::string	index = folder + std::string("/") + (*i).getIndex();
+		ServerBlock	_sb = i->second;
+		std::string	folder = _sb.getRoot();
+		std::string	index = folder + std::string("/") + _sb.getIndex();
 		std::string	errMsg;
 
 		std::ifstream	in(folder.c_str());
@@ -279,7 +280,7 @@ void	Parse::pathValidation()
 			throw InvalidFileException("");
 		}
 		std::vector<Location>::iterator	j;
-		std::vector<Location> lc = (*i).getLocation();
+		std::vector<Location> lc = _sb.getLocation();
 		for (j = lc.begin(); j != lc.end(); j++)
 		{
 			std::string	str;
@@ -303,19 +304,9 @@ void	Parse::pathValidation()
 	}
 }
 
-std::vector<ServerBlock>&	Parse::getBlock()
+std::map<int, ServerBlock>&	Parse::getBlock()
 {
 	return this->block;
-}
-
-void	Parse::setSocketAddr(int port, struct sockaddr_in addr)
-{
-	this->_socketAddr[port] = addr;
-}
-
-std::map<int, struct sockaddr_in>&	Parse::getSocketAddr()
-{
-	return this->_socketAddr;
 }
 
 void	Parse::setSocketFD(int port, int sockfd)
@@ -328,16 +319,6 @@ std::map<int, int>&	Parse::getSocketFD()
 	return this->_socketFD;
 }
 
-void	Parse::setSocketFdAddr(int sockfd, struct sockaddr_in addr)
-{
-	this->_socketFdAddr[sockfd] = addr;
-}
-
-std::map<int, struct sockaddr_in>&	Parse::getSocketFdAddr()
-{
-	return this->_socketFdAddr;
-}
-
 Parse::~Parse(){}
 
 Parse::Parse(const Parse& other) {*this = other;}
@@ -348,7 +329,6 @@ Parse&	Parse::operator=(const Parse& other)
 		return (*this);
 	this->token = other.token;
 	this->block = other.block;
-	this->_socketAddr = other._socketAddr;
 	this->_socketFD = other._socketFD;
 	return (*this);
 }

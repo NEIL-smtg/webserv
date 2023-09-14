@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 20:47:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 13:05:03 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/09/14 22:55:45 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int	main(int ac, char **av)
 	try
 	{
 		Parse	parse(ConfigFilename);
-		Server	server(parse.getBlock(), parse.getSocketAddr(), parse.getSocketFD(), parse.getSocketFdAddr());
+		Server	server(parse.getBlock(), parse.getSocketFD());
 		server.startServer();
 	}
 	catch(const std::exception& e)

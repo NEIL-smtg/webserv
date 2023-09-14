@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:25:25 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 16:22:45 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/14 22:54:43 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,32 +36,25 @@ class Parse
 		typedef std::string str;
 
 		std::vector<std::string>			token;
-		std::vector<ServerBlock>			block;
-		std::map<int, struct sockaddr_in>	_socketAddr;
-		std::map<int, struct sockaddr_in>	_socketFdAddr;
+		std::map<int, ServerBlock>			block;
 		std::map<int, int>					_socketFD;
 			
 		void	tokennize(std::string line);
 		void	tokenValidation();
 		void	serverCheck(iterator &i);
 		void	pathValidation();
+		int		getAvailablePort(iterator i);
 
 		void	setMethod(iterator &i, ServerBlock& sb);
-		void	setSocketAddr(int port, struct sockaddr_in addr);
 		void	setSocketFD(int port, int sockfd);
-		void	setSocketFdAddr(int sockfd, struct sockaddr_in addr);
-
-		int		getAvailablePort(iterator i);
 	public:
 		Parse(std::string fileName);
 		~Parse();
 		Parse(const Parse& other);
 		Parse& operator=(const Parse& other);
 
-		std::vector<ServerBlock>			&getBlock();
-		std::map<int, struct sockaddr_in>	&getSocketAddr();
+		std::map<int, ServerBlock>			&getBlock();
 		std::map<int, int>					&getSocketFD();
-		std::map<int, struct sockaddr_in>	&getSocketFdAddr();
 };
 
 #endif
