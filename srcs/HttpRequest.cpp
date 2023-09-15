@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/15 00:33:33 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/16 01:17:57 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,9 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 		case GET:
 			return GetResponse(*this, newSocket, sb).getResponse();
 			break;
-		// case PUT:
-		// 	return PutResponse(*this, newSocket, sb).getResponse();
-		// 	break;
+		case PUT:
+			return PutResponse(*this, newSocket, sb).getResponse();
+			break;
 		// case POST:
 		// 	response = PostResponse();
 			// break;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/11 17:02:28 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/12 19:30:30 by lzi-xian         ###   ########.fr       */
+/*   Created: 2023/09/16 00:51:12 by suchua            #+#    #+#             */
+/*   Updated: 2023/09/16 00:51:29 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Location
 		int							client_max_body_size;
 		std::vector<std::string>	methods;
 	public:
+		Location();
 		Location(std::vector<std::string>::iterator &i, std::vector<std::string> &token);
 		~Location();
 		Location(const Location& other);

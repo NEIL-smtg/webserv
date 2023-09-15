@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/14 22:54:52 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/16 01:21:10 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,11 +138,17 @@ int		Parse::getAvailablePort(iterator i)
 	
 		int	sockfd;
 		struct sockaddr_in	serverAddr;
+		int	reuse = 1;
 
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		if (sockfd == -1)
 		{
 			std::cerr << "Error creating socket." << std::endl;
+			exit(1);
+		}
+		if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1)
+		{
+			std::cerr << "Error setting reuse of port." << std::endl;
 			exit(1);
 		}
 		memset(&serverAddr, 0, sizeof(serverAddr));

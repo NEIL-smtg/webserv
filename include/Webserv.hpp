@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/14 23:28:37 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/16 01:13:19 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,11 @@
 
 # define	LOCAL_HOST				"127.0.0.1"
 # define	DEFAULT_CLIENT_SIZE		42
+
+//	HTTP ERROR METHOD MSG
+# define	ERR_404_HEAD			"HTTP/1.1 404 Not Found\r\n"
+# define	ERR_405_HEAD			"HTTP/1.1 405 Not Allowed\r\n"
+
 # ifndef	UINT16_MAX
 #  define	UINT16_MAX	65536
 # endif
@@ -73,6 +78,12 @@ typedef enum httpMethod
 {
 	GET, HEAD, DELETE, OPTIONS, POST, PUT, TRACE
 }	httpMethod;
+
+typedef enum httpError
+{
+	NOT_FOUND		= 404,
+	NOT_ALLOWED		= 405
+}	httpError;
 
 bool	isNum(std::string line);
 bool	isMethod(std::string method);

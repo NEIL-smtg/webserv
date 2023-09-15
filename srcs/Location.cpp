@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/13 16:43:54 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/16 00:52:18 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,8 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 	if (i == token.end())
 		throw InvalidFileException("Error : Missing }");
 }
+
+Location::Location(){}
 
 Location::~Location(){}
 

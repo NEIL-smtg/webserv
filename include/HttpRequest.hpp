@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/15 00:31:02 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/16 00:01:27 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@
 # include "Webserv.hpp"
 # include "ServerBlock.hpp"
 # include "GetResponse.hpp"
+# include "PutResponse.hpp"
 
-class	GetResponse;
+// class	GetResponse;
+// class	PutResponse;
 
 class HttpRequest
 {
@@ -26,7 +28,7 @@ class HttpRequest
 	
 	private:
 		str			_methodStr;
-		str			_path;
+		str			_path;			//url dir
 		str			_body;
 		header		_header;
 		httpMethod	_methodEnum;
