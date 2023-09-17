@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/16 01:17:57 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/17 19:26:16 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,9 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 		case PUT:
 			return PutResponse(*this, newSocket, sb).getResponse();
 			break;
-		// case POST:
-		// 	response = PostResponse();
-			// break;
+		case POST:
+			response = PostResponse(*this, newSocket, sb).getResponse();;
+			break;
 		default:
 			break;
 	}
