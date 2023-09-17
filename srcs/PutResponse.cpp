@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:31:26 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/16 01:13:24 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/16 21:22:49 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 PutResponse::PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb)
 :_req(req), _clientSocket(clientSocket), _sb(sb)
 {
-	if (!urlPathFound() || !methodAllowed())
+	if (!urlPathFound() || !methodAllowed() || !validContentType())
 		return ;
 }
 
@@ -36,8 +36,7 @@ bool	PutResponse::urlPathFound()
 			return (true);
 		}
 	}
-
-	this->_response = generateErrorResponse(this->_sb, NOT_FOUND);
+	this->_response = generateErrorResponse(NOT_FOUND);
 	return (false);
 }
 
@@ -48,13 +47,46 @@ bool	PutResponse::methodAllowed()
 	std::vector<str>::iterator	it;
 
 	reqMethod = this->_req.getMethodStr();
-	validMethods = _location.getMethods();
+	validMethods = this->_location.getMethods();
 	for (it = validMethods.begin(); it != validMethods.end(); it++)
 	{
 		if ((*it) == reqMethod)
 			return (true);
 	}
-	this->_response = generateErrorResponse(this->_sb, NOT_ALLOWED);
+	this->_response = generateErrorResponse(NOT_ALLOWED);
+	return (false);
+}
+
+/*
+value = multipart/form-data; boundary=--------------------------287650079002050513765839
+Content-Length: 287
+*/
+bool	PutResponse::validContentType()
+{
+	str		value;
+	str		contentType;
+	size_t	len;
+	std::map<str, str>	head;
+	std::map<str, str>::iterator	key;
+
+	head = this->_req.getHeader();
+	key = head.find("Content-Type");
+	if (key != head.end()) 
+	{
+		value = head.find("Content-Type")->second;
+		len = value.find_first_of(';');
+		if (len != str::npos)
+			contentType = value.substr(0, len);
+		if (len != str::npos && contentType == "multipart/form-data")
+		{
+			str boundary = value.substr(len + 2 + str("boundary=").length());\
+			// int contentLen = std::atoi(head.find("Content-Length")->second.c_str());
+			
+			// std::cout << head.find("Content-Disposition")->second << "\n\n\n";
+			return (true);
+		}
+	}
+	this->_response = generateErrorResponse(UNSUPPORTED_MEDIA_TYPE);
 	return (false);
 }
 
@@ -73,23 +105,31 @@ PutResponse&	PutResponse::operator=(const PutResponse& other)
 
 std::string	PutResponse::getResponse() const {return this->_response;}
 
-std::string	generateErrorResponse(const ServerBlock& sb, const httpError errNum)
+std::string	PutResponse::generateErrorResponse(const httpError err)
 {
-	std::string			errHtmlFilePath;
-	std::string			line;
-	std::stringstream	response;
-	std::ifstream		errHtml;
-	std::stringstream	body;
+	std::map<int, std::string>	errPage;
+	std::string					errHtmlFilePath;
+	std::string					line;
+	std::stringstream			response;
+	std::ifstream				errHtml;
+	std::stringstream			body;
+	
+	if (err != NOT_FOUND && this->_location.getErrorPage().size() > 0)
+		errPage = this->_location.getErrorPage();
+	else
+		errPage = this->_sb.getErrorPage();
 
-	errHtmlFilePath = sb.getErrorPage().find(errNum)->second;
+	if (errPage.find(static_cast<int>(err)) != errPage.end())
+		errHtmlFilePath = errPage.find(static_cast<int>(err))->second;
+	else
+		errHtmlFilePath = errPage.find(NOT_FOUND)->second;
+	
 	errHtml.open(errHtmlFilePath.c_str());
 	
 	while (std::getline(errHtml, line))
 		body << line;
 
-	if (errNum == NOT_FOUND) response << ERR_404_HEAD;
-	else if (errNum == NOT_ALLOWED) response << ERR_405_HEAD;
-
+	response << this->_req.getHttpErrorMsg().find(err)->second;
 	response << "Content-Type: " << errHtmlFilePath + "\r\n";
 	response << "Content-Length: " << body.str().length() << "\r\n\r\n";
 	response << body.str();
