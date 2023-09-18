@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/16 21:59:08 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/18 20:56:35 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,6 @@ class HttpRequest
 		str					_body;
 		header				_header;
 		httpMethod			_methodEnum;
-		str					_contentDisposition;
-		int					_contentDisSize;
 		std::map<httpError, str>	_HttpErrorMsg;
 	public:
 		HttpRequest();

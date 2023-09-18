@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/16 22:13:31 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/18 20:57:52 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ void	HttpRequest::parseHttpRequest(const str& req)
 	size_t	separatorPos;
 	str		key;
 	str		value;
-	this->_contentDisSize = 0;
 
 	while (std::getline(stream, line))
 	{
@@ -43,18 +42,15 @@ void	HttpRequest::parseHttpRequest(const str& req)
 			setHeader(key, value);
 		}
 		if (key == "Content-Type")
-		{
 			str	boundary = value.substr(value.find_first_of('=') + 1);
-			this->_contentDisSize += static_cast<int>(boundary.length());
-		}
 		if (key == "Content-Length")
 			break ;
 	}
 
-	this->_contentDisposition = "";
+	this->_body = "";
 	while (std::getline(stream, line))
 	{
-		this->_contentDisposition += line + str("\n");
+		this->_body += line + str("\n");
 		if (line.find_first_of(":") != str::npos)
 		{
 			size_t	start;
@@ -62,14 +58,9 @@ void	HttpRequest::parseHttpRequest(const str& req)
 
 			start = line.find_first_of("\"") + 1;
 			end = line.find_first_of(start);
-			this->_contentDisSize += static_cast<int>(end - start) + 1;
-		}
-		else
-		{
-			this->_contentDisSize += static_cast<int>(line.length());
+			this->_body += static_cast<int>(end - start) + 1;
 		}
 	}
-	std::cout << _contentDisSize << std::endl;
 }
 
 std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocket, const ServerBlock sb)
@@ -157,15 +148,11 @@ void	HttpRequest::setBody(str body) {this->_body = body;}
 
 void	HttpRequest::setHeader(str key, str value){this->_header[key] = value;}
 
-void	HttpRequest::setContentDisposition(str line) {this->_contentDisposition = line;}
-
 std::string	HttpRequest::getBody() const {return this->_body;}
 
 std::string	HttpRequest::getPath() const {return this->_path;}
 
 std::string	HttpRequest::getMethodStr() const {return this->_methodStr;}
-
-std::string	HttpRequest::getContentDisposition() const {return this->_contentDisposition;}
 
 httpMethod	HttpRequest::getMethodEnum() const {return this->_methodEnum;}
 

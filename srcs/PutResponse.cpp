@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PutResponse.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:31:26 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/16 21:22:49 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/18 20:59:04 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 PutResponse::PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb)
 :_req(req), _clientSocket(clientSocket), _sb(sb)
 {
-	if (!urlPathFound() || !methodAllowed() || !validContentType())
-		return ;
+	// if (!urlPathFound() || !methodAllowed() || !validContentType())
+	// 	return ;
+	std::cout << _req.getBody() <<std::endl;
 }
 
 bool	PutResponse::urlPathFound()
