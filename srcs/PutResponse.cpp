@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:31:26 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/18 21:17:37 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/18 21:23:51 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 PutResponse::PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb)
 :_req(req), _clientSocket(clientSocket), _sb(sb)
 {
-	// if (!urlPathFound() || !methodAllowed() || !validContentType())
-	// 	return ;
-	std::cout << _req.getBody() <<std::endl;
+	if (!urlPathFound() || !methodAllowed() || !validContentType())
+		return ;
+	// std::cout << _req.getBody() <<std::endl;
 }
 
 bool	PutResponse::urlPathFound()
