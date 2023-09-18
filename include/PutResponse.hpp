@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:15:38 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/17 20:33:38 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/18 21:18:25 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,9 @@ class	PutResponse
 
 		bool	urlPathFound();
 		bool	methodAllowed();
+		bool	validContentType();
+
+		str		generateErrorResponse(const httpError err);
 	public:
 		PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb);
 		~PutResponse();
@@ -39,7 +42,5 @@ class	PutResponse
 		
 		str		getResponse() const;
 };
-
-std::string		generateErrorResponse(const ServerBlock& sb, const httpError errNum);
 
 #endif

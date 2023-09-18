@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/18 20:51:19 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/18 21:17:24 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	HttpRequest::parseHttpRequest(const str& req)
 	str		key;
 	str		value;
 
-	while (std::getline(stream, line) && !line.empty())
+	while (std::getline(stream, line))
 	{
 		separatorPos = line.find(':');
 		if (separatorPos != std::string::npos)
@@ -40,6 +40,25 @@ void	HttpRequest::parseHttpRequest(const str& req)
 			key = line.substr(0, separatorPos);
 			value = line.substr(separatorPos + 2);
 			setHeader(key, value);
+		}
+		if (key == "Content-Type")
+			str	boundary = value.substr(value.find_first_of('=') + 1);
+		if (key == "Content-Length")
+			break ;
+	}
+
+	this->_body = "";
+	while (std::getline(stream, line))
+	{
+		this->_body += line + str("\n");
+		if (line.find_first_of(":") != str::npos)
+		{
+			size_t	start;
+			size_t	end;
+
+			start = line.find_first_of("\"") + 1;
+			end = line.find_first_of(start);
+			this->_body += static_cast<int>(end - start) + 1;
 		}
 	}
 }
@@ -67,7 +86,34 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 	return (response);
 }
 
-HttpRequest::HttpRequest() {}
+HttpRequest::HttpRequest()
+{
+	for (int i = 100; i < 505; i++)
+	{
+		httpError val = static_cast<httpError>(i);
+		switch (val)
+		{
+			case OK:
+				this->_HttpErrorMsg[val] = "HTTP/1.1 200 OK\r\n";
+				break;
+			case BAD_REQUEST:
+				this->_HttpErrorMsg[val] = "HTTP/1.1 400 Bad Request\r\n";
+				break;
+			case NOT_FOUND:
+				this->_HttpErrorMsg[val] = "HTTP/1.1 404 Not Found\r\n";
+				break;
+			case NOT_ALLOWED:
+				this->_HttpErrorMsg[val] = "HTTP/1.1 405 Not Allowed\r\n";
+				break;
+			case UNSUPPORTED_MEDIA_TYPE:
+				this->_HttpErrorMsg[val] = "HTTP/1.1 415 Unsupported Media Type\r\n";
+				break;
+			default:
+				break;
+		}
+	}
+		
+}
 
 HttpRequest::~HttpRequest() {}
 
@@ -111,3 +157,5 @@ std::string	HttpRequest::getMethodStr() const {return this->_methodStr;}
 httpMethod	HttpRequest::getMethodEnum() const {return this->_methodEnum;}
 
 HttpRequest::header	HttpRequest::getHeader() const {return this->_header;}
+
+std::map<httpError, std::string>	HttpRequest::getHttpErrorMsg() const {return this->_HttpErrorMsg;}
