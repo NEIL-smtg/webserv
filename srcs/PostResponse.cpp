@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/17 20:43:52 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/18 20:14:40 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,23 +16,36 @@
 PostResponse::PostResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb)
 :_req(req), _clientSocket(clientSocket), _sb(sb)
 {
-	if (!urlPathFound() || !methodAllowed())
-		return ;
-	//check content type: (Error 400)
-	//check for is it multipart/form-data (Error 400)
+	// if (!urlPathFound() || !methodAllowed())
+	// 	return ;
+	std::map<std::string, std::string> header = _req.getHeader();
+	std::map<std::string, std::string>::iterator it = header.find("Content-Type");
+	if (it == header.end())
+		std::cout << "Error 400" << std::endl;
+	size_t found = it->second.find("multipart/form-data");
+	if (found == std::string::npos)
+		std::cout << "Error 415" << std::endl;
 	//check content length exceed max/min (Error 413/Error 400)
-	//path = strjoin server path and request path
-	//check path is end with / or not if not add
-	//get boundary numbers from content type content line (Error 400)
-		/*	THIS IS AN EXAMPLE
-			Content-Type: multipart/form-data; boundary=--------------------------764881834332229428462343
-		*/
+	std::string ser_path = _sb.getRoot();
+	std::string path;
+	if (ser_path[ser_path.length() - 1] == '/')
+		ser_path.erase(ser_path.length() - 1);	
+	path = ser_path + _req.getPath();
+	if (path[path.length() - 1] != '/')
+		path += '/';
+	found = it->second.find("boundary=");
+	if (found + 9 >= std::string::npos)
+		std::cout << "Error 400" << std::endl;
+	std::string boundary;
+	boundary = it->second.substr(found + 9);
+	std::cout << boundary << std::endl;
 	//treat body part can split with the boundary numbers
 		//then iter through to find "name"
 		/*	THIS IS AN EXAMPLE
 			----------------------------764881834332229428462343
 			Content-Disposition: form-data; name="filename"
 			newfile.txt
+			----------------------------764881834332229428462343--
 		*/
 		//if found, can do map<string, string> (map["filename"] = "newfile.txt")
 		//if any fails like invalid mapping response error (Error 400)
