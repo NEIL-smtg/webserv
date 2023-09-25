@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/09/18 21:18:15 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/25 18:25:31 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "GetResponse.hpp"
 # include "PutResponse.hpp"
 # include "PostResponse.hpp"
+# include "DeleteResponse.hpp"
 
 // class	GetResponse;
 // class	PutResponse;
@@ -27,11 +28,12 @@ class HttpRequest
 {
 	typedef std::string			str;
 	typedef std::map<str, str>	header;
+    typedef std::vector<str>	body;
 	
 	private:
 		str					_methodStr;
 		str					_path;			//url dir
-		str					_body;
+		body				_body;
 		header				_header;
 		httpMethod			_methodEnum;
 		std::map<httpError, str>	_HttpErrorMsg;
@@ -43,15 +45,13 @@ class HttpRequest
 
 		void			setMethod(str method);
 		void			setPath(str path);
-		void			setBody(str body);
+		void			setBody(str line);
 		void			setHeader(str head, str content);
-		void			setContentDisposition(str line);
 		str				getMethodStr() const;
 		httpMethod		getMethodEnum() const;
-		str				getBody() const;
+		body			getBody() const;
 		header			getHeader() const;
 		str				getPath() const;
-		str				getContentDisposition() const;
 		std::map<httpError, str>	getHttpErrorMsg() const;
 
 		void			parseHttpRequest(const str& req);

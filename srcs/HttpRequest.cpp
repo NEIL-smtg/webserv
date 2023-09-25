@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/18 21:17:24 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/25 18:25:08 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,21 +46,8 @@ void	HttpRequest::parseHttpRequest(const str& req)
 		if (key == "Content-Length")
 			break ;
 	}
-
-	this->_body = "";
 	while (std::getline(stream, line))
-	{
-		this->_body += line + str("\n");
-		if (line.find_first_of(":") != str::npos)
-		{
-			size_t	start;
-			size_t	end;
-
-			start = line.find_first_of("\"") + 1;
-			end = line.find_first_of(start);
-			this->_body += static_cast<int>(end - start) + 1;
-		}
-	}
+		setBody(line);
 }
 
 std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocket, const ServerBlock sb)
@@ -79,6 +66,9 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 			break;
 		case POST:
 			response = PostResponse(*this, newSocket, sb).getResponse();;
+			break;
+		case DELETE:
+			response = DeleteResponse(*this, newSocket, sb).getResponse();;
 			break;
 		default:
 			break;
@@ -144,11 +134,11 @@ void	HttpRequest::setMethod(str method)
 
 void	HttpRequest::setPath(str path) {this->_path = path;}
 
-void	HttpRequest::setBody(str body) {this->_body = body;}
+void	HttpRequest::setBody(str line) {this->_body.push_back(line);}
 
 void	HttpRequest::setHeader(str key, str value){this->_header[key] = value;}
 
-std::string	HttpRequest::getBody() const {return this->_body;}
+HttpRequest::body	HttpRequest::getBody() const {return this->_body;}
 
 std::string	HttpRequest::getPath() const {return this->_path;}
 
