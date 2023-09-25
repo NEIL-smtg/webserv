@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/18 20:56:35 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/26 02:36:33 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class HttpRequest
 		str					_body;
 		header				_header;
 		httpMethod			_methodEnum;
-		std::map<httpError, str>	_HttpErrorMsg;
+		std::map<int, str>	_HttpErrorMsg;
 	public:
 		HttpRequest();
 		HttpRequest(const HttpRequest& other);
@@ -43,14 +43,13 @@ class HttpRequest
 		void			setPath(str path);
 		void			setBody(str body);
 		void			setHeader(str head, str content);
-		void			setContentDisposition(str line);
 		str				getMethodStr() const;
 		httpMethod		getMethodEnum() const;
 		str				getBody() const;
 		header			getHeader() const;
 		str				getPath() const;
 		str				getContentDisposition() const;
-		std::map<httpError, str>	getHttpErrorMsg() const;
+		std::map<int, str>	getHttpErrorMsg() const;
 
 		void			parseHttpRequest(const str& req);
 		str				generateHttpResponse(const str& req, const int newSocket,const ServerBlock sb);

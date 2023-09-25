@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:15:38 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/16 20:15:41 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 02:40:40 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class	PutResponse
 		bool	methodAllowed();
 		bool	validContentType();
 
-		str		generateErrorResponse(const httpError err);
+		str		generateErrorResponse(const int errCode);
 	public:
 		PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb);
 		~PutResponse();

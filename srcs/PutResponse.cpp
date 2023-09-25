@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PutResponse.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:31:26 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/18 20:59:04 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/26 02:41:41 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,8 @@
 PutResponse::PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb)
 :_req(req), _clientSocket(clientSocket), _sb(sb)
 {
-	// if (!urlPathFound() || !methodAllowed() || !validContentType())
-	// 	return ;
-	std::cout << _req.getBody() <<std::endl;
+	if (!urlPathFound() || !methodAllowed() || !validContentType())
+		return ;
 }
 
 bool	PutResponse::urlPathFound()
@@ -37,7 +36,7 @@ bool	PutResponse::urlPathFound()
 			return (true);
 		}
 	}
-	this->_response = generateErrorResponse(NOT_FOUND);
+	this->_response = generateErrorResponse(404);
 	return (false);
 }
 
@@ -54,7 +53,7 @@ bool	PutResponse::methodAllowed()
 		if ((*it) == reqMethod)
 			return (true);
 	}
-	this->_response = generateErrorResponse(NOT_ALLOWED);
+	this->_response = generateErrorResponse(405);
 	return (false);
 }
 
@@ -87,7 +86,7 @@ bool	PutResponse::validContentType()
 			return (true);
 		}
 	}
-	this->_response = generateErrorResponse(UNSUPPORTED_MEDIA_TYPE);
+	this->_response = generateErrorResponse(415);
 	return (false);
 }
 
@@ -106,7 +105,7 @@ PutResponse&	PutResponse::operator=(const PutResponse& other)
 
 std::string	PutResponse::getResponse() const {return this->_response;}
 
-std::string	PutResponse::generateErrorResponse(const httpError err)
+std::string	PutResponse::generateErrorResponse(const int errCode)
 {
 	std::map<int, std::string>	errPage;
 	std::string					errHtmlFilePath;
@@ -115,22 +114,22 @@ std::string	PutResponse::generateErrorResponse(const httpError err)
 	std::ifstream				errHtml;
 	std::stringstream			body;
 	
-	if (err != NOT_FOUND && this->_location.getErrorPage().size() > 0)
+	if (errCode != 404 && this->_location.getErrorPage().size() > 0)
 		errPage = this->_location.getErrorPage();
 	else
 		errPage = this->_sb.getErrorPage();
 
-	if (errPage.find(static_cast<int>(err)) != errPage.end())
-		errHtmlFilePath = errPage.find(static_cast<int>(err))->second;
+	if (errPage.find(errCode) != errPage.end())
+		errHtmlFilePath = errPage.find(errCode)->second;
 	else
-		errHtmlFilePath = errPage.find(NOT_FOUND)->second;
+		errHtmlFilePath = errPage.find(404)->second;
 	
 	errHtml.open(errHtmlFilePath.c_str());
 	
 	while (std::getline(errHtml, line))
 		body << line;
 
-	response << this->_req.getHttpErrorMsg().find(err)->second;
+	response << this->_req.getHttpErrorMsg().find(errCode)->second;
 	response << "Content-Type: " << errHtmlFilePath + "\r\n";
 	response << "Content-Length: " << body.str().length() << "\r\n\r\n";
 	response << body.str();
