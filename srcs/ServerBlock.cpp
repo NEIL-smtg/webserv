@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerBlock.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:28:55 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 16:44:45 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/26 16:37:37 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ ServerBlock::ServerBlock()
 	this->port = -1;
 	this->root.clear();
 	this->index.clear();
+	this->clientMaxBodySize = DEFAULT_CLIENT_SIZE;
+	this->clientMinBodySize = DEFAULT_CLIENT_SIZE;
 }
 
 ServerBlock::~ServerBlock(){}
@@ -36,80 +38,6 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock& other)
 	this->methods = other.methods;
 	this->location = other.location;
 	return (*this);
-}
-
-void	ServerBlock::addMethod(str method)
-{
-	this->methods.push_back(method);
-}
-
-void	ServerBlock::addLocation(Location& location)
-{
-	this->location.push_back(location);
-}
-
-void	ServerBlock::setName(str name)
-{
-	this->name = name;
-}
-
-void	ServerBlock::setPort(int port)
-{
-	this->port = port;
-}
-
-void	ServerBlock::setRoot(str root)
-{
-	this->root = root;
-}
-
-void	ServerBlock::setIndex(str index)
-{
-	this->index = index;
-}
-
-empty	ServerBlock::somethingEmpty()
-{
-	if (port == -1)
-		return (EMPTY_PORT);
-	else if (name.empty())
-		return (EMPTY_NAME);
-	else if (root.empty())
-		return (EMPTY_ROOT);
-	else if (index.empty())
-		return (EMPTY_INDEX);
-	else
-		return (FILLED);
-}
-
-std::string	ServerBlock::getName() const
-{
-	return this->name;
-}
-
-int	ServerBlock::getPort() const
-{
-	return this->port;
-}
-
-std::string	ServerBlock::getRoot() const
-{
-	return this->root;
-}
-
-std::string	ServerBlock::getIndex() const
-{
-	return this->index;
-}
-
-std::vector<std::string>	ServerBlock::getMethods() const
-{
-	return this->methods;
-}
-
-std::vector<Location>	ServerBlock::getLocation() const
-{
-	return this->location;
 }
 
 std::ostream&	operator<<(std::ostream& out, ServerBlock& sb)
@@ -194,7 +122,45 @@ void	ServerBlock::addErrorPage(std::vector<std::string>::iterator &i)
 	}
 }
 
-std::map<int, std::string>	ServerBlock::getErrorPage() const
+std::map<int, std::string>	ServerBlock::getErrorPage() const {return this->error_page;}
+
+void	ServerBlock::addMethod(str method) {this->methods.push_back(method);}
+
+void	ServerBlock::addLocation(Location& location){this->location.push_back(location);}
+
+void	ServerBlock::setName(str name) {this->name = name;}
+
+void	ServerBlock::setPort(int port) {this->port = port;}
+
+void	ServerBlock::setRoot(str root) {this->root = root;}
+
+void	ServerBlock::setIndex(str index) {this->index = index;}
+
+void	ServerBlock::setClientMaxBodySize(int size) {this->clientMaxBodySize = size;}
+
+void	ServerBlock::setClientMinBodySize(int size) {this->clientMinBodySize = size;}
+
+empty	ServerBlock::somethingEmpty()
 {
-	return this->error_page;
+	if (port == -1)			return (EMPTY_PORT);
+	else if (name.empty())	return (EMPTY_NAME);
+	else if (root.empty())	return (EMPTY_ROOT);
+	else if (index.empty())	return (EMPTY_INDEX);
+	else					return (FILLED);
 }
+
+std::string	ServerBlock::getName() const {return this->name;}
+
+int	ServerBlock::getPort() const {return this->port;}
+
+std::string	ServerBlock::getRoot() const {return this->root;}
+
+std::string	ServerBlock::getIndex() const {return this->index;}
+
+std::vector<std::string>	ServerBlock::getMethods() const {return this->methods;}
+
+std::vector<Location>	ServerBlock::getLocation() const {return this->location;}
+
+int	ServerBlock::getClientMaxBodySize() const {return this->clientMaxBodySize;}
+
+int	ServerBlock::getClientMinBodySize() const {return this->clientMinBodySize;}

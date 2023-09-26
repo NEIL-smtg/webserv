@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/16 00:51:12 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/25 20:01:05 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 16:23:39 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ class Location
 		std::string					index;
 		std::string					cgi_script;
 		std::map<int, std::string>	error_page;
-		int							client_max_body_size;
+		int							clientMaxBodySize;
 		std::vector<std::string>	methods;
 	public:
 		Location();

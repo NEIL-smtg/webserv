@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 02:38:26 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 18:06:15 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ HttpRequest::HttpRequest()
 	this->_HttpErrorMsg[400] = "HTTP/1.1 400 Bad Request\r\n";
 	this->_HttpErrorMsg[404] = "HTTP/1.1 404 Not Found\r\n";
 	this->_HttpErrorMsg[405] = "HTTP/1.1 405 Not Allowed\r\n";
-	this->_HttpErrorMsg[415] = "HTTP/1.1 415 Unsupported Media Type\r\n";		
+	this->_HttpErrorMsg[415] = "HTTP/1.1 415 Unsupported Media Type\r\n";
 }
 
 HttpRequest::~HttpRequest() {}

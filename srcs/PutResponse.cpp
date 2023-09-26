@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:31:26 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 02:41:41 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 16:20:55 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ std::string	PutResponse::generateErrorResponse(const int errCode)
 	std::stringstream			response;
 	std::ifstream				errHtml;
 	std::stringstream			body;
-	
+
 	if (errCode != 404 && this->_location.getErrorPage().size() > 0)
 		errPage = this->_location.getErrorPage();
 	else

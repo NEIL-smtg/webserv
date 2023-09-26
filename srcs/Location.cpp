@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/16 00:52:18 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 18:23:53 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 {
 	locconf		_conf = LC_NONE;
 	
-	this->client_max_body_size = DEFAULT_CLIENT_SIZE;
+	this->clientMaxBodySize = DEFAULT_CLIENT_SIZE;
 	setDirectory(*i);
 	if (*(++i) != "{")
 		throw InvalidFileException("Missing {");
@@ -116,7 +116,7 @@ Location& Location::operator=(const Location& other)
 	this->root = other.root;
 	this->cgi_script = other.cgi_script;
 	this->error_page = other.error_page;
-	this->client_max_body_size = other.client_max_body_size;
+	this->clientMaxBodySize = other.clientMaxBodySize;
 	return (*this);
 }
 
@@ -199,9 +199,9 @@ void	Location::getSize(std::string size)
 	
 }
 
-void	Location::setClientMaxBodySize(int client_max_body_size)
+void	Location::setClientMaxBodySize(int clientMaxBodySize)
 {
-	this->client_max_body_size = client_max_body_size;
+	this->clientMaxBodySize = clientMaxBodySize;
 }
 
 void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector<std::string> &token)
@@ -248,7 +248,7 @@ std::vector<std::string>	Location::getMethods() const
 
 int	Location::getClientMaxBodySize() const
 {
-	return this->client_max_body_size;
+	return this->clientMaxBodySize;
 }
 
 std::map<int, std::string>	Location::getErrorPage() const

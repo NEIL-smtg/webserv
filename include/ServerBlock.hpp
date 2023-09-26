@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerBlock.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:26:46 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/13 16:27:54 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/26 18:23:00 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ class ServerBlock
 		int			port;
 		str			root;
 		str			index;
+		int			clientMaxBodySize;
+		int			clientMinBodySize;
 		std::map<int, std::string>	error_page;
 		std::vector<str>		methods;
 		std::vector<Location>	location;
@@ -41,11 +43,16 @@ class ServerBlock
 		void	setPort(int port);
 		void	setRoot(str root);
 		void	setIndex(str index);
+		void	setClientMaxBodySize(int size);
+		void	setClientMinBodySize(int size);
+		bool	setAutoIndex;
 
 		str		getName() const;
 		int		getPort() const;
 		str		getRoot() const;
 		str		getIndex() const;
+		int		getClientMaxBodySize() const;
+		int		getClientMinBodySize() const;
 		std::map<int, std::string>	getErrorPage() const;
 		std::vector<str>		getMethods() const;
 		std::vector<Location>	getLocation() const;
