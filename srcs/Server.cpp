@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 21:06:59 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/27 03:53:47 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,60 +101,39 @@ void	Server::acceptConnection()
 void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlock sb)
 {
 
-	char	server_message[1024], client_message[1024];
-	int		port = sb.getPort();;
-	size_t		receivedBytes;
-	std::string data;
-	size_t		totalBytes = 0;
+	char				server_message[1024];
+	char				client_message[1024];
+	int					receivedBytes;
+	std::string 		receivedData;
+	const int			port = sb.getPort();
  	
-	// Clean buffers:
-	memset(server_message, '\0', 1024);
-	memset(client_message, '\0', 1024);
+	memset(server_message, 0, 1024);
 
 	std::cout << GREEN << "[ ✅ ] New connection" << YELLOW << " : client with IP "  << BLUE << inet_ntoa(clientAddr.sin_addr) << YELLOW ;
 	std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << newSocket << RESET << std::endl;
 
-
 	while (1)
 	{
-		receivedBytes = recv(newSocket, client_message, 1024, 0);
-		if (receivedBytes < 0)
+		memset(client_message, 0, 8);
+		receivedBytes = recv(newSocket, client_message, 8, 0);
+		if (receivedBytes == -1)
 		{
 			perror("Couldn't receive");
 			std::cerr << "Couldn't receive message at " << newSocket << " client fd socket" << std::endl;
 			return ;
 		}
-		else if (receivedBytes == 0)
-			break ;
-		else
-		{
-			// for (size_t i = 0; i < receivedBytes; i++)
-			// 	if (client_message[i] == 0)
-			// 		client_message[i] = '\n';
-			data += std::string(client_message);
-			memset(client_message, 0, 1024);
-		}
-		totalBytes += receivedBytes;
-		std::cout << "received byte :" << data.length() << std::endl;
-		if (receivedBytes < 1024)
+		receivedData.append(client_message, receivedBytes);
+		if (receivedBytes < 8)
 			break ;
 	}
 
-
-	if (data.empty())
-		data = std::string(client_message);
+	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
+	std::cout << receivedData;
 	
-	// printf("%d\n", *(data.end() - 1));
-	// std::cout <<  << ",." << totalBytes << std::endl;
-	
-
-	// std::cout << data << std::endl;
-
-	std::string	httpResponse = this->_httpReq.generateHttpResponse(data, newSocket, sb);
+	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, newSocket, sb);
 	if	(httpResponse == "")
 	{
 		std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
-		std::cout << "msg sent" << std::endl;
 		std::cout << std::endl;
 
 		std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
