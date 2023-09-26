@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/15 00:32:31 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 18:09:20 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,8 +117,7 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 		std::cerr << "Couldn't receive message at " << newSocket << " client fd socket" << std::endl;
 	}
 
-	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << client_message << std::endl;
-	
+	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::ios::binary << client_message << std::endl;
 	std::string	httpResponse = this->_httpReq.generateHttpResponse(client_message, newSocket, sb);
 	if	(httpResponse == "")
 	{

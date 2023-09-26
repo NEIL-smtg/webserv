@@ -6,10 +6,9 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/25 18:20:37 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/26 16:21:02 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "PostResponse.hpp"
 
@@ -84,7 +83,7 @@ int FilenameContentCheck(std::map<std::string, std::string> body_extract, std::s
     return (0);
 }
 
-int FileCheckingWriting(std::map<std::string, std::string> body_extract, std::string path, std::string method)
+int FileCheckingWriting(std::map<std::string, std::string> body_extract, std::string path, httpMethod method)
 {
     std::ifstream infile;
     std::ofstream outfile;
@@ -92,12 +91,12 @@ int FileCheckingWriting(std::map<std::string, std::string> body_extract, std::st
     if (infile.is_open())
     {
         outfile.close();
-        if (method == "post")
+        if (method == POST)
             return (400);
     }
     else
     {
-        if (method == "put")
+        if (method == PUT)
             return (400); 
     }
     outfile.open(path.c_str());
@@ -140,7 +139,7 @@ PostResponse::PostResponse(const HttpRequest& req, const int& clientSocket, cons
         std::cout << "Error " << status_code << std::endl;
         return ;
     }
-    status_code = FileCheckingWriting(body_extract, path, "post");
+    status_code = FileCheckingWriting(body_extract, path, POST);
     if (status_code)
     {
         std::cout << "Error " << status_code << std::endl;
@@ -166,7 +165,6 @@ bool	PostResponse::urlPathFound()
 			return (true);
 		}
 	}
-
 	// this->_response = generateErrorResponse(this->_sb, NOT_FOUND);
 	return (false);
 }

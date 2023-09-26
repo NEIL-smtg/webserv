@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/16 20:49:15 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 16:29:07 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
 # include <arpa/inet.h>
 
 # define	LOCAL_HOST				"127.0.0.1"
-# define	DEFAULT_CLIENT_SIZE		42
+# define	DEFAULT_CLIENT_SIZE		-1
 
 //	HTTP ERROR METHOD MSG
 # define	ERR_404_HEAD			"HTTP/1.1 404 Not Found\r\n"
