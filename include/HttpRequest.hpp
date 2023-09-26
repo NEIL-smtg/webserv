@@ -6,9 +6,10 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 02:36:33 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 19:00:23 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef	__HTTP_REQUEST_HPP__
 # define __HTTP_REQUEST_HPP__
@@ -17,6 +18,8 @@
 # include "ServerBlock.hpp"
 # include "GetResponse.hpp"
 # include "PutResponse.hpp"
+# include "PostResponse.hpp"
+# include "DeleteResponse.hpp"
 
 // class	GetResponse;
 // class	PutResponse;
@@ -25,11 +28,12 @@ class HttpRequest
 {
 	typedef std::string			str;
 	typedef std::map<str, str>	header;
+    typedef std::vector<str>	body;
 	
 	private:
 		str					_methodStr;
 		str					_path;			//url dir
-		str					_body;
+		body				_body;
 		header				_header;
 		httpMethod			_methodEnum;
 		std::map<int, str>	_HttpErrorMsg;
@@ -41,11 +45,11 @@ class HttpRequest
 
 		void			setMethod(str method);
 		void			setPath(str path);
-		void			setBody(str body);
+		void			setBody(str line);
 		void			setHeader(str head, str content);
 		str				getMethodStr() const;
 		httpMethod		getMethodEnum() const;
-		str				getBody() const;
+		body			getBody() const;
 		header			getHeader() const;
 		str				getPath() const;
 		str				getContentDisposition() const;

@@ -1,24 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   PutResponse.hpp                                    :+:      :+:    :+:   */
+/*   DeleteResponse.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:15:38 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 19:00:51 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/25 17:44:51 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __PUT_RESPONSE__HPP__
-# define __PUT_RESPONSE__HPP__
+#ifndef __DELETE_RESPONSE__HPP__
+# define __DELETE_RESPONSE__HPP__
 
 # include "Webserv.hpp"
 # include "HttpRequest.hpp"
 
 class	HttpRequest;
 
-class	PutResponse
+class	DeleteResponse
 {
 	typedef std::string	str;
 
@@ -33,12 +33,12 @@ class	PutResponse
 		bool	methodAllowed();
 		bool	validContentType();
 
-		str		generateErrorResponse(const int errCode);
+		str		generateErrorResponse(const httpError err);
 	public:
-		PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb);
-		~PutResponse();
-		PutResponse(const PutResponse& other);
-		PutResponse&	operator=(const PutResponse& other);
+		DeleteResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb);
+		~DeleteResponse();
+		DeleteResponse(const DeleteResponse& other);
+		DeleteResponse&	operator=(const DeleteResponse& other);
 		
 		str		getResponse() const;
 };

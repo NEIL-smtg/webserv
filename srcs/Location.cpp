@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/26 18:23:53 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 19:02:43 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 static bool isLocoHead(std::string locohead)
 {
-	const std::string head[12] = {"root", "index", "include", "cgi_script", "upload", "error_page", "client_max_body_size", "autoindex", "return", "limit_except", "allow", "deny"};
+	const std::string head[13] = {"root", "index", "include", "cgi_script", "upload", "error_page", "client_max_body_size", "client_min_body_size", "autoindex", "return", "limit_except", "allow", "deny"};
 
-	for (size_t i = 0; i < 12; i++)
+	for (size_t i = 0; i < 13; i++)
 	{
 		if (locohead == head[i])
 			return (true);
@@ -29,6 +29,7 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 	locconf		_conf = LC_NONE;
 	
 	this->clientMaxBodySize = DEFAULT_CLIENT_SIZE;
+	this->clientMinBodySize = DEFAULT_CLIENT_SIZE;
 	setDirectory(*i);
 	if (*(++i) != "{")
 		throw InvalidFileException("Missing {");
@@ -51,16 +52,16 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 			_conf = LC_ERROR_PAGE;
 		else if (*i == "client_max_body_size")
 			_conf = LC_CLIENT_MAX_BODY_SIZE;
+		else if (*i == "client_min_body_size")
+			_conf = LC_CLIENT_MIN_BODY_SIZE;
 		// else if (*i == "autoindex")
 		// 	_conf = LC_AUTOINDEX;
 		// else if (*i == "return")
 		// 	_conf = LC_RETURN;
-		else if (*i == "allow_methods" || (_conf == LC_ALLOW && isMethod(*i)))
+		else if (*i == "allow_methods" || (_conf == LC_LIMIT_EXCEPT && isMethod(*i)))
 			_conf = LC_LIMIT_EXCEPT;
 		else if (*i == "limit_except" || (_conf == LC_LIMIT_EXCEPT && isMethod(*i)))
 			_conf = LC_LIMIT_EXCEPT;
-		// else if (*i == "allow")
-		// 	_conf = LC_ALLOW;
 		// else if (*i == "deny")
 		// 	_conf = LC_DENY;
 		if (_conf == LC_NONE)
@@ -82,19 +83,17 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		if (_conf == LC_ERROR_PAGE)
 			addErrorPage(i);
 		if (_conf == LC_CLIENT_MAX_BODY_SIZE)
-			getSize(*i);
+			getSize(*i, _conf);
+		if (_conf == LC_CLIENT_MIN_BODY_SIZE)
+			getSize(*i, _conf);
 		// if (_conf == LC_AUTOINDEX)
 		// 	setAutoIndex(*i);
 		// if (_conf == LC_RETURN)
 		// 	setReturn(*i);
-		if (_conf == LC_ALLOW)
+		if (_conf == LC_LIMIT_EXCEPT)
 			addLimitExcept(i, token);
 		if (_conf == LC_LIMIT_EXCEPT)
 			addLimitExcept(i, token);
-		// if (_conf == LC_ALLOW)
-		// 	setAllow(*i);
-		// if (_conf == LC_DENY)
-		// 	setDeny(*i);
 	}
 	if (i == token.end())
 		throw InvalidFileException("Error : Missing }");
@@ -114,31 +113,20 @@ Location& Location::operator=(const Location& other)
 	this->index = other.index;
 	this->methods = other.methods;
 	this->root = other.root;
-	this->cgi_script = other.cgi_script;
-	this->error_page = other.error_page;
+	this->cgiScript = other.cgiScript;
+	this->errorPage = other.errorPage;
 	this->clientMaxBodySize = other.clientMaxBodySize;
+	this->clientMinBodySize = other.clientMinBodySize;
 	return (*this);
 }
 
-void	Location::setDirectory(std::string directory)
-{
-	this->directory = directory;
-}
+void	Location::setDirectory(std::string directory){this->directory = directory;}
 
-void	Location::setIndex(std::string index)
-{
-	this->index = index;
-}
+void	Location::setIndex(std::string index){this->index = index;}
 
-void	Location::setRoot(std::string root)
-{
-	this->root = root;
-}
+void	Location::setRoot(std::string root){this->root = root;}
 
-void	Location::setCgiScript(std::string cgi_script)
-{
-	this->cgi_script = cgi_script;
-}
+void	Location::setCgiScript(std::string cgiScript){this->cgiScript = cgiScript;}
 
 void	Location::addErrorPage(std::vector<std::string>::iterator &i)
 {
@@ -166,7 +154,7 @@ void	Location::addErrorPage(std::vector<std::string>::iterator &i)
 			std::cerr << "Error : no such file or directory : " << *i << std::endl;
 			throw InvalidFileException("");
 		}
-		error_page[err_value] = *i;
+		errorPage[err_value] = *i;
 	}
 	catch(std::exception &e)
 	{
@@ -174,14 +162,14 @@ void	Location::addErrorPage(std::vector<std::string>::iterator &i)
 	}
 }
 
-void	Location::getSize(std::string size)
+void	Location::getSize(std::string size, locconf minMax)
 {
-	int client_max_body_size;
+	int clientSize;
 	char *str;
 
 	try
 	{
-		client_max_body_size = std::atoi(size.c_str());
+		clientSize = std::atoi(size.c_str());
 		int i = 0;
 		str = (char *)size.c_str();
 		while (str[i])
@@ -190,7 +178,10 @@ void	Location::getSize(std::string size)
 				throw InvalidFileException("");
 			i++;
 		}
-		setClientMaxBodySize(client_max_body_size);
+        if (minMax == LC_CLIENT_MAX_BODY_SIZE)
+		    setClientMaxBodySize(clientSize);
+        else if (minMax == LC_CLIENT_MIN_BODY_SIZE)
+		    setClientMinBodySize(clientSize);
 	}
 	catch(std::exception &e)
 	{
@@ -199,10 +190,9 @@ void	Location::getSize(std::string size)
 	
 }
 
-void	Location::setClientMaxBodySize(int clientMaxBodySize)
-{
-	this->clientMaxBodySize = clientMaxBodySize;
-}
+void	Location::setClientMaxBodySize(int clientSize){this->clientMaxBodySize = clientSize;}
+
+void	Location::setClientMinBodySize(int clientSize){this->clientMinBodySize = clientSize;}
 
 void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector<std::string> &token)
 {
@@ -221,44 +211,23 @@ void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector
 	--i;
 }
 
-std::string	Location::getDirectory() const
-{
-	return this->directory;
-}
+std::string	Location::getDirectory() const{return this->directory;}
 
-std::string	Location::getRoot() const
-{
-	return this->root;
-}
+std::string	Location::getRoot() const{return this->root;}
 
-std::string	Location::getIndex() const
-{
-	return this->index;
-}
+std::string	Location::getIndex() const{return this->index;}
 
-std::string	Location::getCgiScript() const
-{
-	return this->cgi_script;
-}
+std::string	Location::getCgiScript() const{return this->cgiScript;}
 
-std::vector<std::string>	Location::getMethods() const
-{
-	return this->methods;
-}
+std::vector<std::string>	Location::getMethods() const {return this->methods;}
 
-int	Location::getClientMaxBodySize() const
-{
-	return this->clientMaxBodySize;
-}
+int	Location::getClientMaxBodySize() const{return this->clientMaxBodySize;}
 
-std::map<int, std::string>	Location::getErrorPage() const
-{
-	return this->error_page;
-}
+std::map<int, std::string>	Location::getErrorPage() const{return this->errorPage;}
 
 void	Location::printErrorPage()
 {
-    for (std::map<int, std::string>::iterator it = error_page.begin(); it != error_page.end(); ++it) {
+    for (std::map<int, std::string>::iterator it = errorPage.begin(); it != errorPage.end(); ++it) {
         std::cout << it->first << ": " << it->second << std::endl;
     }
 }
