@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/26 16:21:02 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/27 17:55:43 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,14 @@ int RequestHeaderChecking(const HttpRequest& req, std::string &boundary)
     std::map<std::string, std::string> header = req.getHeader();
 	std::map<std::string, std::string>::iterator it = header.find("Content-Type");
 	if (it == header.end())
-		return (400);
+		return (4001);
 	size_t found = it->second.find("multipart/form-data");
 	if (found == std::string::npos)
 		return (415);
 	//check content length exceed max/min (Error 413/Error 400)
 	found = it->second.find("boundary=");
 	if (found + 9 >= std::string::npos)
-		return (400);
+		return (4002);
 	boundary = "--" + it->second.substr(found + 9);
     return (0);
 }
@@ -49,10 +49,12 @@ int RequestBodyExtract(std::map<std::string, std::string> &body_extract, const H
             pos = (*it2).find(';');
             std::string body_key = (*it2).substr(pos + 8);
             if (body_key == "\"")
-                return (400);
-            body_key = body_key.substr(0, body_key.length() - 1);
-            if (pos == std::string::npos)
-               return (400);
+                return (4001);
+            pos = body_key.find(';');
+            if (pos != std::string::npos)
+                body_key = body_key.substr(0, pos - 1);
+            else
+                body_key = body_key.substr(0, body_key.length() - 1);
             if (it2 + 1 != body.end() && (*(it2 + 1)) != boundary && (*(it2 + 1)) != boundary_end)
                 it2++;
             std::string body_value = "";
@@ -62,9 +64,9 @@ int RequestBodyExtract(std::map<std::string, std::string> &body_extract, const H
                 body_value += (*it2).substr(0, (*it2).length() - 1);
             }
             if (it2 + 1 == body.end())
-                return (400);
+                return (4002);
             if ((*it2) == "\r")
-                return (400);
+                return (4003);
             body_extract[body_key] = body_value;
         }
     }
@@ -117,13 +119,14 @@ PostResponse::PostResponse(const HttpRequest& req, const int& clientSocket, cons
     status_code = RequestHeaderChecking(req, boundary);
     if (status_code)
     {
-        std::cout << "Error " << status_code << std::endl;
+        std::cout << "Error1 " << status_code << std::endl;
         return ;
     }
     std::map<std::string, std::string> body_extract;
-    if (RequestBodyExtract(body_extract, req, boundary))
+    status_code = RequestBodyExtract(body_extract, req, boundary);
+    if (status_code)
     {
-        std::cout << "Error 400" << std::endl;
+        std::cout << "Error2 " << status_code << std::endl;
         return ;
     }
     std::string ser_path = _sb.getRoot();
@@ -136,13 +139,13 @@ PostResponse::PostResponse(const HttpRequest& req, const int& clientSocket, cons
     status_code = FilenameContentCheck(body_extract, path);
     if (status_code)
     {
-        std::cout << "Error " << status_code << std::endl;
+        std::cout << "Error3 " << status_code << std::endl;
         return ;
     }
     status_code = FileCheckingWriting(body_extract, path, POST);
     if (status_code)
     {
-        std::cout << "Error " << status_code << std::endl;
+        std::cout << "Error4 " << status_code << std::endl;
         return ;
     }
     std::cout << "200, Success" << std::endl;

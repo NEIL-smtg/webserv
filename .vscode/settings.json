@@ -80,5 +80,6 @@
 		"cinttypes": "cpp",
 		"__tree": "cpp"
 	},
-	"42header.email": "suchua@student.42.fr"
+    "42header.email": "suchua@student.42.fr",
+    "C_Cpp.errorSquiggles": "disabled"
 }
