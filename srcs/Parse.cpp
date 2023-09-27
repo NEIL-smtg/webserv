@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/16 01:21:10 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/26 16:41:36 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,16 +45,11 @@ bool	isHead(std::string line)
 
 void	ExceptionDecider(empty type)
 {
-	if (type == EMPTY_PORT)
-		throw InvalidFileException("Error : Empty port.");
- 	if (type == EMPTY_NAME)
-		throw InvalidFileException("Error : Empty name.");
-	else if (type == EMPTY_INDEX)
-		throw InvalidFileException("Error : Empty index.");
-	else if (type == EMPTY_ROOT)
-		throw InvalidFileException("Error : Empty ROOT.");
-	else
-		return ;
+	if (type == EMPTY_PORT)			throw InvalidFileException("Error : Empty port.");
+ 	else if (type == EMPTY_NAME)	throw InvalidFileException("Error : Empty name.");
+	else if (type == EMPTY_INDEX)	throw InvalidFileException("Error : Empty index.");
+	else if (type == EMPTY_ROOT)	throw InvalidFileException("Error : Empty ROOT.");
+	else							return ;
 }
 
 Parse::Parse(std::string fileName)
@@ -214,6 +209,10 @@ void	Parse::serverCheck(Parse::iterator &i)
 			_conf = ALLOW_METHOD;
 		else if (*i == "location")
 			_conf = LOCATION;
+		else if (*i == "client_max_body_size")
+			_conf = CLIENT_MAX_BODY_SIZE;
+		else if (*i == "client_max_body_size")
+			_conf = CLIENT_MIN_BODY_SIZE;
 		if (_conf == NONE)
 		{
 			std::cerr << "Error : Invalid syntax : " + *i << std::endl;
@@ -237,6 +236,10 @@ void	Parse::serverCheck(Parse::iterator &i)
 			block.addErrorPage(i);
 		else if (_conf == ALLOW_METHOD)
 			setMethod(i, block);
+		else if (_conf == CLIENT_MIN_BODY_SIZE && isNum(*i))
+			block.setClientMinBodySize(std::atoi((*i).c_str()));
+		else if (_conf == CLIENT_MAX_BODY_SIZE && isNum(*i))
+			block.setClientMinBodySize(std::atoi((*i).c_str()));
 		else if (_conf == LOCATION)
 		{
 			Location	loc(i, token);
@@ -310,20 +313,11 @@ void	Parse::pathValidation()
 	}
 }
 
-std::map<int, ServerBlock>&	Parse::getBlock()
-{
-	return this->block;
-}
+std::map<int, ServerBlock>&	Parse::getBlock() {return this->block;}
 
-void	Parse::setSocketFD(int port, int sockfd)
-{
-	this->_socketFD[port] = sockfd;
-}
+void	Parse::setSocketFD(int port, int sockfd) {this->_socketFD[port] = sockfd;}
 
-std::map<int, int>&	Parse::getSocketFD()
-{
-	return this->_socketFD;
-}
+std::map<int, int>&	Parse::getSocketFD() {return this->_socketFD;}
 
 Parse::~Parse(){}
 

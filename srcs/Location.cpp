@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/26 16:44:51 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/26 19:02:43 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,10 +219,7 @@ std::string	Location::getIndex() const{return this->index;}
 
 std::string	Location::getCgiScript() const{return this->cgiScript;}
 
-std::vector<std::string>	Location::getMethods() const
-{
-	return this->methods;
-}
+std::vector<std::string>	Location::getMethods() const {return this->methods;}
 
 int	Location::getClientMaxBodySize() const{return this->clientMaxBodySize;}
 

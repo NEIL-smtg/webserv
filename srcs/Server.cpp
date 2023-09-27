@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/27 15:34:25 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/27 17:59:41 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,37 +101,36 @@ void	Server::acceptConnection()
 void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlock sb)
 {
 
-	char server_message[24], client_message[24];
-	int	port = sb.getPort();;
-	
-	// Clean buffers:
-	memset(server_message, '\0', 24);
-	memset(client_message, '\0', 24);
+	char				server_message[1024];
+	char				client_message[1024];
+	int					receivedBytes;
+	std::string 		receivedData;
+	const int			port = sb.getPort();
+ 	
+	memset(server_message, 0, 1024);
 
 	std::cout << GREEN << "[ ✅ ] New connection" << YELLOW << " : client with IP "  << BLUE << inet_ntoa(clientAddr.sin_addr) << YELLOW ;
 	std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << newSocket << RESET << std::endl;
 
-    ssize_t receivedBytes;
-    ssize_t totalBytes = 0;
-    std::string data;
 	while (1)
-    {
-        receivedBytes = recv(newSocket, client_message, 24, 0);
-        if (receivedBytes < 0)
-        {
-            perror("Couldn't receive");
-            std::cerr << "Couldn't receive message at " << newSocket << " client fd socket" << std::endl;
-            return ;
-        }
-        else if (receivedBytes == 0)
-            break ;
-        data.append(client_message, receivedBytes);
-        totalBytes += receivedBytes;
-        if (receivedBytes < 24)
-            break ;
-    }
-	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << data << std::endl;
-	std::string	httpResponse = this->_httpReq.generateHttpResponse(data, newSocket, sb);
+	{
+		memset(client_message, 0, 8);
+		receivedBytes = recv(newSocket, client_message, 8, 0);
+		if (receivedBytes == -1)
+		{
+			perror("Couldn't receive");
+			std::cerr << "Couldn't receive message at " << newSocket << " client fd socket" << std::endl;
+			return ;
+		}
+		receivedData.append(client_message, receivedBytes);
+		if (receivedBytes < 8)
+			break ;
+	}
+
+	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
+	std::cout << receivedData;
+	
+	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, newSocket, sb);
 	if	(httpResponse == "")
 	{
 		std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
@@ -149,6 +148,7 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 	if (send(newSocket, server_message, strlen(server_message), 0) < 0){
 		perror("Couldn't send");
 		std::cerr << "Couldn't send message at " << newSocket << " server fd socket" << std::endl;
+		return ;
 	}
 	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
 	std::cout << std::endl;

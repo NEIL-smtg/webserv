@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/09/25 18:25:31 by lzi-xian         ###   ########.fr       */
+/*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
+/*   Updated: 2023/09/26 19:00:23 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class HttpRequest
 		body				_body;
 		header				_header;
 		httpMethod			_methodEnum;
-		std::map<httpError, str>	_HttpErrorMsg;
+		std::map<int, str>	_HttpErrorMsg;
 	public:
 		HttpRequest();
 		HttpRequest(const HttpRequest& other);
@@ -52,7 +52,8 @@ class HttpRequest
 		body			getBody() const;
 		header			getHeader() const;
 		str				getPath() const;
-		std::map<httpError, str>	getHttpErrorMsg() const;
+		str				getContentDisposition() const;
+		std::map<int, str>	getHttpErrorMsg() const;
 
 		void			parseHttpRequest(const str& req);
 		str				generateHttpResponse(const str& req, const int newSocket,const ServerBlock sb);

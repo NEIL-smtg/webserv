@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PutResponse.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:15:38 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/18 21:18:25 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/26 19:00:51 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class	PutResponse
 		bool	methodAllowed();
 		bool	validContentType();
 
-		str		generateErrorResponse(const httpError err);
+		str		generateErrorResponse(const int errCode);
 	public:
 		PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb);
 		~PutResponse();

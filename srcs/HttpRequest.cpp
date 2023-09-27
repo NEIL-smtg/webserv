@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/25 18:25:08 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/09/26 19:01:22 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,31 +78,12 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 
 HttpRequest::HttpRequest()
 {
-	for (int i = 100; i < 505; i++)
-	{
-		httpError val = static_cast<httpError>(i);
-		switch (val)
-		{
-			case OK:
-				this->_HttpErrorMsg[val] = "HTTP/1.1 200 OK\r\n";
-				break;
-			case BAD_REQUEST:
-				this->_HttpErrorMsg[val] = "HTTP/1.1 400 Bad Request\r\n";
-				break;
-			case NOT_FOUND:
-				this->_HttpErrorMsg[val] = "HTTP/1.1 404 Not Found\r\n";
-				break;
-			case NOT_ALLOWED:
-				this->_HttpErrorMsg[val] = "HTTP/1.1 405 Not Allowed\r\n";
-				break;
-			case UNSUPPORTED_MEDIA_TYPE:
-				this->_HttpErrorMsg[val] = "HTTP/1.1 415 Unsupported Media Type\r\n";
-				break;
-			default:
-				break;
-		}
-	}
-		
+	this->_HttpErrorMsg[200] = "HTTP/1.1 200 OK\r\n";
+	
+	this->_HttpErrorMsg[400] = "HTTP/1.1 400 Bad Request\r\n";
+	this->_HttpErrorMsg[404] = "HTTP/1.1 404 Not Found\r\n";
+	this->_HttpErrorMsg[405] = "HTTP/1.1 405 Not Allowed\r\n";
+	this->_HttpErrorMsg[415] = "HTTP/1.1 415 Unsupported Media Type\r\n";
 }
 
 HttpRequest::~HttpRequest() {}
@@ -148,4 +129,4 @@ httpMethod	HttpRequest::getMethodEnum() const {return this->_methodEnum;}
 
 HttpRequest::header	HttpRequest::getHeader() const {return this->_header;}
 
-std::map<httpError, std::string>	HttpRequest::getHttpErrorMsg() const {return this->_HttpErrorMsg;}
+std::map<int, std::string>	HttpRequest::getHttpErrorMsg() const {return this->_HttpErrorMsg;}
