@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:31:26 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 19:03:18 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/27 18:11:32 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,6 @@ bool	PutResponse::methodAllowed()
 	return (false);
 }
 
-/*
-value = multipart/form-data; boundary=--------------------------287650079002050513765839
-Content-Length: 287
-*/
 bool	PutResponse::validContentType()
 {
 	str		value;
@@ -129,7 +125,7 @@ std::string	PutResponse::generateErrorResponse(const int errCode)
 	while (std::getline(errHtml, line))
 		body << line;
 
-	response << this->_req.getHttpErrorMsg().find(errCode)->second;
+	response << this->_req.getHttpStatusMsg().find(errCode)->second;
 	response << "Content-Type: " << errHtmlFilePath + "\r\n";
 	response << "Content-Length: " << body.str().length() << "\r\n\r\n";
 	response << body.str();

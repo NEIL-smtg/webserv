@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/27 03:53:47 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/27 17:55:20 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,8 +114,8 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 
 	while (1)
 	{
-		memset(client_message, 0, 8);
-		receivedBytes = recv(newSocket, client_message, 8, 0);
+		memset(client_message, 0, 24);
+		receivedBytes = recv(newSocket, client_message, 24, 0);
 		if (receivedBytes == -1)
 		{
 			perror("Couldn't receive");
@@ -123,12 +123,13 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 			return ;
 		}
 		receivedData.append(client_message, receivedBytes);
-		if (receivedBytes < 8)
+		if (receivedBytes < 24)
 			break ;
 	}
 
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
 	std::cout << receivedData;
+	
 	
 	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, newSocket, sb);
 	if	(httpResponse == "")
@@ -158,7 +159,6 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 
 	close(newSocket);
 }
-
 
 /***********************************
  * Constructors & Destructors
