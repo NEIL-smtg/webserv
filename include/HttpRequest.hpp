@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/27 18:06:49 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/01 02:13:11 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "PutResponse.hpp"
 # include "PostResponse.hpp"
 # include "DeleteResponse.hpp"
+# include "RequestErrorHandling.hpp"
 
 // class	GetResponse;
 // class	PutResponse;

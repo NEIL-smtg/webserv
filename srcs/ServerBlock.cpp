@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:28:55 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 16:37:37 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/01 23:27:06 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ ServerBlock::ServerBlock()
 	this->port = -1;
 	this->root.clear();
 	this->index.clear();
-	this->clientMaxBodySize = DEFAULT_CLIENT_SIZE;
-	this->clientMinBodySize = DEFAULT_CLIENT_SIZE;
+	this->clientMaxBodySize = DEFAULT_CLIENT_MAX_SIZE;
+	this->clientMinBodySize = DEFAULT_CLIENT_MIN_SIZE;
 }
 
 ServerBlock::~ServerBlock(){}
@@ -34,6 +34,10 @@ ServerBlock&	ServerBlock::operator=(const ServerBlock& other)
 	this->port = other.port;
 	this->root = other.root;
 	this->index = other.index;
+	this->clientMaxBodySize = other.clientMaxBodySize;
+	this->clientMinBodySize = other.clientMinBodySize;
+	this->autoIndex = other.autoIndex;
+	this->cgiScript = other.cgiScript;
 	this->error_page = other.error_page;
 	this->methods = other.methods;
 	this->location = other.location;
@@ -122,6 +126,15 @@ void	ServerBlock::addErrorPage(std::vector<std::string>::iterator &i)
 	}
 }
 
+empty	ServerBlock::somethingEmpty()
+{
+	if (port == -1)			return (EMPTY_PORT);
+	else if (name.empty())	return (EMPTY_NAME);
+	else if (root.empty())	return (EMPTY_ROOT);
+	else if (index.empty())	return (EMPTY_INDEX);
+	else					return (FILLED);
+}
+
 std::map<int, std::string>	ServerBlock::getErrorPage() const {return this->error_page;}
 
 void	ServerBlock::addMethod(str method) {this->methods.push_back(method);}
@@ -140,14 +153,7 @@ void	ServerBlock::setClientMaxBodySize(int size) {this->clientMaxBodySize = size
 
 void	ServerBlock::setClientMinBodySize(int size) {this->clientMinBodySize = size;}
 
-empty	ServerBlock::somethingEmpty()
-{
-	if (port == -1)			return (EMPTY_PORT);
-	else if (name.empty())	return (EMPTY_NAME);
-	else if (root.empty())	return (EMPTY_ROOT);
-	else if (index.empty())	return (EMPTY_INDEX);
-	else					return (FILLED);
-}
+void	ServerBlock::setAutoIndex(str info) {this->autoIndex = (info == "on") ? true : false;}
 
 std::string	ServerBlock::getName() const {return this->name;}
 
@@ -164,3 +170,7 @@ std::vector<Location>	ServerBlock::getLocation() const {return this->location;}
 int	ServerBlock::getClientMaxBodySize() const {return this->clientMaxBodySize;}
 
 int	ServerBlock::getClientMinBodySize() const {return this->clientMinBodySize;}
+
+std::string	ServerBlock::getCgiScript() const {return this->cgiScript;}
+
+bool	ServerBlock::getAutoIndex() const {return this->autoIndex;}

@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/27 18:06:43 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/01 23:20:43 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,16 +53,20 @@ void	HttpRequest::parseHttpRequest(const str& req)
 std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocket, const ServerBlock sb)
 {
 	parseHttpRequest(req);
-
-	str	response;
+	RequestErrorHandling	err(*this, sb);
+	if (!err.ErrorHandler())
+		return (err.getErrResponse());
+	
+	Location	target(err.getTargetBlock());
+	str			response;
 
 	switch (this->_methodEnum)
 	{
 		case GET:
-			return GetResponse(*this, newSocket, sb).getResponse();
+			response = GetResponse(*this, newSocket, sb).getResponse();
 			break;
 		case PUT:
-			return PutResponse(*this, newSocket, sb).getResponse();
+			response = PutResponse(*this, newSocket, target).getResponse();
 			break;
 		case POST:
 			response = PostResponse(*this, newSocket, sb).getResponse();
@@ -79,10 +83,11 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 HttpRequest::HttpRequest()
 {
 	this->_httpStatusMsg[200] = "HTTP/1.1 200 OK\r\n";
-	
+
 	this->_httpStatusMsg[400] = "HTTP/1.1 400 Bad Request\r\n";
 	this->_httpStatusMsg[404] = "HTTP/1.1 404 Not Found\r\n";
 	this->_httpStatusMsg[405] = "HTTP/1.1 405 Not Allowed\r\n";
+	this->_httpStatusMsg[413] = "HTTP/1.1 413 Request Entity Too Large\r\n";
 	this->_httpStatusMsg[415] = "HTTP/1.1 415 Unsupported Media Type\r\n";
 }
 

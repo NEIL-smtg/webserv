@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:26:46 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 18:23:00 by suchua           ###   ########.fr       */
+/*   Updated: 2023/09/29 18:19:48 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,17 @@ class ServerBlock
 {
 	private:
 		typedef std::string	str;
-		str			name;
-		int			port;
-		str			root;
-		str			index;
-		int			clientMaxBodySize;
-		int			clientMinBodySize;
+		str		name;
+		int		port;
+		str		root;
+		str		index;
+		int		clientMaxBodySize;
+		int		clientMinBodySize;
+		bool	autoIndex;
+		str		cgiScript;
 		std::map<int, std::string>	error_page;
-		std::vector<str>		methods;
-		std::vector<Location>	location;
+		std::vector<str>			methods;
+		std::vector<Location>		location;
 
 	public:
 		ServerBlock();
@@ -45,7 +47,7 @@ class ServerBlock
 		void	setIndex(str index);
 		void	setClientMaxBodySize(int size);
 		void	setClientMinBodySize(int size);
-		bool	setAutoIndex;
+		void	setAutoIndex(str info);
 
 		str		getName() const;
 		int		getPort() const;
@@ -53,9 +55,12 @@ class ServerBlock
 		str		getIndex() const;
 		int		getClientMaxBodySize() const;
 		int		getClientMinBodySize() const;
+		str		getCgiScript() const;
+		bool	getAutoIndex() const;
 		std::map<int, std::string>	getErrorPage() const;
-		std::vector<str>		getMethods() const;
-		std::vector<Location>	getLocation() const;
+		std::vector<str>			getMethods() const;
+		std::vector<Location>		getLocation() const;
+
 		empty	somethingEmpty();
 		void	printMethods();
 };

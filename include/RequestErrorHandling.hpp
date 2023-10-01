@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:50:33 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/27 18:32:38 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/01 23:38:53 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,21 +23,27 @@ class RequestErrorHandling
 		const HttpRequest&	_req;
 		const ServerBlock&	_sb;
 		std::string			_errResponse;
-		Location			*_currLoc;
-		const std::map<int, std::string>	_httpStatusMsg;
-		
+		Location			_currLoc;
+		Location			_target;
+		std::vector<std::string>			_reqPath;
+
 		void			generateErrResponse(int statusCode);
 		bool			urlPathFound();
 		bool			allowMethod();
 		bool			validContent();
 		bool			validContentLen(std::string contentLen);
+		void			tokennizeReqUrlPath();
+		bool			validBoundary(std::string boundary);
 	public:
 		RequestErrorHandling(const HttpRequest& _req, const ServerBlock& _sb);
 		~RequestErrorHandling();
 		RequestErrorHandling(const RequestErrorHandling& other);
 		RequestErrorHandling&	operator=(const RequestErrorHandling& other);
-		
+
+		bool			ErrorHandler();
 		std::string		getErrResponse() const;
+		void			setTargetBlock();
+		Location		getTargetBlock() const;
 };
 
 #endif
