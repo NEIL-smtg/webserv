@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/01 23:20:43 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 20:02:56 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	HttpRequest::parseHttpRequest(const str& req)
 
 std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocket, const ServerBlock sb)
 {
-	parseHttpRequest(req);
+	parseHttpRequest(req);	
 	RequestErrorHandling	err(*this, sb);
 	if (!err.ErrorHandler())
 		return (err.getErrResponse());
@@ -64,7 +64,7 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 	{
 		case GET:
 			response = GetResponse(*this, newSocket, sb).getResponse();
-			break;
+			break;			
 		case PUT:
 			response = PutResponse(*this, newSocket, target).getResponse();
 			break;

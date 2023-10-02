@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 00:20:17 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/15 00:34:53 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 20:40:02 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ std::string GetResponse::sendFile(std::string &path, int clientSocket)
 		httpResponse += "Content-Type: image/svg+xml\r\n";
 	else
 	{
+		httpResponse += "Cache-Control: no-store\r\n";
 		httpResponse += "Content-Type: image/";
 		httpResponse += type;
 		httpResponse += "\r\n";
@@ -205,6 +206,7 @@ std::string	GetResponse::locationRequest(std::string &path, ServerBlock sb)
 	len << str.length();
 
 	httpResponse = "HTTP/1.1 200 OK\r\n";
+	httpResponse += "Cache-Control: no-store\r\n";
 	httpResponse += "Content-Type: text/html\r\n";
 	httpResponse += "Content-Length: " + len.str() + "\r\n";
 	httpResponse += "\r\n";
@@ -244,6 +246,7 @@ std::string	GetResponse::locationRequest(std::string &path, ServerBlock sb)
 	len << str.length();
 
 	httpResponse = "HTTP/1.1 200 OK\r\n";
+	httpResponse += "Cache-Control: no-store\r\n";
 	httpResponse += "Content-Type: text/html\r\n";
 	httpResponse += "Content-Length: " + len.str() + "\r\n";
 	httpResponse += "\r\n";

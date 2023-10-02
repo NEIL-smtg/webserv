@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:20:51 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/27 17:55:23 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 18:17:59 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Server
 
 		void			acceptConnection();
 		void			runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlock sb);
+		void			sendResponse(std::string response, int newSocket);
 	public:
 		Server(std::map<int, ServerBlock>& conf, std::map<int, int>& socketFD);
 		~Server();

@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/02 00:17:59 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 19:52:43 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 bool	RequestErrorHandling::ErrorHandler()
 {
+	if (this->_req.getMethodEnum() == GET)
+		return (urlPathFound() && allowMethod());
 	return (urlPathFound() && allowMethod() && validContent());
 }
 
@@ -48,7 +50,10 @@ bool	RequestErrorHandling::urlPathFound()
 
 	urlDir = this->_req.getPath();
 	if (urlDir == "/")
+	{
+		setTargetBlock();
 		return true;
+	}
 	tokennizeReqUrlPath();
 	urlDir = this->_reqPath.front();
 	loc = this->_sb.getLocation();
@@ -133,7 +138,7 @@ bool	RequestErrorHandling::validContent()
 	std::string	value;
 	std::string	boundary;
 	std::string	multi;
-	size_t		len;
+	size_t		len = 0;
 
 	head = this->_req.getHeader();
 	key = head.find("Content-Type");

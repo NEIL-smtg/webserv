@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 16:41:36 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 21:07:44 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,12 +134,25 @@ int		Parse::getAvailablePort(iterator i)
 		int	sockfd;
 		struct sockaddr_in	serverAddr;
 		int	reuse = 1;
+		int	flags;
 
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		if (sockfd == -1)
 		{
 			std::cerr << "Error creating socket." << std::endl;
 			exit(1);
+		}
+		flags = fcntl(sockfd, F_GETFL, 0);
+		if (flags == -1)
+		{
+			std::cerr << "Error getting socket flags\n";
+			exit(EXIT_FAILURE);
+		}
+		flags |= O_NONBLOCK;
+		if (fcntl(sockfd, F_SETFL, flags) == -1)
+		{
+			std::cerr << "Error setting non-blocking mode\n";
+			exit(EXIT_FAILURE);
 		}
 		if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1)
 		{

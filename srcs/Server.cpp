@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/01 23:57:10 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 21:20:19 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,14 +100,10 @@ void	Server::acceptConnection()
 
 void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlock sb)
 {
-
-	char				server_message[1024];
 	char				client_message[1024];
 	int					receivedBytes;
 	std::string 		receivedData;
 	const int			port = sb.getPort();
- 	
-	memset(server_message, 0, 1024);
 
 	std::cout << GREEN << "[ ✅ ] New connection" << YELLOW << " : client with IP "  << BLUE << inet_ntoa(clientAddr.sin_addr) << YELLOW ;
 	std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << newSocket << RESET << std::endl;
@@ -118,8 +114,10 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 		receivedBytes = recv(newSocket, client_message, 24, 0);
 		if (receivedBytes == -1)
 		{
+			sendResponse("", newSocket);
 			perror("Couldn't receive");
 			std::cerr << "Couldn't receive message at " << newSocket << " client fd socket" << std::endl;
+			close(newSocket);
 			return ;
 		}
 		receivedData.append(client_message, receivedBytes);
@@ -142,21 +140,31 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 		close(newSocket);
 		return ;
 	}
+	sendResponse(httpResponse, newSocket);
+}
 
-	// Send the response over the network connection
-	strcpy(server_message, httpResponse.c_str());
+void	Server::sendResponse(std::string response, int newSocket)
+{
+	const char	*server_msg = response.c_str();
+	ssize_t	msg_len = static_cast<ssize_t>(response.length());
+	ssize_t	total_sent = 0;
+	ssize_t	sent;
 
-	if (send(newSocket, server_message, strlen(server_message), 0) < 0){
-		perror("Couldn't send");
-		std::cerr << "Couldn't send message at " << newSocket << " server fd socket" << std::endl;
-		return ;
+	while (total_sent < msg_len)
+	{
+		sent = send(newSocket, server_msg + total_sent, msg_len - total_sent, 0);
+		if (sent < 0)
+		{
+			perror("Couldn't send");
+			std::cerr << "Couldn't send message at " << newSocket << " server fd socket" << std::endl;
+			return ;
+		}
+		if (total_sent == msg_len)
+			break ;
+		total_sent += sent;
 	}
-	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
-	std::cout << std::endl;
-
-	std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
-	std::cout << std::endl;
-
+	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << "\n\n";
+	std::cout << MAGENTA << " --------------------------------- " << RESET << "\n\n";
 	close(newSocket);
 }
 
