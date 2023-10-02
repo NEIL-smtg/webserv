@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/01 02:13:11 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 03:57:22 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class HttpRequest
 		std::map<int, str>	getHttpStatusMsg() const;
 
 		void			parseHttpRequest(const str& req);
-		str				generateHttpResponse(const str& req, const int newSocket,const ServerBlock sb);
+		str				generateHttpResponse(const str& req, const int clientSocket,const ServerBlock sb);
 };
 
 #endif

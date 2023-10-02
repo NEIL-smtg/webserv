@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/02 20:02:56 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 03:57:36 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void	HttpRequest::parseHttpRequest(const str& req)
 		setBody(line);
 }
 
-std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocket, const ServerBlock sb)
+std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSocket, const ServerBlock sb)
 {
 	parseHttpRequest(req);	
 	RequestErrorHandling	err(*this, sb);
@@ -63,16 +63,16 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 	switch (this->_methodEnum)
 	{
 		case GET:
-			response = GetResponse(*this, newSocket, sb).getResponse();
+			response = GetResponse(*this, clientSocket, sb).getResponse();
 			break;			
 		case PUT:
-			response = PutResponse(*this, newSocket, target).getResponse();
+			response = PutResponse(*this, clientSocket, target).getResponse();
 			break;
 		case POST:
-			response = PostResponse(*this, newSocket, sb).getResponse();
+			response = PostResponse(*this, clientSocket, sb).getResponse();
 			break;
 		case DELETE:
-			response = DeleteResponse(*this, newSocket, sb).getResponse();
+			response = DeleteResponse(*this, clientSocket, sb).getResponse();
 			break;
 		default:
 			break;

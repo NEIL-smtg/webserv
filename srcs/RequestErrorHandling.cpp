@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/02 19:52:43 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 04:06:33 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ bool	RequestErrorHandling::urlPathFound()
 	if (infile.is_open())
 	{
 		infile.close();
+		_target.setRoot(rootToUse);
 		return (true);
 	}
 	generateErrResponse(404);

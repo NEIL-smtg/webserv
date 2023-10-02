@@ -6,11 +6,13 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/02 21:07:44 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 04:23:18 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parse.hpp"
+
+bool	isOnOff(std::string line) {return (line == "on" || line == "off");}
 
 bool	isNum(std::string line)
 {
@@ -134,22 +136,14 @@ int		Parse::getAvailablePort(iterator i)
 		int	sockfd;
 		struct sockaddr_in	serverAddr;
 		int	reuse = 1;
-		int	flags;
 
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		if (sockfd == -1)
 		{
 			std::cerr << "Error creating socket." << std::endl;
-			exit(1);
-		}
-		flags = fcntl(sockfd, F_GETFL, 0);
-		if (flags == -1)
-		{
-			std::cerr << "Error getting socket flags\n";
 			exit(EXIT_FAILURE);
 		}
-		flags |= O_NONBLOCK;
-		if (fcntl(sockfd, F_SETFL, flags) == -1)
+		if (fcntl(sockfd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
 		{
 			std::cerr << "Error setting non-blocking mode\n";
 			exit(EXIT_FAILURE);
@@ -157,7 +151,7 @@ int		Parse::getAvailablePort(iterator i)
 		if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1)
 		{
 			std::cerr << "Error setting reuse of port." << std::endl;
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
@@ -224,8 +218,12 @@ void	Parse::serverCheck(Parse::iterator &i)
 			_conf = LOCATION;
 		else if (*i == "client_max_body_size")
 			_conf = CLIENT_MAX_BODY_SIZE;
-		else if (*i == "client_max_body_size")
+		else if (*i == "client_min_body_size")
 			_conf = CLIENT_MIN_BODY_SIZE;
+		else if (*i == "cgi_script")
+			_conf = CGI_SCRIPT;
+		else if (*i == "autoindex")
+			_conf = AUTOINDEX;
 		if (_conf == NONE)
 		{
 			std::cerr << "Error : Invalid syntax : " + *i << std::endl;
@@ -257,6 +255,18 @@ void	Parse::serverCheck(Parse::iterator &i)
 		{
 			Location	loc(i, token);
 			block.addLocation(loc);
+		}
+		else if (_conf == CGI_SCRIPT)
+			block.setCgiScript(*i);
+		else if (_conf == AUTOINDEX)
+		{
+			if (isOnOff(*i))
+				block.setAutoIndex(*i);
+			else
+			{
+				std::cerr << "Invalid syntax : autoindex " << *i;
+				throw InvalidFileException("");
+			}
 		}
 		if (_conf != ALLOW_METHOD)
 			_conf = NONE;
@@ -291,11 +301,20 @@ void	Parse::pathValidation()
 
 		std::ifstream	in(folder.c_str());
 		std::ifstream	in2(index.c_str());
+		std::ifstream	cgi;
+		bool			cgiExist = false;
 		
+		if (!_sb.getCgiScript().empty())
+		{
+			cgi.open(_sb.getCgiScript().c_str());
+			cgiExist = true;
+		}
 		if (!in)
 			errMsg = folder;
 		else if (!in2)
 			errMsg = index;
+		else if (cgiExist && !cgi)
+			errMsg = _sb.getCgiScript();
 		if (!errMsg.empty())	
 		{
 			std::cerr << "Error : no such file or directory : " << errMsg;

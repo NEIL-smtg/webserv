@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:28:55 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/01 23:27:06 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 04:13:46 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,8 @@ void	ServerBlock::setClientMaxBodySize(int size) {this->clientMaxBodySize = size
 void	ServerBlock::setClientMinBodySize(int size) {this->clientMinBodySize = size;}
 
 void	ServerBlock::setAutoIndex(str info) {this->autoIndex = (info == "on") ? true : false;}
+
+void	ServerBlock::setCgiScript(str script) {this->cgiScript = script;}
 
 std::string	ServerBlock::getName() const {return this->name;}
 
