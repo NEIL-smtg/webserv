@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/01 23:20:43 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 15:51:53 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,20 +53,20 @@ void	HttpRequest::parseHttpRequest(const str& req)
 std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocket, const ServerBlock sb)
 {
 	parseHttpRequest(req);
-	RequestErrorHandling	err(*this, sb);
-	if (!err.ErrorHandler())
-		return (err.getErrResponse());
+	// RequestErrorHandling	err(*this, sb);
+	// if (!err.ErrorHandler())
+	// 	return (err.getErrResponse());
 	
-	Location	target(err.getTargetBlock());
+	// Location	target(err.getTargetBlock());
 	str			response;
 
 	switch (this->_methodEnum)
 	{
 		case GET:
-			response = GetResponse(*this, newSocket, sb).getResponse();
+			response = GetResponse(*this, sb).getResponse();
 			break;
 		case PUT:
-			response = PutResponse(*this, newSocket, target).getResponse();
+			// response = PutResponse(*this, newSocket, target).getResponse();
 			break;
 		case POST:
 			response = PostResponse(*this, newSocket, sb).getResponse();

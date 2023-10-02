@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/01 23:57:10 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 18:21:30 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,14 +100,10 @@ void	Server::acceptConnection()
 
 void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlock sb)
 {
-
-	char				server_message[1024];
 	char				client_message[1024];
 	int					receivedBytes;
 	std::string 		receivedData;
 	const int			port = sb.getPort();
- 	
-	memset(server_message, 0, 1024);
 
 	std::cout << GREEN << "[ ✅ ] New connection" << YELLOW << " : client with IP "  << BLUE << inet_ntoa(clientAddr.sin_addr) << YELLOW ;
 	std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << newSocket << RESET << std::endl;
@@ -130,11 +126,11 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
 	std::cout << receivedData;
 	
-	
+	// generate Http Response
 	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, newSocket, sb);
 	if	(httpResponse == "")
 	{
-		std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
+		std::cout << RED << "[ ❌ ] Msg not sent to client!" << RESET << std::endl;
 		std::cout << std::endl;
 
 		std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
@@ -143,10 +139,10 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 		return ;
 	}
 
-	// Send the response over the network connection
-	strcpy(server_message, httpResponse.c_str());
+	// std::cout << MAGENTA << httpResponse.c_str() << RESET << std::endl;
 
-	if (send(newSocket, server_message, strlen(server_message), 0) < 0){
+	// Send the response over the network connection
+	if (send(newSocket, httpResponse.c_str(), strlen(httpResponse.c_str()), 0) < 0){
 		perror("Couldn't send");
 		std::cerr << "Couldn't send message at " << newSocket << " server fd socket" << std::endl;
 		return ;

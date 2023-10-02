@@ -3,25 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   GetResponse.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 00:20:17 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/15 00:34:53 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 19:10:46 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "GetResponse.hpp"
 
-GetResponse::GetResponse(const HttpRequest req, const int clientSocket, const ServerBlock sb)
+// the main GET method function
+GetResponse::GetResponse(const HttpRequest req, const ServerBlock sb)
 {
 	this->_path = req.getPath();
 
 	if (isLocation(this->_path, sb))
 		this->_response = locationRequest(this->_path, sb);
 	else if (isImgFile(this->_path))
-		this->_response = sendFile(this->_path, clientSocket);
+		this->_response = sendFile(this->_path);
 	else
 	{
+		//error
 		std::ifstream	input_file;
 		std::string		str;
 		char			c;
@@ -48,9 +50,10 @@ GetResponse::GetResponse(const HttpRequest req, const int clientSocket, const Se
 	}
 }
 
+// check whether the GET request is an image file
 bool	GetResponse::isImgFile(std::string &file)
 {
-	const std::string	type[5] = {".avif", ".gif", ".jpeg", ".png", ".svg" };
+	const std::string	type[7] = {".avif", ".gif", ".jpeg", ".png", ".svg", ".csv", ".txt"};
 	std::string			check;
 
 	size_t dotPos = file.find_last_of(".");
@@ -58,7 +61,7 @@ bool	GetResponse::isImgFile(std::string &file)
         check = file.substr(dotPos);
     }
 
-	for (size_t i = 0; i < 5; i++)
+	for (size_t i = 0; i < 7; i++)
 	{
 		if (type[i] == check)
 			return (true);
@@ -66,180 +69,143 @@ bool	GetResponse::isImgFile(std::string &file)
 	return (false);
 }
 
-std::string GetResponse::sendFile(std::string &path, int clientSocket)
+std::string readFile(const std::string& filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        return "";
+    }
+
+    std::ostringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+// send img file
+std::string GetResponse::sendFile(std::string &path)
 {
 	std::string file = path.substr(1);
 	std::string type ;
-	size_t dotPos = file.find_last_of(".");
+	std::string httpResponse;
+	size_t 		dotPos = file.find_last_of(".");
+	
 	if (dotPos != std::string::npos) {
-		type = file.substr(dotPos + 1);
+		type = file.substr(dotPos);
 	}
 
 	// Path to the img file
 	std::string svgFilePath = "";
+	if (type == ".csv" || type == ".txt")
+		svgFilePath = "test/";
 	svgFilePath += file;
 
-	// Open the img file
-	std::ifstream svgFile(svgFilePath.c_str(), std::ios::binary | std::ios::ate);
-
-	if (!svgFile.is_open()) {
-		perror("Couldn't open img file");
-		std::cerr << "failed to open "<< svgFilePath << " file" << std::endl;
+	if (type != ".csv" && type != ".txt")
+	{
+		// Open the img file
+		std::string gifData = readFile(svgFilePath);
+		
+		// Construct the HTTP response
+		httpResponse = "HTTP/1.1 200 OK\r\n";
+		if (type == ".svg" || type == ".xml")
+			httpResponse += "Content-Type: image/svg+xml\r\n";
+		else
+		{
+			httpResponse += "Content-Type: image/";
+			httpResponse += type;
+			httpResponse += "\r\n";
+		}
+		
+		httpResponse += "Content-Length: " + std::to_string(gifData.size()) + "\r\n";
+		httpResponse += "\r\n"; // End of headers
+		httpResponse += gifData;
 	}
-
-	// Get the size of the img file
-	std::streamsize fileSize = svgFile.tellg();
-	svgFile.seekg(0, std::ios::beg);
-
-	// Construct the HTTP response
-	std::string httpResponse = "HTTP/1.1 200 OK\r\n";
-	if (type == "svg" || type == "xml")
-		httpResponse += "Content-Type: image/svg+xml\r\n";
 	else
 	{
-		httpResponse += "Content-Type: image/";
-		httpResponse += type;
-		httpResponse += "\r\n";
-	}
+		std::ifstream svgFile(svgFilePath.c_str());
 
-	std::stringstream	len;
-	len << fileSize;
-	
-	httpResponse += "Content-Length: " + len.str() + "\r\n";
-	httpResponse += "\r\n"; // End of headers
-
-	// Send the response headers to the client
-	ssize_t bytesSent = send(clientSocket, httpResponse.c_str(), httpResponse.length(), 0);
-
-	if (bytesSent == -1) {
-		perror("Couldn't send");
-		std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
-	}
-
-	// Send the img file content to the client
-	char buffer[4096];
-	while (true) {
-		svgFile.read(buffer, sizeof(buffer));
-		ssize_t bytesRead = svgFile.gcount();
-
-		if (bytesRead <= 0)
-			break;
-
-		ssize_t bytesSent = send(clientSocket, buffer, bytesRead, 0);
-
-		if (bytesSent == -1) {
-			perror("Couldn't send");
-			std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
-			break;
+		if (!svgFile.is_open()) {
+			perror("Couldn't open img file");
+			std::cerr << "failed to open "<< svgFilePath << " file" << std::endl;
 		}
-	}
 
-	// Close the img file
-	svgFile.close();
-	return ("");
+		std::string str;
+		char		c;
+		while (!svgFile.eof() && svgFile >> std::noskipws >> c){
+			str += c;
+		}
+		svgFile.close();
+
+		std::stringstream	len;
+		len << str.length();
+
+		httpResponse = "HTTP/1.1 200 OK\r\n";
+		httpResponse += "Content-Type: text/html\r\n";
+		httpResponse += "Content-Length: " + len.str() + "\r\n";
+		httpResponse += "\r\n";
+		httpResponse += str;
+				
+	}
+	return (httpResponse);
 }
 
+// check whether the GET request is a Loc
 bool	GetResponse::isLocation(std::string &path, ServerBlock sb)
 {
 	std::vector<Location>	loc = sb.getLocation();
 	std::vector<Location>::iterator	it = loc.begin();
-	std::string			check = "";
-	std::string			dir = "";
 
 	if (path == "/")
 		return (true);
 	for (; it != loc.end(); it++)
 	{
-		size_t dotPos = path.find_last_of(".");
-		if (dotPos != std::string::npos) {
-			check = path.substr(dotPos);
-		}
-		
-		if (check != ""  && check != ".html")
-		{
-			std::ifstream	input_file;
-			
-			dir = it->getRoot();
-			dir += path;
-			input_file.open(dir.c_str());
-			if (input_file){
-				input_file.close();
-				return (true);
-			}
-		}
 		if (path == it->getDirectory())
 			return (true);
 	}
 	return (false);
 }
 
+// execute in Location
 std::string	GetResponse::locationRequest(std::string &path, ServerBlock sb)
 {
-	std::string 	httpResponse;
-	std::ifstream	input_file;
-	std::string		str;
-	char			c;
-	std::string		dir;
-	std::vector<Location>	loc = sb.getLocation();
+	std::vector<Location>			loc = sb.getLocation();
 	std::vector<Location>::iterator	it = loc.begin();
-	std::string			check = "";
+	std::string						index = "index.html", httpResponse, str, dir;
+	std::ifstream					input_file;
+	char							c;
 
-
+	// get the location
+	for (; it != loc.end(); it++)
+	{
+		if (path == it->getDirectory())
+			break ;
+	}
+	// std::cout << "test::" << it->getDirectory() << it->getIndex() << "\n";
+	
+	//open the index.html
 	if (path == "/")
 	{
-	dir = sb.getRoot();
-	dir += "/";
-	dir += sb.getIndex();
-
-	input_file.open(dir.c_str());
-	if (!input_file){
-		perror("Couldn't open file file");
-		std::cerr << "failed to open " << dir << " file" << std::endl;
-	}
-	while (!input_file.eof() && input_file >> std::noskipws >> c){
-		str += c;
-	}
-	input_file.close();
-
-	std::stringstream	len;
-	len << str.length();
-
-	httpResponse = "HTTP/1.1 200 OK\r\n";
-	httpResponse += "Content-Type: text/html\r\n";
-	httpResponse += "Content-Length: " + len.str() + "\r\n";
-	httpResponse += "\r\n";
-	httpResponse += str;
-	return (httpResponse);
-}
-	size_t dotPos = path.find_last_of(".");
-	if (dotPos != std::string::npos) {
-		check = path.substr(dotPos);
-	}
-
-	else if (check != ""  && check != ".html")
-	{
-		dir = it->getRoot();
-		dir += "/";
-		dir += path;
-	}
-	else
-	{
-		dir = sb.getRoot();
+		dir = "test/index.html";
+	} else {
+		dir = "test";
 		dir += path;
 		dir += "/";
 		dir += it->getIndex();
 	}
 	
+	
+	
 	input_file.open(dir.c_str());
-	if (!input_file){
+	if (!input_file)
+	{
 		perror("Couldn't open dir file");
 		std::cerr << "failed to open " << dir << " file" << std::endl;
+		return ("");
 	}
 	while (!input_file.eof() && input_file >> std::noskipws >> c){
 		str += c;
 	}
 	input_file.close();
-
+	
+	// Construct the HTTP response
 	std::stringstream	len;
 	len << str.length();
 

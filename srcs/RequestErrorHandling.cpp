@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestErrorHandling.cpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/02 00:17:59 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/02 14:19:11 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ bool	RequestErrorHandling::validContent()
 	std::string	value;
 	std::string	boundary;
 	std::string	multi;
-	size_t		len;
+	size_t		len = 0;
 
 	head = this->_req.getHeader();
 	key = head.find("Content-Type");
