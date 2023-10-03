@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 12:24:50 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/03 18:20:06 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,12 +66,12 @@ bool	RequestErrorHandling::urlPathFound()
 		}
 	}
 	setTargetBlock();
-	rootToUse = this->_target.getRoot() + this->_req.getPath();
+	rootToUse = this->_target.getRoot();
+	std::cout << rootToUse << std::endl;
 	infile.open(rootToUse.c_str());
 	if (infile.is_open())
 	{
 		infile.close();
-		_target.setRoot(rootToUse);
 		return (true);
 	}
 	generateErrResponse(404);
@@ -178,15 +178,18 @@ void	RequestErrorHandling::generateErrResponse(int statusCode)
 	std::string					line;
 
 	errPage = this->_target.getErrorPage();
-	if (errPage.find(statusCode) == errPage.end())
-		errHtmlFilePath = this->_sb.getErrorPage().find(404)->second;
+	if (errPage.find(statusCode) != errPage.end())
+		errHtmlFilePath = this->_sb.getErrorPage().find(statusCode)->second;
 
+	std::cout << errHtmlFilePath.c_str() << std::endl;
 	htmlFile.open(errHtmlFilePath.c_str());
 	while (std::getline(htmlFile, line))
+	{
 		htmlBody << line;
+	}
 
 	res << this->_req.getHttpStatusMsg().find(statusCode)->second;
-	res << "Content-Type: " << errHtmlFilePath << "\r\n";
+	res << "Content-Type: text/html \r\n";
 	res << "Content-Length: " << htmlBody.str().length() << "\r\n\r\n";
 	res << htmlBody.str();
 	this->_errResponse = res.str();

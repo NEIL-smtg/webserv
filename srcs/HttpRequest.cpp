@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 12:24:28 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/03 15:21:54 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,16 +57,16 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 	if (!err.ErrorHandler())
 		return (err.getErrResponse());
 	
-	// Location	target(err.getTargetBlock());
+	Location	target(err.getTargetBlock());
 	str			response;
 
 	switch (this->_methodEnum)
 	{
 		case GET:
-			response = GetResponse(*this, sb).getResponse();
+			response = GetResponse(*this, target).getResponse();
 			break;
 		case PUT:
-			// response = PutResponse(*this, newSocket, target).getResponse();
+			// response = PutResponse(*this, target).getResponse();
 			break;
 		case POST:
 			response = PostResponse(*this, clientSocket, sb).getResponse();

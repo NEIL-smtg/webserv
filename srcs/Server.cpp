@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 12:25:08 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/03 16:36:53 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,8 @@ void	Server::sendResponse(std::string response, int clientSocket)
 	ssize_t	msg_len = static_cast<ssize_t>(response.length());
 	ssize_t	total_sent = 0;
 	ssize_t	sent;
+
+	std::cout << response << std::endl;
 
 	while (total_sent < msg_len)
 	{

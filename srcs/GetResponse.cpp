@@ -6,54 +6,29 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 00:20:17 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 12:23:47 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/03 19:11:19 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "GetResponse.hpp"
 
 // the main GET method function
-GetResponse::GetResponse(const HttpRequest req, const ServerBlock sb)
+GetResponse::GetResponse(const HttpRequest req, const Location target)
 {
 	this->_path = req.getPath();
 
-	if (isLocation(this->_path, sb))
-		this->_response = locationRequest(this->_path, sb);
-	else if (isImgFile(this->_path))
-		this->_response = sendFile(this->_path);
-	else
+	if (isImgFile(this->_path))
 	{
-		//error
-		std::ifstream	input_file;
-		std::string		str;
-		char			c;
-		
-		input_file.open(sb.getErrorPage().find(404)->second.c_str());
-		if (!input_file){
-			perror("Couldn't open ./error_page/Error_404.html file");
-			std::cerr << "failed to open ./error_page/Error_404.html file" << std::endl;
-		}
-		while (!input_file.eof() && input_file >> std::noskipws >> c){
-			str += c;
-		}
-		input_file.close();
-
-		// Construct the HTTP response
-		std::stringstream	len;
-		len << str.length();
-
-		this->_response = "HTTP/1.1 404 Not Found\r\n";
-		this->_response += "Content-Type: text/html\r\n";
-		this->_response += "Content-Length: " + len.str() + "\r\n";
-		this->_response += "\r\n";
-		this->_response += str;
+		this->_response = sendFile(this->_path, target);
+		return;
 	}
+	this->_response = locationRequest(this->_path, target);
 }
 
 // check whether the GET request is an image file
 bool	GetResponse::isImgFile(std::string &file)
 {
-	const std::string	type[7] = {".avif", ".gif", ".jpeg", ".png", ".svg", ".csv", ".txt"};
+	const std::string	type[8] = {".avif", ".gif", ".jpeg", ".png", ".svg", ".csv", ".txt", ".jpg"};
 	std::string			check;
 
 	size_t dotPos = file.find_last_of(".");
@@ -61,7 +36,7 @@ bool	GetResponse::isImgFile(std::string &file)
         check = file.substr(dotPos);
     }
 
-	for (size_t i = 0; i < 7; i++)
+	for (size_t i = 0; i < 8; i++)
 	{
 		if (type[i] == check)
 			return (true);
@@ -81,7 +56,7 @@ std::string readFile(const std::string& filename) {
 }
 
 // send img file
-std::string GetResponse::sendFile(std::string &path)
+std::string GetResponse::sendFile(std::string &path, Location target)
 {
 	std::string file = path.substr(1);
 	std::string type ;
@@ -93,9 +68,8 @@ std::string GetResponse::sendFile(std::string &path)
 	}
 
 	// Path to the img file
-	std::string svgFilePath = "";
-	if (type == ".csv" || type == ".txt")
-		svgFilePath = "test/";
+	std::string svgFilePath = target.getRoot();
+	svgFilePath += "/";
 	svgFilePath += file;
 
 	if (type != ".csv" && type != ".txt")
@@ -147,51 +121,23 @@ std::string GetResponse::sendFile(std::string &path)
 	return (httpResponse);
 }
 
-// check whether the GET request is a Loc
-bool	GetResponse::isLocation(std::string &path, ServerBlock sb)
-{
-	std::vector<Location>	loc = sb.getLocation();
-	std::vector<Location>::iterator	it = loc.begin();
-
-	if (path == "/")
-		return (true);
-	for (; it != loc.end(); it++)
-	{
-		if (path == it->getDirectory())
-			return (true);
-	}
-	return (false);
-}
-
 // execute in Location
-std::string	GetResponse::locationRequest(std::string &path, ServerBlock sb)
+std::string	GetResponse::locationRequest(std::string &path, Location target)
 {
-	std::vector<Location>			loc = sb.getLocation();
-	std::vector<Location>::iterator	it = loc.begin();
 	std::string						index = "index.html", httpResponse, str, dir;
 	std::ifstream					input_file;
 	char							c;
 
-	// get the location
-	for (; it != loc.end(); it++)
-	{
-		if (path == it->getDirectory())
-			break ;
-	}
-	// std::cout << "test::" << it->getDirectory() << it->getIndex() << "\n";
+	(void)path;
+	// std::cout << target.getRoot() << "//  //" << target.getIndex() << "\n";
 	
 	//open the index.html
-	if (path == "/")
-	{
-		dir = "test/index.html";
-	} else {
-		dir = "test";
-		dir += path;
-		dir += "/";
-		dir += it->getIndex();
-	}
-	
-	
+	std::cout << "here !!!!! "<< target.getRoot() << std::endl;
+	dir = target.getRoot();
+	dir += "/";
+	dir += target.getIndex();
+
+	// std::cout << dir.c_str() << "\n";
 	
 	input_file.open(dir.c_str());
 	if (!input_file)

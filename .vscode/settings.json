@@ -78,7 +78,8 @@
 		"optional": "cpp",
 		"stack": "cpp",
 		"cinttypes": "cpp",
-		"__tree": "cpp"
+		"__tree": "cpp",
+		"__functional_03": "cpp"
 	},
 	"42header.email": "suchua@student.42.fr",
 	"editor.insertSpaces": false
