@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 19:00:23 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 03:57:22 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "PutResponse.hpp"
 # include "PostResponse.hpp"
 # include "DeleteResponse.hpp"
+# include "RequestErrorHandling.hpp"
 
 // class	GetResponse;
 // class	PutResponse;
@@ -36,7 +37,7 @@ class HttpRequest
 		body				_body;
 		header				_header;
 		httpMethod			_methodEnum;
-		std::map<int, str>	_HttpErrorMsg;
+		std::map<int, str>	_httpStatusMsg;
 	public:
 		HttpRequest();
 		HttpRequest(const HttpRequest& other);
@@ -52,11 +53,10 @@ class HttpRequest
 		body			getBody() const;
 		header			getHeader() const;
 		str				getPath() const;
-		str				getContentDisposition() const;
-		std::map<int, str>	getHttpErrorMsg() const;
+		std::map<int, str>	getHttpStatusMsg() const;
 
 		void			parseHttpRequest(const str& req);
-		str				generateHttpResponse(const str& req, const int newSocket,const ServerBlock sb);
+		str				generateHttpResponse(const str& req, const int clientSocket,const ServerBlock sb);
 };
 
 #endif

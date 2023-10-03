@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 19:01:22 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 03:57:36 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,25 +50,29 @@ void	HttpRequest::parseHttpRequest(const str& req)
 		setBody(line);
 }
 
-std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocket, const ServerBlock sb)
+std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSocket, const ServerBlock sb)
 {
-	parseHttpRequest(req);
-
-	str	response;
+	parseHttpRequest(req);	
+	RequestErrorHandling	err(*this, sb);
+	if (!err.ErrorHandler())
+		return (err.getErrResponse());
+	
+	Location	target(err.getTargetBlock());
+	str			response;
 
 	switch (this->_methodEnum)
 	{
 		case GET:
-			return GetResponse(*this, newSocket, sb).getResponse();
-			break;
+			response = GetResponse(*this, clientSocket, sb).getResponse();
+			break;			
 		case PUT:
-			return PutResponse(*this, newSocket, sb).getResponse();
+			response = PutResponse(*this, clientSocket, target).getResponse();
 			break;
 		case POST:
-			response = PostResponse(*this, newSocket, sb).getResponse();;
+			response = PostResponse(*this, clientSocket, sb).getResponse();
 			break;
 		case DELETE:
-			response = DeleteResponse(*this, newSocket, sb).getResponse();;
+			response = DeleteResponse(*this, clientSocket, sb).getResponse();
 			break;
 		default:
 			break;
@@ -78,12 +82,13 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int newSocke
 
 HttpRequest::HttpRequest()
 {
-	this->_HttpErrorMsg[200] = "HTTP/1.1 200 OK\r\n";
-	
-	this->_HttpErrorMsg[400] = "HTTP/1.1 400 Bad Request\r\n";
-	this->_HttpErrorMsg[404] = "HTTP/1.1 404 Not Found\r\n";
-	this->_HttpErrorMsg[405] = "HTTP/1.1 405 Not Allowed\r\n";
-	this->_HttpErrorMsg[415] = "HTTP/1.1 415 Unsupported Media Type\r\n";
+	this->_httpStatusMsg[200] = "HTTP/1.1 200 OK\r\n";
+
+	this->_httpStatusMsg[400] = "HTTP/1.1 400 Bad Request\r\n";
+	this->_httpStatusMsg[404] = "HTTP/1.1 404 Not Found\r\n";
+	this->_httpStatusMsg[405] = "HTTP/1.1 405 Not Allowed\r\n";
+	this->_httpStatusMsg[413] = "HTTP/1.1 413 Request Entity Too Large\r\n";
+	this->_httpStatusMsg[415] = "HTTP/1.1 415 Unsupported Media Type\r\n";
 }
 
 HttpRequest::~HttpRequest() {}
@@ -129,4 +134,5 @@ httpMethod	HttpRequest::getMethodEnum() const {return this->_methodEnum;}
 
 HttpRequest::header	HttpRequest::getHeader() const {return this->_header;}
 
-std::map<int, std::string>	HttpRequest::getHttpErrorMsg() const {return this->_HttpErrorMsg;}
+std::map<int, std::string>	HttpRequest::getHttpStatusMsg() const {return this->_httpStatusMsg;}
+

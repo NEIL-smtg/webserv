@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:20:51 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/15 00:32:16 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 03:57:30 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ class Server
 		HttpRequest							_httpReq;
 
 		void			acceptConnection();
-		void			runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlock sb);
+		void			runRequest(struct sockaddr_in&	clientAddr, int clientSocket, ServerBlock sb);
+		void			sendResponse(std::string response, int clientSocket);
 	public:
 		Server(std::map<int, ServerBlock>& conf, std::map<int, int>& socketFD);
 		~Server();

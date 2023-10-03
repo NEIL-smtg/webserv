@@ -1,6 +1,7 @@
 NAME            =       webserv
 FILES           =       main Parse ServerBlock Location Server \
-						HttpRequest GetResponse PutResponse PostResponse DeleteResponse
+						HttpRequest GetResponse PutResponse PostResponse DeleteResponse \
+						RequestErrorHandling
 SRCS_DIR        =       srcs/
 OBJS_DIR        =       objs/
 SRCS            =       $(addprefix $(SRCS_DIR), $(addsuffix .cpp, $(FILES)))
@@ -19,7 +20,7 @@ $(OBJS_DIR)%.o:$(SRCS_DIR)%.cpp
 	$(CPP) $(CFLAGS) -I$(INCL) -c $< -o $@
 
 $(NAME): $(OBJS)
-	$(CPP) $(FSAN) $(CFLAGS) -I$(INCL) -o $(NAME) $(SRCS)
+	$(CPP) $(CFLAGS) -I$(INCL) -o $(NAME) $(SRCS)
 
 clean:
 	$(RM) $(OBJS_DIR)

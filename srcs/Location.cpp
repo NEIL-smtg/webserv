@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/26 19:02:43 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/01 23:26:03 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,10 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 {
 	locconf		_conf = LC_NONE;
 	
-	this->clientMaxBodySize = DEFAULT_CLIENT_SIZE;
-	this->clientMinBodySize = DEFAULT_CLIENT_SIZE;
+	this->clientMaxBodySize = DEFAULT_CLIENT_MAX_SIZE;
+	this->clientMinBodySize = DEFAULT_CLIENT_MIN_SIZE;
 	setDirectory(*i);
+
 	if (*(++i) != "{")
 		throw InvalidFileException("Missing {");
 	i++;
@@ -97,9 +98,10 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 	}
 	if (i == token.end())
 		throw InvalidFileException("Error : Missing }");
+	setInit();
 }
 
-Location::Location(){}
+Location::Location(){this->init = false;}
 
 Location::~Location(){}
 
@@ -110,23 +112,33 @@ Location& Location::operator=(const Location& other)
 	if (this == &other)
 		return (*this);
 	this->directory = other.directory;
-	this->index = other.index;
-	this->methods = other.methods;
 	this->root = other.root;
+	this->index = other.index;
 	this->cgiScript = other.cgiScript;
 	this->errorPage = other.errorPage;
 	this->clientMaxBodySize = other.clientMaxBodySize;
 	this->clientMinBodySize = other.clientMinBodySize;
+	this->methods = other.methods;
+	this->autoIndex = other.autoIndex;
+	this->init = other.init;
 	return (*this);
 }
 
-void	Location::setDirectory(std::string directory){this->directory = directory;}
+void	Location::setDirectory(std::string directory) {this->directory = directory;}
 
-void	Location::setIndex(std::string index){this->index = index;}
+void	Location::setIndex(std::string index) {this->index = index;}
 
-void	Location::setRoot(std::string root){this->root = root;}
+void	Location::setRoot(std::string root) {this->root = root;}
 
-void	Location::setCgiScript(std::string cgiScript){this->cgiScript = cgiScript;}
+void	Location::setCgiScript(std::string cgiScript) {this->cgiScript = cgiScript;}
+
+void	Location::setErrorPage(std::map<int, std::string> errorPage) {this->errorPage = errorPage;}
+
+void	Location::setMethods(std::vector<std::string> methods) {this->methods = methods;}
+
+void	Location::setAutoIndex(bool _auto) {this->autoIndex = _auto;}
+
+void	Location::setInit() {this->init = true;}
 
 void	Location::addErrorPage(std::vector<std::string>::iterator &i)
 {
@@ -211,19 +223,25 @@ void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector
 	--i;
 }
 
-std::string	Location::getDirectory() const{return this->directory;}
+std::string	Location::getDirectory() const {return this->directory;}
 
-std::string	Location::getRoot() const{return this->root;}
+std::string	Location::getRoot() const {return this->root;}
 
-std::string	Location::getIndex() const{return this->index;}
+std::string	Location::getIndex() const {return this->index;}
 
-std::string	Location::getCgiScript() const{return this->cgiScript;}
+std::string	Location::getCgiScript() const {return this->cgiScript;}
 
 std::vector<std::string>	Location::getMethods() const {return this->methods;}
 
-int	Location::getClientMaxBodySize() const{return this->clientMaxBodySize;}
+int	Location::getClientMaxBodySize() const {return this->clientMaxBodySize;}
 
-std::map<int, std::string>	Location::getErrorPage() const{return this->errorPage;}
+int	Location::getClientMinBodySize() const {return this->clientMinBodySize;}
+
+std::map<int, std::string>	Location::getErrorPage() const {return this->errorPage;}
+
+bool	Location::getAutoIndex() const {return this->autoIndex;}
+
+bool	Location::isInit() const {return this->init;}
 
 void	Location::printErrorPage()
 {

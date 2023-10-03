@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:25:25 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 16:36:10 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 04:11:04 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ typedef enum	conf
 	LOCATION,
 	CLIENT_MAX_BODY_SIZE,
 	CLIENT_MIN_BODY_SIZE,
+	CGI_SCRIPT,
+	AUTOINDEX,
 	NONE
 }	conf;
 

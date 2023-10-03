@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:15:38 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/26 19:00:51 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/01 22:09:52 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,10 @@ class	PutResponse
 	private:
 		const HttpRequest&	_req;
 		const int&			_clientSocket;
-		const ServerBlock&	_sb;
-		Location			_location;
-		str					_response;
+		const Location&		_target;
 
-		bool	urlPathFound();
-		bool	methodAllowed();
-		bool	validContentType();
-
-		str		generateErrorResponse(const int errCode);
 	public:
-		PutResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb);
+		PutResponse(const HttpRequest& req, const int& clientSocket, const Location& target);
 		~PutResponse();
 		PutResponse(const PutResponse& other);
 		PutResponse&	operator=(const PutResponse& other);
