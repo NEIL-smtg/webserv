@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:29:51 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/17 20:33:47 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/03 17:37:03 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "Webserv.hpp"
 # include "HttpRequest.hpp"
+# include "RequestErrorHandling.hpp"
 
 class	HttpRequest;
 
@@ -25,21 +26,17 @@ class	PostResponse
 	private:
 		const HttpRequest&	_req;
 		const int&			_clientSocket;
-		const ServerBlock&	_sb;
+		const Location&	_sb;
 		Location			_location;
 		str					_response;
 
-		bool	urlPathFound();
-		bool	methodAllowed();
 	public:
-		PostResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb);
+		PostResponse(const HttpRequest& req, const int& clientSocket, const Location& sb);
 		~PostResponse();
 		PostResponse(const PostResponse& other);
 		PostResponse&	operator=(const PostResponse& other);
 		
 		str		getResponse() const;
 };
-
-// std::string		generateErrorResponse(const ServerBlock& sb, const httpError errNum);
 
 #endif
