@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/29 18:29:03 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 03:28:43 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <iostream>
 # include <fstream>
 # include <sstream>
+# include <fcntl.h>
 
 //	std lib
 # include <exception>
@@ -25,6 +26,7 @@
 # include <cstdlib>
 # include <cstdio>
 # include <unistd.h>
+# include <ctime>
 
 //	container
 # include <vector>

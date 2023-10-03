@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/02 18:21:30 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/03 12:25:08 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,73 +32,90 @@ void	Server::startServer()
 		}
 		std::cout << YELLOW << "[ * ] Listening for incoming connections on port " << BLUE << it->first << YELLOW << " ... " << RESET << std::endl;
 	}
-	acceptConnection();
+	std::cout << "\n" << MAGENTA << " --------------------------------- " << RESET << "\n\n";
+	while (true)
+		acceptConnection();
 }
 
 void	Server::acceptConnection()
 {
 	std::map<int, int>::const_iterator	ite;
-	fd_set	readFds;
-	int		maxFD;
-	int		sockfd;
-	int		port;
-	int		activity;
-	int		newSocket;
+	fd_set			readFds;
+	int				maxFD;
+	int				sockfd;
+	int				port;
+	int				clientSocket;
+	struct timeval	timeout;
 
-	std::cout << std::endl;
-	std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
-	std::cout << std::endl;
-	while (true)
+	FD_ZERO(&readFds);
+	maxFD = -1;
+	for (ite = _socketFD.begin(); ite != _socketFD.end(); ite++)
 	{
-		FD_ZERO(&readFds);
+		sockfd = ite->second;
+		FD_SET(sockfd, &readFds);
+		if (sockfd > maxFD)
+			maxFD = sockfd;
+	}
 
-		maxFD = -1;
-		for (ite = _socketFD.begin(); ite != _socketFD.end(); ite++)
-		{
-			sockfd = ite->second;
-			FD_SET(sockfd, &readFds);
-			if (sockfd > maxFD)
-				maxFD = sockfd;
-		}
+	timeout.tv_sec = 5;
+	timeout.tv_usec = 0;
 
-		activity = select(maxFD + 1, &readFds, NULL, NULL, NULL);
-		if (activity == -1)
-		{
-			perror("select");
-			exit(EXIT_FAILURE);
-		}
+	if (select(maxFD + 1, &readFds, NULL, NULL, &timeout) == -1)
+	{
+		perror("select");
+		exit(EXIT_FAILURE);
+	}
 
-		std::map<int, ServerBlock>::const_iterator	it;
+	std::map<int, ServerBlock>::const_iterator	it;
+
+	for (it = _conf.begin(); it != _conf.end(); it++)
+	{
+		port = it->first;
+		sockfd = _socketFD.find(port)->second;
 		
-		for (it = _conf.begin(); it != _conf.end(); it++)
+		if (FD_ISSET(sockfd, &readFds))
 		{
-			port = it->first;
-			sockfd = _socketFD.find(port)->second;
+			struct sockaddr_in	clientAddr;
+			socklen_t			addrLen;
 			
-			if (FD_ISSET(sockfd, &readFds))
+			memset(&clientAddr, 0, sizeof(clientAddr));
+			addrLen = sizeof(clientAddr);
+			clientSocket = accept(sockfd, (struct sockaddr *) &clientAddr, &addrLen);
+			if (clientSocket == -1)
 			{
-				struct sockaddr_in	clientAddr;
-				socklen_t			addrLen;
-				
-				memset(&clientAddr, 0, sizeof(clientAddr));
-				addrLen = sizeof(clientAddr);
-				newSocket = accept(sockfd, (struct sockaddr *) &clientAddr, &addrLen);
-				
-				if (newSocket == -1)
+				perror("accept");
+				std::cerr << "Failed to accept new connection at port " << port << std::endl;
+			}
+			FD_SET(clientSocket, &readFds);
+
+			if (clientSocket > maxFD)
+				maxFD = clientSocket;
+
+			timeout.tv_sec = 5;
+			timeout.tv_usec = 0;
+
+			if (select(maxFD + 1, &readFds, NULL, NULL, &timeout) == -1)
+			{
+				perror("select");
+				exit(EXIT_FAILURE);
+			}
+			if (FD_ISSET(clientSocket, &readFds))
+			{
+				if (fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
 				{
-					perror("accept");
-					std::cerr << "Failed to accept new connection at port " << port << std::endl;
+					std::cerr << "Error setting non-blocking mode\n";
+					close(clientSocket);
 				}
 				else
 				{
-					runRequest(clientAddr, newSocket, it->second);
+					runRequest(clientAddr, clientSocket, it->second);
 				}
 			}
 		}
 	}
 }
 
-void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlock sb)
+void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, ServerBlock sb)
 {
 	char				client_message[1024];
 	int					receivedBytes;
@@ -106,16 +123,16 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 	const int			port = sb.getPort();
 
 	std::cout << GREEN << "[ ✅ ] New connection" << YELLOW << " : client with IP "  << BLUE << inet_ntoa(clientAddr.sin_addr) << YELLOW ;
-	std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << newSocket << RESET << std::endl;
-
+	std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << clientSocket << RESET << std::endl;
 	while (1)
 	{
 		memset(client_message, 0, 24);
-		receivedBytes = recv(newSocket, client_message, 24, 0);
+		receivedBytes = recv(clientSocket, client_message, 24, 0);
 		if (receivedBytes == -1)
 		{
 			perror("Couldn't receive");
-			std::cerr << "Couldn't receive message at " << newSocket << " client fd socket" << std::endl;
+			std::cerr << "Couldn't receive message at " << clientSocket << " client fd socket" << std::endl;
+			close(clientSocket);
 			return ;
 		}
 		receivedData.append(client_message, receivedBytes);
@@ -126,8 +143,8 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
 	std::cout << receivedData;
 	
-	// generate Http Response
-	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, newSocket, sb);
+	
+	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, clientSocket, sb);
 	if	(httpResponse == "")
 	{
 		std::cout << RED << "[ ❌ ] Msg not sent to client!" << RESET << std::endl;
@@ -135,25 +152,35 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int newSocket, ServerBlo
 
 		std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
 		std::cout << std::endl;
-		close(newSocket);
+		close(clientSocket);
 		return ;
 	}
+	sendResponse(httpResponse, clientSocket);
+}
 
-	// std::cout << MAGENTA << httpResponse.c_str() << RESET << std::endl;
+void	Server::sendResponse(std::string response, int clientSocket)
+{
+	const char	*server_msg = response.c_str();
+	ssize_t	msg_len = static_cast<ssize_t>(response.length());
+	ssize_t	total_sent = 0;
+	ssize_t	sent;
 
-	// Send the response over the network connection
-	if (send(newSocket, httpResponse.c_str(), strlen(httpResponse.c_str()), 0) < 0){
-		perror("Couldn't send");
-		std::cerr << "Couldn't send message at " << newSocket << " server fd socket" << std::endl;
-		return ;
+	while (total_sent < msg_len)
+	{
+		sent = send(clientSocket, server_msg + total_sent, msg_len - total_sent, 0);
+		if (sent < 0)
+		{
+			perror("Couldn't send");
+			std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
+			return ;
+		}
+		if (total_sent == msg_len)
+			break ;
+		total_sent += sent;
 	}
-	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
-	std::cout << std::endl;
-
-	std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
-	std::cout << std::endl;
-
-	close(newSocket);
+	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << "\n\n";
+	std::cout << MAGENTA << " --------------------------------- " << RESET << "\n\n";
+	close(clientSocket);
 }
 
 /***********************************

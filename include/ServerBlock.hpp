@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:26:46 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/29 18:19:48 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/03 04:13:12 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ class ServerBlock
 		void	setClientMaxBodySize(int size);
 		void	setClientMinBodySize(int size);
 		void	setAutoIndex(str info);
+		void	setCgiScript(str script);
 
 		str		getName() const;
 		int		getPort() const;
