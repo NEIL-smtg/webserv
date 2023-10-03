@@ -6,13 +6,13 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/27 17:55:43 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/03 14:26:56 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PostResponse.hpp"
 
-int RequestHeaderChecking(const HttpRequest& req, std::string &boundary)
+int RequestHeaderChecking(const HttpRequest& req, std::string &boundary, const ServerBlock& sb)
 {
     std::map<std::string, std::string> header = req.getHeader();
 	std::map<std::string, std::string>::iterator it = header.find("Content-Type");
@@ -21,11 +21,18 @@ int RequestHeaderChecking(const HttpRequest& req, std::string &boundary)
 	size_t found = it->second.find("multipart/form-data");
 	if (found == std::string::npos)
 		return (415);
-	//check content length exceed max/min (Error 413/Error 400)
 	found = it->second.find("boundary=");
 	if (found + 9 >= std::string::npos)
 		return (4002);
 	boundary = "--" + it->second.substr(found + 9);
+	it = header.find("Content-Length");
+	if (found == std::string::npos)
+		return (4003);
+	std::string s = header["Content-Length"];
+	if (sb.getClientMaxBodySize() != -1 && std::stol(s) < sb.getClientMaxBodySize())
+		return (413);
+	if (sb.getClientMinBodySize() != -1 && std::stol(s) < sb.getClientMinBodySize())
+		return (4004);
     return (0);
 }
 
@@ -112,11 +119,9 @@ int FileCheckingWriting(std::map<std::string, std::string> body_extract, std::st
 PostResponse::PostResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb)
 :_req(req), _clientSocket(clientSocket), _sb(sb)
 {
-	// if (!urlPathFound() || !methodAllowed())
-	// 	return ;
     std::string boundary;
     int status_code;
-    status_code = RequestHeaderChecking(req, boundary);
+    status_code = RequestHeaderChecking(req, boundary, sb);
     if (status_code)
     {
         std::cout << "Error1 " << status_code << std::endl;
