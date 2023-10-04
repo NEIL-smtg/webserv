@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 17:38:59 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/04 18:51:17 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,20 @@ bool	RequestErrorHandling::ErrorHandler()
 {
 	if (this->_req.getMethodEnum() == GET)
 		return (urlPathFound() && allowMethod());
-	return (urlPathFound() && allowMethod() && validContent());
+	if (urlPathFound())
+	{
+		std::cout << "urlPathFound\n";
+		if (allowMethod())
+		{
+			std::cout << "allowMethod\n";
+			if (validContent())
+			{
+				std::cout << "validContent\n";
+				return (1);
+			}
+		}
+	}
+	return (0);
 }
 
 void	RequestErrorHandling::tokennizeReqUrlPath()
@@ -45,6 +58,7 @@ bool	RequestErrorHandling::urlPathFound()
 	std::vector<Location>			loc;
 	std::vector<Location>::iterator	it;
 	std::string						urlDir;
+	std::string						urlDirFront;
 	std::ifstream					infile;
 	std::string						rootToUse;
 
@@ -55,18 +69,20 @@ bool	RequestErrorHandling::urlPathFound()
 		return true;
 	}
 	tokennizeReqUrlPath();
-	urlDir = this->_reqPath.front();
+	urlDirFront = this->_reqPath.front();
 	loc = this->_sb.getLocation();
 	for (it = loc.begin(); it != loc.end(); it++)
 	{
-		if (it->getDirectory() == urlDir)
+		if (it->getDirectory() == urlDirFront)
 		{
 			this->_currLoc = *it;
+			urlDirFront = urlDir.substr(urlDir.find(urlDirFront) + urlDirFront.length(), urlDir.length());
+			this->_req.setPath(urlDirFront);
 			break ;
 		}
 	}
 	setTargetBlock();
-	rootToUse = this->_target.getRoot() + this->_req.getPath();
+	rootToUse = this->_target.getRoot();
 	infile.open(rootToUse.c_str());
 	if (infile.is_open())
 	{
@@ -74,7 +90,7 @@ bool	RequestErrorHandling::urlPathFound()
 		// _target.setRoot(rootToUse);
 		return (true);
 	}
-	generateErrResponse(404, _target, _req);
+	generateErrResponse(404, _target);
 	return (false);
 }
 
@@ -91,7 +107,7 @@ bool	RequestErrorHandling::allowMethod()
 		if ((*it) == reqMethod)
 			return (true); 
 	}
-	generateErrResponse(405, _target, _req);
+	generateErrResponse(405, _target);
 	return (false);
 }
 
@@ -105,12 +121,12 @@ bool	RequestErrorHandling::validContentLen(std::string contentLen)
 	max = this->_target.getClientMaxBodySize();
 	if (reqLen > max)
 	{
-		generateErrResponse(413, _target, _req);
+		generateErrResponse(413, _target);
 		return (false);
 	}
 	if (reqLen < min)
 	{
-		generateErrResponse(400, _target, _req);
+		generateErrResponse(400, _target);
 		return (false);
 	}
 	return (true);
@@ -157,7 +173,7 @@ bool	RequestErrorHandling::validContent()
 	}
 	if (len == std::string::npos || multi != "multipart/form-data")
 	{
-		generateErrResponse(415, _target, _req);
+		generateErrResponse(415, _target);
 		return (false);
 	}
 	if (!validContentLen(head.find("Content-Length")->second))
@@ -167,7 +183,7 @@ bool	RequestErrorHandling::validContent()
 	return (true);
 }
 
-void	RequestErrorHandling::generateErrResponse(int statusCode, Location target, HttpRequest req)
+void	RequestErrorHandling::generateErrResponse(int statusCode, Location target)
 {
 	std::map<int, std::string>	errPage;
 	std::string					errHtmlFilePath;
@@ -178,27 +194,41 @@ void	RequestErrorHandling::generateErrResponse(int statusCode, Location target, 
 	std::string					line;
 
 	errPage = target.getErrorPage();
-	if (errPage.empty())
+	std::map<int, std::string>::iterator it = errPage.find(statusCode);
+	if (it != errPage.end())
 	{
+		errHtmlFilePath = it->second;
 		htmlFile.open(errHtmlFilePath.c_str());
 		while (std::getline(htmlFile, line))
 			htmlBody << line;
 	}
 	else
 	{
-		htmlFile.open("./Default_error_page1.txt");
-		while (std::getline(htmlFile, line))
-			htmlBody << line;
-		htmlBody << req.getHttpStatusMsg().find(statusCode)->second;
-		htmlFile.open("./Default_error_page2.txt");
-		while (std::getline(htmlFile, line))
-			htmlBody << line;
+		if (statusCode != 200)
+		{
+			htmlFile.open("./error_page/Default_error_page1.txt");
+			while (std::getline(htmlFile, line))
+				htmlBody << line;
+			htmlBody << this->_req.getHttpStatusMsg().find(statusCode)->second;
+			htmlFile.close();
+			htmlFile.open("./error_page/Default_error_page2.txt");
+			while (std::getline(htmlFile, line))
+				htmlBody << line;
+		}
+		else
+			htmlBody << this->_req.getHttpStatusMsg().find(statusCode)->second;
 	}
-	res << req.getHttpStatusMsg().find(statusCode)->second;
-	res << "Content-Type: " << errHtmlFilePath << "\r\n";
-	res << "Content-Length: " << htmlBody.str().length() << "\r\n\r\n";
-	res << htmlBody.str();
+	res << "HTTP/1.1 " << this->_req.getHttpStatusMsg().find(statusCode)->second;
+	res << "Content-Type: text/html \r\n";
+	if (this->_req.getMethodEnum() == HEAD)
+		res << "Content-Length: 0\r\n\r\n";
+	else
+	{
+		res << "Content-Length: " << htmlBody.str().length() << "\r\n\r\n";
+		res << htmlBody.str();
+	}
 	this->_errResponse = res.str();
+	std::cout << res.str() << std::endl;
 }
 
 void	RequestErrorHandling::setTargetBlock()
@@ -229,7 +259,7 @@ Location	RequestErrorHandling::getTargetBlock() const {return this->_target;}
 std::string	RequestErrorHandling::getErrResponse() const {return this->_errResponse;}
 
 /*CONSTRUCTORSS*/
-RequestErrorHandling::RequestErrorHandling(const HttpRequest& req, const ServerBlock& sb):
+RequestErrorHandling::RequestErrorHandling(HttpRequest& req, const ServerBlock& sb):
 _req(req), _sb(sb) {}
 
 RequestErrorHandling::~RequestErrorHandling() {}

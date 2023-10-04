@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/10/03 18:21:07 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/04 18:59:59 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,26 +111,35 @@ int FileCheckingWriting(std::map<std::string, std::string> body_extract, std::st
 	std::cout << path.c_str() << std::endl;
     outfile.open(path.c_str());
     if (!outfile.is_open())
+	{
         return (500);
+	}
     outfile << body_extract["content"];
     outfile.close();
     return (0);
 }
 
-PostResponse::PostResponse(const HttpRequest& req, const int& clientSocket, const Location& sb)
+PostResponse::PostResponse(const HttpRequest& req, const int& clientSocket, const Location& sb, RequestErrorHandling err)
 :_req(req), _clientSocket(clientSocket), _sb(sb)
 {
     std::string boundary;
     int status_code;
     status_code = RequestHeaderChecking(req, boundary, sb);
-    // if (status_code)
-	// 	generateErrResponse(status_code, sb, req);
+    if (status_code)
+	{
+		err.generateErrResponse(status_code, sb);
+		this->_response = err.getErrResponse();
+		return ;
+	}
     std::map<std::string, std::string> body_extract;
     status_code = RequestBodyExtract(body_extract, req, boundary);
-    // if (status_code)
-	// 	generateErrResponse(status_code, sb, req);
+    if (status_code)
+	{
+		err.generateErrResponse(status_code, sb);
+		this->_response = err.getErrResponse();
+		return ;
+	}
     std::string ser_path = _sb.getRoot();
-	std::cout << "Error2 " << ser_path << std::endl;
 	std::string path;
 	if (ser_path[ser_path.length() - 1] == '/')
 		ser_path.erase(ser_path.length() - 1);	
@@ -138,12 +147,21 @@ PostResponse::PostResponse(const HttpRequest& req, const int& clientSocket, cons
 	if (path[path.length() - 1] != '/')
 		path += '/';
     status_code = FilenameContentCheck(body_extract, path);
-    // if (status_code)
-	// 	generateErrResponse(status_code, sb, req);
+    if (status_code)
+	{
+		err.generateErrResponse(status_code, sb);
+		this->_response = err.getErrResponse();
+		return ;
+	}
     status_code = FileCheckingWriting(body_extract, path, POST);
-    // if (status_code)
-	// 	generateErrResponse(status_code, sb, req);
-    std::cout << "200, Success" << std::endl;
+    if (status_code)
+	{
+		err.generateErrResponse(status_code, sb);
+		this->_response = err.getErrResponse();
+		return ;
+	}
+    err.generateErrResponse(200, sb);
+	this->_response = err.getErrResponse();
 }
 
 PostResponse::~PostResponse() {}
