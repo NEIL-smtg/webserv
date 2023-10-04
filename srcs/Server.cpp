@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 11:41:06 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 15:12:10 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ void	Server::sendResponse(std::string response, int clientSocket)
 	ssize_t	total_sent = 0;
 	ssize_t	sent;
 
-	std::cout << response << std::endl;
+	// std::cout << response << std::endl;
 
 	while (total_sent < msg_len)
 	{

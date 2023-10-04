@@ -6,11 +6,12 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 00:20:17 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 11:43:11 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 13:36:05 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "GetResponse.hpp"
+#include <algorithm>
 
 // the main GET method function
 GetResponse::GetResponse(const HttpRequest req, const Location target)
@@ -60,11 +61,22 @@ std::string GetResponse::sendFile(std::string &path, Location target)
 {
 	std::string file = path.substr(1);
 	std::string type ;
+	std::string tmp ;
 	std::string httpResponse;
 	size_t 		dotPos = file.find_last_of(".");
 	
 	if (dotPos != std::string::npos) {
 		type = file.substr(dotPos);
+	}
+
+	int numberOfSlashes = std::count(file.begin(), file.end(), '/');
+	if (numberOfSlashes > 0)
+	{
+		size_t slashPos = file.find_first_of("/");
+		tmp = file.substr(0, slashPos);
+		if (tmp != "img" || tmp != "error_page")
+			file = file.substr(slashPos + 1);
+		std::cout << file << std::endl;
 	}
 
 	// Path to the img file

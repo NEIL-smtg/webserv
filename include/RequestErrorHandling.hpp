@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestErrorHandling.hpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:50:33 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 17:36:23 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/04 11:45:25 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class RequestErrorHandling
 		Location			_target;
 		std::vector<std::string>			_reqPath;
 
-		void			generateErrResponse(int statusCode, Location target, HttpRequest req);
+		void			generateErrResponse(int statusCode);
 		bool			urlPathFound();
 		bool			allowMethod();
 		bool			validContent();

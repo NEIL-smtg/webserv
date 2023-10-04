@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 11:42:58 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 15:47:57 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,19 +62,21 @@ bool	RequestErrorHandling::urlPathFound()
 		if (it->getDirectory() == urlDir)
 		{
 			this->_currLoc = *it;
-			break ;
+			setTargetBlock();
+			return (true);
 		}
 	}
-	setTargetBlock();
-	rootToUse = this->_target.getRoot();
-	std::cout << rootToUse << std::endl;
-	infile.open(rootToUse.c_str());
-	if (infile.is_open())
-	{
-		infile.close();
-		return (true);
-	}
-	generateErrResponse(404, _target, _req);
+	// if (this->_req.getMethodEnum() == GET)
+	// 	return (true);
+	// rootToUse = this->_target.getRoot() + this->_req.getPath();
+	// std::cout <<RED<<rootToUse<< RESET<< std::endl;
+	// infile.open(rootToUse.c_str());
+	// if (infile.is_open())
+	// {
+	// 	infile.close();
+	// 	return (true);
+	// }
+	generateErrResponse(404);
 	return (false);
 }
 
@@ -91,7 +93,7 @@ bool	RequestErrorHandling::allowMethod()
 		if ((*it) == reqMethod)
 			return (true); 
 	}
-	generateErrResponse(405, _target, _req);
+	generateErrResponse(405);
 	return (false);
 }
 
@@ -105,12 +107,12 @@ bool	RequestErrorHandling::validContentLen(std::string contentLen)
 	max = this->_target.getClientMaxBodySize();
 	if (reqLen > max)
 	{
-		generateErrResponse(413, _target, _req);
+		generateErrResponse(413);
 		return (false);
 	}
 	if (reqLen < min)
 	{
-		generateErrResponse(400, _target, _req);
+		generateErrResponse(400);
 		return (false);
 	}
 	return (true);
@@ -157,7 +159,7 @@ bool	RequestErrorHandling::validContent()
 	}
 	if (len == std::string::npos || multi != "multipart/form-data")
 	{
-		generateErrResponse(415, _target, _req);
+		generateErrResponse(415);
 		return (false);
 	}
 	if (!validContentLen(head.find("Content-Length")->second))
@@ -167,7 +169,7 @@ bool	RequestErrorHandling::validContent()
 	return (true);
 }
 
-void	RequestErrorHandling::generateErrResponse(int statusCode, Location target, HttpRequest req)
+void	RequestErrorHandling::generateErrResponse(int statusCode)
 {
 	std::map<int, std::string>	errPage;
 	std::string					errHtmlFilePath;
@@ -178,7 +180,7 @@ void	RequestErrorHandling::generateErrResponse(int statusCode, Location target, 
 	std::string					line;
 
 	errPage = this->_target.getErrorPage();
-	if (errPage.find(statusCode) != errPage.end())
+	if (this->_req.getMethodEnum() != HEAD)
 		errHtmlFilePath = this->_sb.getErrorPage().find(statusCode)->second;
 
 	std::cout << errHtmlFilePath.c_str() << std::endl;
