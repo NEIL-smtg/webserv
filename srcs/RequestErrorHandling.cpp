@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 18:20:06 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 11:42:58 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ bool	RequestErrorHandling::urlPathFound()
 		infile.close();
 		return (true);
 	}
-	generateErrResponse(404);
+	generateErrResponse(404, _target, _req);
 	return (false);
 }
 
@@ -91,7 +91,7 @@ bool	RequestErrorHandling::allowMethod()
 		if ((*it) == reqMethod)
 			return (true); 
 	}
-	generateErrResponse(405);
+	generateErrResponse(405, _target, _req);
 	return (false);
 }
 
@@ -105,12 +105,12 @@ bool	RequestErrorHandling::validContentLen(std::string contentLen)
 	max = this->_target.getClientMaxBodySize();
 	if (reqLen > max)
 	{
-		generateErrResponse(413);
+		generateErrResponse(413, _target, _req);
 		return (false);
 	}
 	if (reqLen < min)
 	{
-		generateErrResponse(400);
+		generateErrResponse(400, _target, _req);
 		return (false);
 	}
 	return (true);
@@ -157,7 +157,7 @@ bool	RequestErrorHandling::validContent()
 	}
 	if (len == std::string::npos || multi != "multipart/form-data")
 	{
-		generateErrResponse(415);
+		generateErrResponse(415, _target, _req);
 		return (false);
 	}
 	if (!validContentLen(head.find("Content-Length")->second))
@@ -167,7 +167,7 @@ bool	RequestErrorHandling::validContent()
 	return (true);
 }
 
-void	RequestErrorHandling::generateErrResponse(int statusCode)
+void	RequestErrorHandling::generateErrResponse(int statusCode, Location target, HttpRequest req)
 {
 	std::map<int, std::string>	errPage;
 	std::string					errHtmlFilePath;

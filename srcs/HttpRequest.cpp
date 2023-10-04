@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 15:21:54 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 11:43:05 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 			// response = PutResponse(*this, target).getResponse();
 			break;
 		case POST:
-			response = PostResponse(*this, clientSocket, sb).getResponse();
+			response = PostResponse(*this, clientSocket, target).getResponse();
 			break;
 		case DELETE:
 			response = DeleteResponse(*this, clientSocket, sb).getResponse();
@@ -83,7 +83,6 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 HttpRequest::HttpRequest()
 {
 	this->_httpStatusMsg[200] = "HTTP/1.1 200 OK\r\n";
-
 	this->_httpStatusMsg[400] = "HTTP/1.1 400 Bad Request\r\n";
 	this->_httpStatusMsg[404] = "HTTP/1.1 404 Not Found\r\n";
 	this->_httpStatusMsg[405] = "HTTP/1.1 405 Not Allowed\r\n";
