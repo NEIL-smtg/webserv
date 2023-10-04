@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 19:07:37 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 19:26:21 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,18 +18,18 @@ bool	RequestErrorHandling::ErrorHandler()
 		return (urlPathFound() && allowMethod());
 	if (urlPathFound())
 	{
-		std::cout << "urlPathFound\n";
+		// std::cout << "urlPathFound\n";
 		if (allowMethod())
 		{
-			std::cout << "allowMethod\n";
+			// std::cout << "allowMethod\n";
 			if (validContent())
 			{
-				std::cout << "validContent\n";
-				return (1);
+				// std::cout << "validContent\n";
+				return (true);
 			}
 		}
 	}
-	return (0);
+	return (false);
 }
 
 void	RequestErrorHandling::tokennizeReqUrlPath()
@@ -228,7 +228,7 @@ void	RequestErrorHandling::generateErrResponse(int statusCode, Location target)
 		res << htmlBody.str();
 	}
 	this->_errResponse = res.str();
-	std::cout << res.str() << std::endl;
+	// std::cout << res.str() << std::endl;
 }
 
 void	RequestErrorHandling::setTargetBlock()

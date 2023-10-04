@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 19:05:19 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 19:35:16 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,9 +74,10 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 		case DELETE:
 			response = DeleteResponse(*this, clientSocket, sb).getResponse();
 			break;
-		// case HEAD:
-		// 	response = HeadResponse(*this, target).getResponse();
-		// 	break;
+		case HEAD:
+			err.generateErrResponse(200, target);
+			response = err.getErrResponse();
+			break;
 		default:
 			break;
 	}

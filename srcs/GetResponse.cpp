@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 00:20:17 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 13:36:05 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 19:41:20 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ std::string GetResponse::sendFile(std::string &path, Location target)
 		tmp = file.substr(0, slashPos);
 		if (tmp != "img" || tmp != "error_page")
 			file = file.substr(slashPos + 1);
-		std::cout << file << std::endl;
+		// std::cout << file << std::endl;
 	}
 
 	// Path to the img file
@@ -141,15 +141,11 @@ std::string	GetResponse::locationRequest(std::string &path, Location target)
 	char							c;
 
 	(void)path;
-	// std::cout << target.getRoot() << "//  //" << target.getIndex() << "\n";
 	
 	//open the index.html
-	std::cout << "here !!!!! "<< target.getRoot() << std::endl;
 	dir = target.getRoot();
 	dir += "/";
 	dir += target.getIndex();
-
-	// std::cout << dir.c_str() << "\n";
 	
 	input_file.open(dir.c_str());
 	if (!input_file)
