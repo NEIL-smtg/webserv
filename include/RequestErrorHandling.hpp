@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:50:33 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 11:45:25 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/04 19:05:08 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,13 @@
 class RequestErrorHandling
 {
 	private:
-		const HttpRequest&	_req;
+		HttpRequest&	_req;
 		const ServerBlock&	_sb;
 		std::string			_errResponse;
 		Location			_currLoc;
 		Location			_target;
 		std::vector<std::string>			_reqPath;
 
-		void			generateErrResponse(int statusCode);
 		bool			urlPathFound();
 		bool			allowMethod();
 		bool			validContent();
@@ -35,7 +34,8 @@ class RequestErrorHandling
 		void			tokennizeReqUrlPath();
 		bool			validBoundary(std::string boundary);
 	public:
-		RequestErrorHandling(const HttpRequest& _req, const ServerBlock& _sb);
+		void			generateErrResponse(int statusCode, Location target);
+		RequestErrorHandling(HttpRequest& _req, const ServerBlock& _sb);
 		~RequestErrorHandling();
 		RequestErrorHandling(const RequestErrorHandling& other);
 		RequestErrorHandling&	operator=(const RequestErrorHandling& other);

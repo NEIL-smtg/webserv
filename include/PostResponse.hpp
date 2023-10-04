@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:29:51 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/10/03 17:37:03 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/04 17:43:06 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "RequestErrorHandling.hpp"
 
 class	HttpRequest;
+class	RequestErrorHandling;
 
 class	PostResponse
 {
@@ -31,7 +32,7 @@ class	PostResponse
 		str					_response;
 
 	public:
-		PostResponse(const HttpRequest& req, const int& clientSocket, const Location& sb);
+		PostResponse(const HttpRequest& req, const int& clientSocket, const Location& sb, RequestErrorHandling err);
 		~PostResponse();
 		PostResponse(const PostResponse& other);
 		PostResponse&	operator=(const PostResponse& other);
