@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:23:31 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 03:28:43 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/06 02:13:27 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,9 @@
 # include <vector>
 # include <map>
 # include <algorithm>
+
+//	directory and file
+# include <sys/stat.h>
 
 //	networking
 # include <sys/socket.h>
@@ -62,6 +65,24 @@ class InvalidFileException : public std::exception
 		InvalidFileException(const char *msg):msg(msg){}
 		const char *what() const throw(){return this->msg;}
 };
+
+typedef enum	conf
+{
+	SERVER_NAME,
+	LISTEN,
+	ROOT,
+	INDEX,
+	ERROR_PAGE,
+	ALLOW_METHOD,
+	LIMIT_EXCEPT,
+	LOCATION,
+	CLIENT_MAX_BODY_SIZE,
+	CLIENT_MIN_BODY_SIZE,
+	CGI_SCRIPT,
+	AUTOINDEX,
+	UPLOAD,
+	NONE
+}	conf;
 
 typedef enum httpMethod
 {

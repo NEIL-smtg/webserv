@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:00:18 by suchua            #+#    #+#             */
-/*   Updated: 2023/09/15 00:34:42 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/06 01:24:58 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,29 +14,27 @@
 # define __GET_RESPONSE_HPP__
 
 # include "Webserv.hpp"
-# include "ServerBlock.hpp"
 # include "HttpRequest.hpp"
 
 class	HttpRequest;
 
 class GetResponse
 {
-	typedef std::string	str;
 	private:
-		str		_response;
-		str		_path;
+		const HttpRequest&			_req;
+		const Location&				_target;
+		std::stringstream			_response;
+		std::string					_contentType;
 
-		bool	isImgFile(std::string &file);
-		str		sendFile(std::string &path, int clientSocket);
-		bool	isLocation(std::string &path, ServerBlock sb);
-		str		locationRequest(std::string &path, ServerBlock sb);
+		void		responseHandler(std::string file);
+		void		setImgResponse(std::string pathToFile, std::string type);
+		void		setNormalResponse(std::string pathToFile);
 	public:
-		GetResponse(const HttpRequest req, const int clientSocket, const ServerBlock sb);
+		GetResponse(const HttpRequest& req, const Location& target);
 		~GetResponse();
 		GetResponse(const GetResponse& other);
 		GetResponse&	operator=(const GetResponse& other);
-		
-		str	getResponse() const;
+		std::string		getResponse() const;
 };
 
 

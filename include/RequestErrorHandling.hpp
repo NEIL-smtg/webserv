@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:50:33 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/01 23:38:53 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/06 04:02:18 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,16 @@ class RequestErrorHandling
 		std::string			_errResponse;
 		Location			_currLoc;
 		Location			_target;
-		std::vector<std::string>			_reqPath;
+		std::vector<std::string>	_tokennizePath;
 
 		void			generateErrResponse(int statusCode);
 		bool			urlPathFound();
 		bool			allowMethod();
 		bool			validContent();
 		bool			validContentLen(std::string contentLen);
-		void			tokennizeReqUrlPath();
-		bool			validBoundary(std::string boundary);
+		bool			validBoundary();
+		bool			accessDir();
+		std::string		getRootToUse();
 	public:
 		RequestErrorHandling(const HttpRequest& _req, const ServerBlock& _sb);
 		~RequestErrorHandling();

@@ -6,27 +6,15 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/10/01 23:26:03 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/05 18:12:29 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
-static bool isLocoHead(std::string locohead)
-{
-	const std::string head[13] = {"root", "index", "include", "cgi_script", "upload", "error_page", "client_max_body_size", "client_min_body_size", "autoindex", "return", "limit_except", "allow", "deny"};
-
-	for (size_t i = 0; i < 13; i++)
-	{
-		if (locohead == head[i])
-			return (true);
-	}
-	return (false);
-}
-
 Location::Location(std::vector<std::string>::iterator &i, std::vector<std::string> &token)
 {
-	locconf		_conf = LC_NONE;
+	conf	_conf = NONE;
 	
 	this->clientMaxBodySize = DEFAULT_CLIENT_MAX_SIZE;
 	this->clientMinBodySize = DEFAULT_CLIENT_MIN_SIZE;
@@ -40,61 +28,53 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		if (*i == "}")
 			break ;
 		if (*i == "root")
-			_conf = LC_ROOT;
+			_conf = ROOT;
 		else if (*i == "index")
-			_conf = LC_INDEX;
-		// else if (*i == "include")
-		// 	_conf = LC_INCLUDE;
+			_conf = INDEX;
 		else if (*i == "cgi_script")
-			_conf = LC_CGI_SCRIPT;
-		// else if (*i == "upload")
-		// 	_conf = LC_UPLOAD;
+			_conf = CGI_SCRIPT;
+		else if (*i == "upload")
+			_conf = UPLOAD;
 		else if (*i == "error_page")
-			_conf = LC_ERROR_PAGE;
+			_conf = ERROR_PAGE;
 		else if (*i == "client_max_body_size")
-			_conf = LC_CLIENT_MAX_BODY_SIZE;
+			_conf = CLIENT_MAX_BODY_SIZE;
 		else if (*i == "client_min_body_size")
-			_conf = LC_CLIENT_MIN_BODY_SIZE;
-		// else if (*i == "autoindex")
-		// 	_conf = LC_AUTOINDEX;
-		// else if (*i == "return")
-		// 	_conf = LC_RETURN;
-		else if (*i == "allow_methods" || (_conf == LC_LIMIT_EXCEPT && isMethod(*i)))
-			_conf = LC_LIMIT_EXCEPT;
-		else if (*i == "limit_except" || (_conf == LC_LIMIT_EXCEPT && isMethod(*i)))
-			_conf = LC_LIMIT_EXCEPT;
-		// else if (*i == "deny")
-		// 	_conf = LC_DENY;
-		if (_conf == LC_NONE)
+			_conf = CLIENT_MIN_BODY_SIZE;
+		else if (*i == "autoindex")
+			_conf = AUTOINDEX;
+		else if (*i == "allow_methods" || (_conf == LIMIT_EXCEPT && isMethod(*i)))
+			_conf = LIMIT_EXCEPT;
+		else if (*i == "limit_except" || (_conf == LIMIT_EXCEPT && isMethod(*i)))
+			_conf = LIMIT_EXCEPT;
+		if (_conf == NONE)
 		{
 			std::cerr << "Error : Invalid syntax : " + *i;
 			throw InvalidFileException("");
 		}
 		++i;
-		if (_conf == LC_ROOT)
+		if (_conf == ROOT)
 			setRoot(*i);
-		if (_conf == LC_INDEX)
+		else if (_conf == INDEX)
 			setIndex(*i);
-		// if (_conf == LC_INCLUDE)
-		// 	setInclude(*i);
-		if (_conf == LC_CGI_SCRIPT)
+		else if (_conf == CGI_SCRIPT)
 			setCgiScript(*i);
-		// if (_conf == LC_UPLOAD)
-		// 	setUpload(*i);
-		if (_conf == LC_ERROR_PAGE)
+		if (_conf == UPLOAD)
+			setUpload(*i);
+		else if (_conf == ERROR_PAGE)
 			addErrorPage(i);
-		if (_conf == LC_CLIENT_MAX_BODY_SIZE)
-			getSize(*i, _conf);
-		if (_conf == LC_CLIENT_MIN_BODY_SIZE)
-			getSize(*i, _conf);
-		// if (_conf == LC_AUTOINDEX)
-		// 	setAutoIndex(*i);
-		// if (_conf == LC_RETURN)
-		// 	setReturn(*i);
-		if (_conf == LC_LIMIT_EXCEPT)
+		else if (_conf == CLIENT_MAX_BODY_SIZE)
+			setBodySize(*i, _conf);
+		else if (_conf == CLIENT_MIN_BODY_SIZE)
+			setBodySize(*i, _conf);
+		else if (_conf == AUTOINDEX)
+			validateAutoIndex(*i);
+		else if (_conf == ALLOW_METHOD)
 			addLimitExcept(i, token);
-		if (_conf == LC_LIMIT_EXCEPT)
+		else if (_conf == LIMIT_EXCEPT)
 			addLimitExcept(i, token);
+		if (_conf != ALLOW_METHOD && _conf != LIMIT_EXCEPT)
+			_conf = NONE;
 	}
 	if (i == token.end())
 		throw InvalidFileException("Error : Missing }");
@@ -115,11 +95,12 @@ Location& Location::operator=(const Location& other)
 	this->root = other.root;
 	this->index = other.index;
 	this->cgiScript = other.cgiScript;
+	this->upload = other.upload;
 	this->errorPage = other.errorPage;
 	this->clientMaxBodySize = other.clientMaxBodySize;
 	this->clientMinBodySize = other.clientMinBodySize;
-	this->methods = other.methods;
 	this->autoIndex = other.autoIndex;
+	this->methods = other.methods;
 	this->init = other.init;
 	return (*this);
 }
@@ -136,15 +117,28 @@ void	Location::setErrorPage(std::map<int, std::string> errorPage) {this->errorPa
 
 void	Location::setMethods(std::vector<std::string> methods) {this->methods = methods;}
 
+void	Location::validateAutoIndex(std::string _auto)
+{
+	if (_auto == "on")			this->autoIndex = true;
+	else if (_auto == "off")	this->autoIndex = false;
+	else
+	{
+		std::cerr << "Error : Invalid syntax : autoindex" << _auto;
+		throw InvalidFileException("");
+	}
+}
+
+void	Location::setUpload(std::string uploadPath) {this->upload = uploadPath;}
+
 void	Location::setAutoIndex(bool _auto) {this->autoIndex = _auto;}
 
 void	Location::setInit() {this->init = true;}
 
 void	Location::addErrorPage(std::vector<std::string>::iterator &i)
 {
-	int err_value;
+	int			err_value;
 	std::string err = (*i);
-	char *str;
+	char		*str;
 
 	try
 	{
@@ -174,37 +168,25 @@ void	Location::addErrorPage(std::vector<std::string>::iterator &i)
 	}
 }
 
-void	Location::getSize(std::string size, locconf minMax)
+void	Location::setBodySize(std::string value, conf minMax)
 {
-	int clientSize;
-	char *str;
-
-	try
+	for (size_t i = 0; i < value.length(); i++)
 	{
-		clientSize = std::atoi(size.c_str());
-		int i = 0;
-		str = (char *)size.c_str();
-		while (str[i])
+		if (value.at(i) < '0' || value.at(i) > '9')
 		{
-			if (str[i] < '0' || str[i] > '9')
-				throw InvalidFileException("");
-			i++;
+			std::cout << "Error : Invalid arguments at body size : " << value << std::endl;
+			throw InvalidFileException("");
 		}
-        if (minMax == LC_CLIENT_MAX_BODY_SIZE)
-		    setClientMaxBodySize(clientSize);
-        else if (minMax == LC_CLIENT_MIN_BODY_SIZE)
-		    setClientMinBodySize(clientSize);
 	}
-	catch(std::exception &e)
-	{
-		throw InvalidFileException("Error : Invalid argument in client_max_body_size }");
-	}
-	
+	if (minMax == CLIENT_MAX_BODY_SIZE)
+		setClientMaxBodySize(std::atoi(value.c_str()));
+	else
+		setClientMinBodySize(std::atoi(value.c_str()));	
 }
 
-void	Location::setClientMaxBodySize(int clientSize){this->clientMaxBodySize = clientSize;}
+void	Location::setClientMaxBodySize(int clientSize) {this->clientMaxBodySize = clientSize;}
 
-void	Location::setClientMinBodySize(int clientSize){this->clientMinBodySize = clientSize;}
+void	Location::setClientMinBodySize(int clientSize) {this->clientMinBodySize = clientSize;}
 
 void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector<std::string> &token)
 {
@@ -215,7 +197,7 @@ void	Location::addLimitExcept(std::vector<std::string>::iterator &i, std::vector
 		--i;
 		return ;
 	}
-	if (!isLocoHead(*i))
+	if (!isHead(*i))
 	{
 		std::cerr << "Error : Invalid syntax : " + *i;
 		throw InvalidFileException("");
@@ -241,23 +223,9 @@ std::map<int, std::string>	Location::getErrorPage() const {return this->errorPag
 
 bool	Location::getAutoIndex() const {return this->autoIndex;}
 
+std::string	Location::getUpload() const {return this->upload;}
+
 bool	Location::isInit() const {return this->init;}
-
-void	Location::printErrorPage()
-{
-    for (std::map<int, std::string>::iterator it = errorPage.begin(); it != errorPage.end(); ++it) {
-        std::cout << it->first << ": " << it->second << std::endl;
-    }
-}
-
-void	Location::printLimitExcept()
-{
-	std::vector<std::string>::iterator it;
-    for (it = methods.begin(); it != methods.end(); ++it) {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-}
 
 std::ostream&	operator<<(std::ostream& out, Location& loc)
 {

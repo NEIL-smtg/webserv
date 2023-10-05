@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 03:57:36 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/06 04:01:29 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,31 +39,78 @@ void	HttpRequest::parseHttpRequest(const str& req)
 		{
 			key = line.substr(0, separatorPos);
 			value = line.substr(separatorPos + 2);
+			if (key == "Content-Type" && !strncmp(value.c_str(), "multipart/form-data", strlen("multipart/form-data")))
+			{
+				size_t	index = value.find_first_of('=') + 1;
+				_boundary = value.substr(index);
+				value = "multipart/form-data";
+			}
 			setHeader(key, value);
 		}
-		if (key == "Content-Type")
-			str	boundary = value.substr(value.find_first_of('=') + 1);
 		if (key == "Content-Length")
 			break ;
 	}
 	while (std::getline(stream, line))
-		setBody(line);
+	{
+		if (isspace(line.at(0)))
+			continue;
+		if (_boundary.empty() && !setWWWFormData(line))
+			continue ;
+		if (!_boundary.empty())
+			setBoundaryFormData(line);
+	}
+}
+
+bool	HttpRequest::setWWWFormData(std::string line)
+{
+	size_t				toSep;
+	std::vector<str>	tokens;
+
+	toSep = line.find('=');
+	if (toSep == std::string::npos)
+		return (false);
+	tokens = tokennizer(line, "=&");
+	for (size_t i = 0; i < tokens.size(); i++)
+	{
+		if (i % 2 == 0)
+			this->_dataKeys.push_back(tokens.at(i));
+		else
+			this->_dataVal.push_back(tokens.at(i));
+	}
+	return (true);
+}
+
+void	HttpRequest::setBoundaryFormData(std::string line)
+{
+	if (line.at(0) == '-')
+		_formBoundary.push_back(line);
+	else if (this->_dataKeys.size() == this->_dataVal.size())
+	{
+		size_t	start = line.find('\"') + 1;
+		size_t	end = line.find('\"', start);
+		this->_dataKeys.push_back(line.substr(start, end - start));
+	}
+	else
+		this->_dataVal.push_back(line);
 }
 
 std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSocket, const ServerBlock sb)
 {
-	parseHttpRequest(req);	
+	clearAll();
+	parseHttpRequest(req);
+	tokennizeReqUrlPath();
+
 	RequestErrorHandling	err(*this, sb);
 	if (!err.ErrorHandler())
 		return (err.getErrResponse());
-	
+
 	Location	target(err.getTargetBlock());
 	str			response;
 
 	switch (this->_methodEnum)
 	{
 		case GET:
-			response = GetResponse(*this, clientSocket, sb).getResponse();
+			response = GetResponse(*this, target).getResponse();
 			break;			
 		case PUT:
 			response = PutResponse(*this, clientSocket, target).getResponse();
@@ -80,10 +127,18 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 	return (response);
 }
 
+void	HttpRequest::clearAll()
+{
+	this->_header.clear();
+	this->_tokennizePath.clear();
+	this->_dataKeys.clear();
+	this->_dataVal.clear();
+	this->_boundary.clear();
+	this->_formBoundary.clear();
+}
+
 HttpRequest::HttpRequest()
 {
-	this->_httpStatusMsg[200] = "HTTP/1.1 200 OK\r\n";
-
 	this->_httpStatusMsg[400] = "HTTP/1.1 400 Bad Request\r\n";
 	this->_httpStatusMsg[404] = "HTTP/1.1 404 Not Found\r\n";
 	this->_httpStatusMsg[405] = "HTTP/1.1 405 Not Allowed\r\n";
@@ -118,6 +173,48 @@ void	HttpRequest::setMethod(str method)
 	else							_methodEnum = TRACE;
 }
 
+void	HttpRequest::tokennizeReqUrlPath()
+{
+	const std::string	sep("/");
+	size_t	start = 0, end = 0;
+	size_t	npos = std::string::npos;
+	std::string	path = _path;
+
+	while (start != npos && end != npos)
+	{
+		end = path.find_first_of(sep, start);
+		if (end == npos && path[start] != 0)
+		{
+			this->_tokennizePath.push_back(sep + &path[start]);
+			break ;
+		}
+		if (start != npos && end - start != 0 && path[start] != 0)
+			this->_tokennizePath.push_back(sep + path.substr(start, end - start));
+		start = path.find_first_not_of(sep, end);
+	}
+}
+
+std::vector<std::string>	HttpRequest::tokennizer(const std::string line, const std::string sep)
+{
+	size_t	start = 0, end = 0;
+	size_t	npos = std::string::npos;
+	std::vector<std::string>	tokens;
+
+	while (start != npos && end != npos)
+	{
+		end = line.find_first_of(sep, start);
+		if (end == npos && line[start] != 0)
+		{
+			tokens.push_back(&line[start]);
+			break ;
+		}
+		if (start != npos && end - start != 0 && line[start] != 0)
+			tokens.push_back(line.substr(start, end - start));
+		start = line.find_first_not_of(sep, end);
+	}
+	return (tokens);
+}
+
 void	HttpRequest::setPath(str path) {this->_path = path;}
 
 void	HttpRequest::setBody(str line) {this->_body.push_back(line);}
@@ -136,3 +233,12 @@ HttpRequest::header	HttpRequest::getHeader() const {return this->_header;}
 
 std::map<int, std::string>	HttpRequest::getHttpStatusMsg() const {return this->_httpStatusMsg;}
 
+std::vector<std::string>	HttpRequest::getTokennizePath() const {return this->_tokennizePath;}
+
+std::vector<std::string>	HttpRequest::getDataKeys() const {return this->_dataKeys;}
+
+std::vector<std::string>	HttpRequest::getDataValues() const {return this->_dataVal;}
+
+std::string	HttpRequest::getBoundary() const {return this->_boundary;}
+
+std::vector<std::string>	HttpRequest::getFormBoundary() const {return this->_formBoundary;}

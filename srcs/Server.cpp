@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 04:02:41 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/06 02:59:08 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,15 +102,11 @@ void	Server::acceptConnection()
 			if (FD_ISSET(clientSocket, &readFds))
 			{
 				if (fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
-				{
 					std::cerr << "Error setting non-blocking mode\n";
-					close(clientSocket);
-				}
 				else
-				{
 					runRequest(clientAddr, clientSocket, it->second);
-				}
 			}
+			close(clientSocket);
 		}
 	}
 }
@@ -132,7 +128,6 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, Server
 		{
 			perror("Couldn't receive");
 			std::cerr << "Couldn't receive message at " << clientSocket << " client fd socket" << std::endl;
-			close(clientSocket);
 			return ;
 		}
 		receivedData.append(client_message, receivedBytes);
@@ -141,18 +136,14 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, Server
 	}
 
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
-	std::cout << receivedData;
-	
-	
+	std::cout << receivedData << "\n\n";
+
 	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, clientSocket, sb);
 	if	(httpResponse == "")
 	{
-		std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << std::endl;
+		std::cout << GREEN << "[ ❌ ] Msg not sent to client!" << RESET << std::endl;
 		std::cout << std::endl;
-
-		std::cout << MAGENTA << " --------------------------------- " << RESET << std::endl;
-		std::cout << std::endl;
-		close(clientSocket);
+		std::cout << MAGENTA << " --------------------------------- " << RESET << "\n\n";
 		return ;
 	}
 	sendResponse(httpResponse, clientSocket);
@@ -180,7 +171,6 @@ void	Server::sendResponse(std::string response, int clientSocket)
 	}
 	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << "\n\n";
 	std::cout << MAGENTA << " --------------------------------- " << RESET << "\n\n";
-	close(clientSocket);
 }
 
 /***********************************

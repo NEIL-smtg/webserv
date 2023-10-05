@@ -6,7 +6,7 @@
 /*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 04:23:18 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/05 18:12:17 by suchua           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@ bool	isMethod(std::string method)
 
 bool	isHead(std::string line)
 {
-	const std::string head[7] = {"server_name", "listen", "root", "index", "allow_methods", "location", "error_page"};
+	const std::string head[13] = {"root", "upload", "index", "include", "cgi_script", "upload", "error_page", "client_max_body_size", "client_min_body_size", "autoindex", "limit_except", "allow_methods"};
 
-	for (size_t i = 0; i < 7; i++)
+	for (size_t i = 0; i < 13; i++)
 	{
 		if (line == head[i])
 			return (true);
