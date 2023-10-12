@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   DeleteResponse.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/09/25 18:26:05 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/12 16:46:51 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "DeleteResponse.hpp"
 
-DeleteResponse::DeleteResponse(const HttpRequest& req, const int& clientSocket, const ServerBlock& sb)
+DeleteResponse::DeleteResponse(const HttpRequest& req, const int& clientSocket, const Location& sb, RequestErrorHandling err)
 :_req(req), _clientSocket(clientSocket), _sb(sb)
 {
 	// if (!urlPathFound() || !methodAllowed())
@@ -25,56 +25,21 @@ DeleteResponse::DeleteResponse(const HttpRequest& req, const int& clientSocket, 
 	path = ser_path + _req.getPath();
 	if (path[path.length() - 1] == '/')
     {
-		std::cout << "Error 400" << std::endl;
-        return;
+		err.generateErrResponse(400, sb);
+		this->_response = err.getErrResponse();
+		return ;
     }
     int status;
     status = remove(path.c_str());
     if (status != 0)
     {
-		std::cout << "Error 400" << std::endl;
-        return;
+		err.generateErrResponse(400, sb);
+		this->_response = err.getErrResponse();
+		return ;
     }
-    std::cout << "200, Success" << std::endl;
-}
-
-bool	DeleteResponse::urlPathFound()
-{
-	if (this->_req.getPath() == "/")
-		return (true);
-
-	std::vector<Location>			loc;
-	std::vector<Location>::iterator	it;
-	
-	loc = this->_sb.getLocation();
-	for (it = loc.begin(); it != loc.end(); ++it)
-	{
-		if (it->getDirectory() == this->_req.getPath())
-		{
-			this->_location = (*it);
-			return (true);
-		}
-	}
-
-	// this->_response = generateErrorResponse(this->_sb, NOT_FOUND);
-	return (false);
-}
-
-bool	DeleteResponse::methodAllowed()
-{
-	str							reqMethod;
-	std::vector<str>			validMethods;
-	std::vector<str>::iterator	it;
-
-	reqMethod = this->_req.getMethodStr();
-	validMethods = _location.getMethods();
-	for (it = validMethods.begin(); it != validMethods.end(); it++)
-	{
-		if ((*it) == reqMethod)
-			return (true);
-	}
-	// this->_response = generateErrorResponse(this->_sb, NOT_ALLOWED);
-	return (false);
+    err.generateErrResponse(200, sb);
+	this->_response = err.getErrResponse();
+	return ;
 }
 
 DeleteResponse::~DeleteResponse() {}

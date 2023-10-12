@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 19:35:16 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/12 17:25:54 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ void	HttpRequest::parseHttpRequest(const str& req)
 {
 	std::istringstream	stream(req);
 	str	line;
+
+	setfull(req);
 
 	if (std::getline(stream, line))
 	{
@@ -66,17 +68,20 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 			response = GetResponse(*this, target).getResponse();
 			break;
 		case PUT:
-			response = PutResponse(*this, clientSocket, target).getResponse();
+			response = PutResponse(*this, clientSocket, target, err).getResponse();
 			break;
 		case POST:
 			response = PostResponse(*this, clientSocket, target, err).getResponse();
 			break;
 		case DELETE:
-			response = DeleteResponse(*this, clientSocket, sb).getResponse();
+			response = DeleteResponse(*this, clientSocket, target, err).getResponse();
 			break;
 		case HEAD:
 			err.generateErrResponse(200, target);
 			response = err.getErrResponse();
+			break;
+		case TRACE:
+			response = TraceResponse(*this, clientSocket, target, err).getResponse();
 			break;
 		default:
 			break;
@@ -123,6 +128,8 @@ void	HttpRequest::setMethod(str method)
 	else							_methodEnum = TRACE;
 }
 
+void	HttpRequest::setfull(str full) {this->_full = full;}
+
 void	HttpRequest::setPath(str path) {this->_path = path;}
 
 void	HttpRequest::setBody(str line) {this->_body.push_back(line);}
@@ -132,6 +139,8 @@ void	HttpRequest::setHeader(str key, str value){this->_header[key] = value;}
 HttpRequest::body	HttpRequest::getBody() const {return this->_body;}
 
 std::string	HttpRequest::getPath() const {return this->_path;}
+
+std::string	HttpRequest::getfull() const {return this->_full;}
 
 std::string	HttpRequest::getMethodStr() const {return this->_methodStr;}
 

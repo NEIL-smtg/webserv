@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   DeleteResponse.hpp                                 :+:      :+:    :+:   */
+/*   TraceResponse.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:15:38 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/12 13:40:54 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/12 14:25:26 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __DELETE_RESPONSE__HPP__
-# define __DELETE_RESPONSE__HPP__
+#ifndef __TRACE_RESPONSE__HPP__
+# define __TRACE_RESPONSE__HPP__
 
 # include "Webserv.hpp"
 # include "HttpRequest.hpp"
@@ -19,7 +19,7 @@
 class	HttpRequest;
 class	RequestErrorHandling;
 
-class	DeleteResponse
+class	TraceResponse
 {
 	typedef std::string	str;
 
@@ -36,10 +36,10 @@ class	DeleteResponse
 
 		// str		generateErrorResponse(const httpError err);
 	public:
-		DeleteResponse(const HttpRequest& req, const int& clientSocket, const Location& sb, RequestErrorHandling err);
-		~DeleteResponse();
-		DeleteResponse(const DeleteResponse& other);
-		DeleteResponse&	operator=(const DeleteResponse& other);
+		TraceResponse(const HttpRequest& req, const int& clientSocket, const Location& sb, RequestErrorHandling err);
+		~TraceResponse();
+		TraceResponse(const TraceResponse& other);
+		TraceResponse&	operator=(const TraceResponse& other);
 		
 		str		getResponse() const;
 };

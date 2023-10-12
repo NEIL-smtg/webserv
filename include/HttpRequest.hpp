@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:24:59 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 15:48:11 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/12 17:16:49 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "PutResponse.hpp"
 # include "PostResponse.hpp"
 # include "DeleteResponse.hpp"
+# include "TraceResponse.hpp"
 # include "RequestErrorHandling.hpp"
 
 // class	GetResponse;
@@ -32,6 +33,7 @@ class HttpRequest
     typedef std::vector<str>	body;
 	
 	private:
+		str					_full;
 		str					_methodStr;
 		str					_path;			//url dir
 		body				_body;
@@ -44,10 +46,12 @@ class HttpRequest
 		HttpRequest&	operator=(const HttpRequest& other);		
 		~HttpRequest();
 
+		void			setfull(str full);
 		void			setMethod(str method);
 		void			setPath(str path);
 		void			setBody(str line);
 		void			setHeader(str head, str content);
+		str				getfull() const;
 		str				getMethodStr() const;
 		httpMethod		getMethodEnum() const;
 		body			getBody() const;

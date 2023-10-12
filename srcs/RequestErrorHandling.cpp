@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 19:26:21 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/12 17:35:48 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool	RequestErrorHandling::ErrorHandler()
 {
-	if (this->_req.getMethodEnum() == GET)
+	if (this->_req.getMethodEnum() == GET || this->_req.getMethodEnum() == DELETE || this->_req.getMethodEnum() == TRACE)
 		return (urlPathFound() && allowMethod());
 	if (urlPathFound())
 	{
@@ -30,6 +30,7 @@ bool	RequestErrorHandling::ErrorHandler()
 		}
 	}
 	return (false);
+	// return (urlPathFound() && allowMethod() && validContent())
 }
 
 void	RequestErrorHandling::tokennizeReqUrlPath()

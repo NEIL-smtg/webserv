@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:50:33 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 19:05:08 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/12 17:28:10 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,12 @@
 # include "HttpRequest.hpp"
 # include "ServerBlock.hpp"
 
+class HttpRequest;
+
 class RequestErrorHandling
 {
 	private:
-		HttpRequest&	_req;
+		HttpRequest&		_req;
 		const ServerBlock&	_sb;
 		std::string			_errResponse;
 		Location			_currLoc;

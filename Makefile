@@ -1,7 +1,7 @@
 NAME            =       webserv
 FILES           =       main Parse ServerBlock Location Server \
 						HttpRequest GetResponse PutResponse PostResponse DeleteResponse \
-						RequestErrorHandling
+						RequestErrorHandling TraceResponse
 SRCS_DIR        =       srcs/
 OBJS_DIR        =       objs/
 SRCS            =       $(addprefix $(SRCS_DIR), $(addsuffix .cpp, $(FILES)))

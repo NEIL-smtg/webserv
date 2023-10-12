@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PutResponse.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 16:15:38 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/01 22:09:52 by suchua           ###   ########.fr       */
+/*   Updated: 2023/10/12 16:49:03 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 
 # include "Webserv.hpp"
 # include "HttpRequest.hpp"
+# include "RequestErrorHandling.hpp"
 
 class	HttpRequest;
+class	RequestErrorHandling;
 
 class	PutResponse
 {
@@ -25,10 +27,11 @@ class	PutResponse
 	private:
 		const HttpRequest&	_req;
 		const int&			_clientSocket;
-		const Location&		_target;
+		const Location&		_sb;
+		str					_response;
 
 	public:
-		PutResponse(const HttpRequest& req, const int& clientSocket, const Location& target);
+		PutResponse(const HttpRequest& req, const int& clientSocket, const Location& sb, RequestErrorHandling err);
 		~PutResponse();
 		PutResponse(const PutResponse& other);
 		PutResponse&	operator=(const PutResponse& other);
