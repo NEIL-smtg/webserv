@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PostResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/10/04 18:59:59 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/24 16:53:44 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,21 @@
 
 int RequestHeaderChecking(const HttpRequest& req, std::string &boundary, const Location& sb)
 {
+	(void)boundary;
     std::map<std::string, std::string> header = req.getHeader();
 	std::map<std::string, std::string>::iterator it = header.find("Content-Type");
 	if (it == header.end())
 		return (400);
-	size_t found = it->second.find("multipart/form-data");
-	if (found == std::string::npos)
-		return (415);
-	found = it->second.find("boundary=");
-	if (found + 9 >= std::string::npos)
-		return (400);
-	boundary = "--" + it->second.substr(found + 9);
-	it = header.find("Content-Length");
-	if (found == std::string::npos)
-		return (400);
+	// size_t found = it->second.find("multipart/form-data");
+	// // if (found == std::string::npos)
+	// // 	return (415);
+	// found = it->second.find("boundary=");
+	// if (found + 9 >= std::string::npos)
+	// 	return (400);
+	// boundary = "--" + it->second.substr(found + 9);
+	// it = header.find("Content-Length");
+	// if (found == std::string::npos)
+	// 	return (400);
 	std::string s = header["Content-Length"];
 	if (std::stol(s) > sb.getClientMaxBodySize())
 		std::cout << "Exceeded max" << std::endl;

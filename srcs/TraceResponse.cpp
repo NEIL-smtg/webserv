@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/10/12 18:58:55 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/16 12:08:35 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@ TraceResponse::TraceResponse(const HttpRequest& req, const int& clientSocket, co
 		this->_response +=  req.getfull();
 		return ;
     }
-	std::ifstream	infile(fileName.c_str());
-	std::string	line;
+	// std::ifstream	infile(fileName.c_str());
+	// std::string	line;
 
-	if (!infile.is_open())
-		throw InvalidFileException("Error opening file.");
+	// if (!infile.is_open())
+	// 	throw InvalidFileException("Error opening file.");
     err.generateErrResponse(200, sb);
 	this->_response = err.getErrResponse();
 	this->_response +=  req.getfull();

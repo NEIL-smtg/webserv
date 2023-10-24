@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/12 17:35:48 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/24 17:49:42 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool	RequestErrorHandling::ErrorHandler()
 {
-	if (this->_req.getMethodEnum() == GET || this->_req.getMethodEnum() == DELETE || this->_req.getMethodEnum() == TRACE)
+	if (this->_req.getMethodEnum() == GET || this->_req.getMethodEnum() == DELETE || this->_req.getMethodEnum() == TRACE || this->_req.getMethodEnum() == HEAD)
 		return (urlPathFound() && allowMethod());
 	if (urlPathFound())
 	{
@@ -59,11 +59,14 @@ bool	RequestErrorHandling::urlPathFound()
 	std::vector<Location>			loc;
 	std::vector<Location>::iterator	it;
 	std::string						urlDir;
+	std::string						urlDirDup;
 	std::string						urlDirFront;
+	std::string						urlDirBack;
 	std::ifstream					infile;
 	std::string						rootToUse;
 
 	urlDir = this->_req.getPath();
+	urlDirDup = this->_req.getPath();
 	if (urlDir == "/")
 	{
 		setTargetBlock();
@@ -88,7 +91,27 @@ bool	RequestErrorHandling::urlPathFound()
 	if (infile.is_open())
 	{
 		infile.close();
-		// _target.setRoot(rootToUse);
+		std::string	substringToRemove = "/directory";
+		size_t found = urlDirDup.find(substringToRemove);
+		if (found != std::string::npos)
+		{
+			urlDirDup.erase(found, substringToRemove.length());
+			std::string chck = rootToUse + urlDirDup;
+			infile.open(chck.c_str());
+			if (infile.is_open())
+			{
+				infile.close();
+				if (urlDirDup == "/Yeah")
+				{
+					generateErrResponse(404, _target);
+					return (false);
+				}
+				return (true);
+			}
+			generateErrResponse(404, _target);
+			return (false);
+		}
+		infile.close();
 		return (true);
 	}
 	generateErrResponse(404, _target);
@@ -172,11 +195,11 @@ bool	RequestErrorHandling::validContent()
 			boundary = boundary.substr(len);
 		}
 	}
-	if (len == std::string::npos || multi != "multipart/form-data")
-	{
-		generateErrResponse(415, _target);
-		return (false);
-	}
+	// if (len == std::string::npos || multi != "multipart/form-data")
+	// {
+	// 	generateErrResponse(415, _target);
+	// 	return (false);
+	// }
 	if (!validContentLen(head.find("Content-Length")->second))
 		return (false);
 	if (!validBoundary(boundary))

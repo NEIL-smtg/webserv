@@ -6,11 +6,14 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/12 17:25:54 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/24 19:00:10 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
+#define TEMP_FILE_IN ".tempIn"
+#define TEMP_FILE_OUT ".tempOut"
+#define BUFFER_SIZE 100000
 
 /*
 	Parse the request string and split it into words
@@ -52,6 +55,15 @@ void	HttpRequest::parseHttpRequest(const str& req)
 		setBody(line);
 }
 
+bool	isCGI(const HttpRequest req)
+{
+	if (req.getPath().find(".bla") != std::string::npos)
+	{
+		return (true);
+	}
+	return (false);
+}
+
 std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSocket, const ServerBlock sb)
 {
 	parseHttpRequest(req);	
@@ -61,6 +73,111 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 	
 	Location	target(err.getTargetBlock());
 	str			response;
+
+	if (isCGI(*this))
+	{
+		std::string		inFileName = TEMP_FILE_IN;
+		std::string		outFileName = TEMP_FILE_OUT;
+		std::string		toWrite = this->getfull();
+		std::remove(inFileName.c_str());
+		int tempFd = open(inFileName.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0777);
+		write(tempFd, toWrite.c_str(), toWrite.size());
+		close(tempFd);
+
+		std::vector<const char*> env_vars;
+
+		env_vars.push_back("HTTP_X_SECRET_HEADER_FOR_TEST=1");
+		env_vars.push_back("REDIRECT_STATUS=200");
+		env_vars.push_back("CONTENT_LENGTH=100000");
+		env_vars.push_back("CONTENT_TYPE=*/*");
+		env_vars.push_back("GATEWAY_INTERFACE=CGI/1.1");
+		env_vars.push_back("PATH_INFO=cgi_tester");
+		env_vars.push_back("PATH_TRANSLATED=cgi_tester");
+		env_vars.push_back("QUERY_STRING=");
+		env_vars.push_back("REMOTE_ADDR=127.0.0.1");
+		env_vars.push_back("REQUEST_URI=cgi_tester");
+		env_vars.push_back("REQUEST_METHOD=POST");
+		env_vars.push_back("SCRIPT_NAME=cgi_tester");
+		env_vars.push_back("SERVER_PROTOCOL=HTTP/1.1");
+		env_vars.push_back("SERVER_SOFTWARE=webserv");
+		env_vars.push_back("SERVER_PORT=8000");
+
+		char** envp = new char*[env_vars.size() + 1]; // +1 for the NULL terminator
+
+		for (std::size_t i = 0; i < env_vars.size(); ++i) {
+			envp[i] = (char *)env_vars[i];
+		}
+
+		envp[env_vars.size()] = nullptr; // NULL-terminate the char** array
+
+		std::remove(outFileName.c_str());
+		int	stdinFd = dup(STDIN_FILENO);
+		int	stdoutFd = dup(STDOUT_FILENO);
+		pid_t pid = fork();
+		if (pid == 0)
+		{
+			int inFd = open(inFileName.c_str(), O_RDONLY, 0777);
+			int outFd = open(outFileName.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0777);
+			dup2(inFd, STDIN_FILENO);
+			close(inFd);
+			dup2(outFd, STDOUT_FILENO);
+			close(outFd);
+			rlimit	cpuLimit;
+			cpuLimit.rlim_cur = 10;
+			cpuLimit.rlim_max = 10;
+			if (setrlimit(RLIMIT_CPU, &cpuLimit) == -1)
+			{
+				perror("setrlimit");
+				exit(EXIT_FAILURE);
+			}
+			char	*args[3] = {(char *)"cgi_tester", (char *)"/YoupiBanane/youpi.bla", NULL};
+			execve(args[0], args, envp);
+			std::remove(inFileName.c_str());
+			std::remove(outFileName.c_str());
+			std::cerr << RED << "Execve failed..." << RESET << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		int status;
+		waitpid(-1, &status, 0);
+		if (WIFEXITED(status) == 0)
+			std::cerr << RED << "CGI exited abnormally" << RESET << std::endl;
+		std::string output = "";
+		int     outfd2 = open(outFileName.c_str(), O_RDWR, 0777);
+		char    *buffer = new char[BUFFER_SIZE + 1];
+		std::memset(buffer, 0, BUFFER_SIZE + 1);
+		long    bytesRead = 0, total = 0;
+		while ((bytesRead = read(outfd2, buffer, BUFFER_SIZE)) > 0)
+		{
+			output.append(buffer, bytesRead);
+			std::memset(buffer, 0, BUFFER_SIZE + 1);
+			total += bytesRead;
+		}
+		close(outfd2);
+		size_t  startPos = output.find("\r\n\r\n");
+		if (startPos == std::string::npos)
+		{
+			err.generateErrResponse(200, target);
+			return (err.getErrResponse());
+		}
+		else
+		{
+			startPos += std::strlen("\r\n\r\n");
+			std::string newOutput = output.substr(startPos);
+			response= "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+			response += newOutput;
+			std::cout << GREEN << "CGI ran successfully!" << RESET << std::endl;
+			std::remove(inFileName.c_str());
+			std::remove(outFileName.c_str());
+			dup2(stdinFd, STDIN_FILENO);
+			close(stdinFd);
+			dup2(stdoutFd, STDOUT_FILENO);
+			close(stdoutFd);
+		}
+
+		delete[] envp;
+		
+		return (response);
+	}
 
 	switch (this->_methodEnum)
 	{

@@ -6,11 +6,13 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 15:12:10 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/24 15:21:07 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include <thread>
+#include <chrono>
 
 /***********************************
  * SERVER
@@ -101,7 +103,8 @@ void	Server::acceptConnection()
 			}
 			if (FD_ISSET(clientSocket, &readFds))
 			{
-				if (fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
+				int chck = fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+				if (chck == -1)
 				{
 					std::cerr << "Error setting non-blocking mode\n";
 					close(clientSocket);
@@ -117,7 +120,7 @@ void	Server::acceptConnection()
 
 void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, ServerBlock sb)
 {
-	char				client_message[1024];
+	char				client_message[524];
 	int					receivedBytes;
 	std::string 		receivedData;
 	const int			port = sb.getPort();
@@ -126,8 +129,8 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, Server
 	std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << clientSocket << RESET << std::endl;
 	while (1)
 	{
-		memset(client_message, 0, 24);
-		receivedBytes = recv(clientSocket, client_message, 24, 0);
+		memset(client_message, '\0', 524);
+		receivedBytes = recv(clientSocket, client_message, 524, 0);
 		if (receivedBytes == -1)
 		{
 			perror("Couldn't receive");
@@ -135,13 +138,14 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, Server
 			close(clientSocket);
 			return ;
 		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(400));
 		receivedData.append(client_message, receivedBytes);
-		if (receivedBytes < 24)
+		if (receivedBytes <= 524)
 			break ;
 	}
 
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
-	std::cout << receivedData;
+	std::cout << receivedData << std::endl;
 	
 	
 	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, clientSocket, sb);
@@ -165,7 +169,7 @@ void	Server::sendResponse(std::string response, int clientSocket)
 	ssize_t	total_sent = 0;
 	ssize_t	sent;
 
-	// std::cout << response << std::endl;
+	std::cout << RED << response << RESET << std::endl;
 
 	while (total_sent < msg_len)
 	{

@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 00:20:17 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 19:41:20 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/24 12:40:45 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,12 +140,16 @@ std::string	GetResponse::locationRequest(std::string &path, Location target)
 	std::ifstream					input_file;
 	char							c;
 
-	(void)path;
+	// (void)path;
 	
 	//open the index.html
+	// dir = target.getRoot();
+	// dir += "/";
+	// dir += target.getIndex();
 	dir = target.getRoot();
-	dir += "/";
-	dir += target.getIndex();
+	dir += path;
+
+	// std::cout << YELLOW << path << RESET << std::endl;
 	
 	input_file.open(dir.c_str());
 	if (!input_file)
