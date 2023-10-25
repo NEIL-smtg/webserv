@@ -6,13 +6,11 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/24 15:21:07 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/10/25 17:18:47 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
-#include <thread>
-#include <chrono>
 
 /***********************************
  * SERVER
@@ -118,37 +116,44 @@ void	Server::acceptConnection()
 	}
 }
 
+void receiveData(int clientSocket, std::string& receivedData)
+{
+    std::vector<char> client_message(100001);
+
+    while (true) {
+        ssize_t receivedBytes = recv(clientSocket, client_message.data(), 100001, 0);
+
+        if (receivedBytes <= 0) {
+            perror("Couldn't receive");
+            std::cerr << "Couldn't receive message at " << clientSocket << " client fd socket" << std::endl;
+            close(clientSocket);
+            return;
+        } else {
+            // Append received data to the string
+            receivedData.append(client_message.data(), receivedBytes);
+			std::memset(client_message.data(), 0, 100001);
+			if (receivedBytes < 100001)
+				break;
+        }
+    }
+}
+
 void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, ServerBlock sb)
 {
-	char				client_message[524];
-	int					receivedBytes;
 	std::string 		receivedData;
 	const int			port = sb.getPort();
 
 	std::cout << GREEN << "[ ✅ ] New connection" << YELLOW << " : client with IP "  << BLUE << inet_ntoa(clientAddr.sin_addr) << YELLOW ;
-	std::cout << ", accepted on port " << BLUE << port << RESET << " ==> "<< MAGENTA << "FD -> " << clientSocket << RESET << std::endl;
-	while (1)
-	{
-		memset(client_message, '\0', 524);
-		receivedBytes = recv(clientSocket, client_message, 524, 0);
-		if (receivedBytes == -1)
-		{
-			perror("Couldn't receive");
-			std::cerr << "Couldn't receive message at " << clientSocket << " client fd socket" << std::endl;
-			close(clientSocket);
-			return ;
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(400));
-		receivedData.append(client_message, receivedBytes);
-		if (receivedBytes <= 524)
-			break ;
-	}
+	std::cout << ", accepted on port " << BLUE << port << " ==> "<< MAGENTA << "FD -> " << clientSocket << RESET << std::endl;
+
+	receiveData(clientSocket, receivedData);
 
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
-	std::cout << receivedData << std::endl;
+	// std::cout << receivedData << std::endl;
 	
 	
 	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, clientSocket, sb);
+	receivedData.erase();
 	if	(httpResponse == "")
 	{
 		std::cout << RED << "[ ❌ ] Msg not sent to client!" << RESET << std::endl;
@@ -162,31 +167,63 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, Server
 	sendResponse(httpResponse, clientSocket);
 }
 
-void	Server::sendResponse(std::string response, int clientSocket)
-{
-	const char	*server_msg = response.c_str();
-	ssize_t	msg_len = static_cast<ssize_t>(response.length());
-	ssize_t	total_sent = 0;
-	ssize_t	sent;
+// void	Server::sendResponse(std::string response, int clientSocket)
+// {
+// 	const char	*server_msg = response.c_str();
+// 	ssize_t	msg_len = static_cast<ssize_t>(response.length());
+// 	ssize_t	total_sent = 0;
+// 	ssize_t	sent;
 
-	std::cout << RED << response << RESET << std::endl;
+// 	// std::cout << RED << response << RESET << std::endl;
 
-	while (total_sent < msg_len)
-	{
-		sent = send(clientSocket, server_msg + total_sent, msg_len - total_sent, 0);
-		if (sent < 0)
-		{
-			perror("Couldn't send");
-			std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
-			return ;
-		}
-		if (total_sent == msg_len)
-			break ;
-		total_sent += sent;
-	}
-	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << "\n\n";
-	std::cout << MAGENTA << " --------------------------------- " << RESET << "\n\n";
-	close(clientSocket);
+// 	while (total_sent < msg_len)
+// 	{
+// 		sent = send(clientSocket, server_msg + total_sent, msg_len - total_sent, 0);
+// 		if (sent < 0)
+// 		{
+// 			perror("Couldn't send");
+// 			std::cerr << "Couldn't send message at " << clientSocket << " server fd socket" << std::endl;
+// 			return ;
+// 		}
+// 		if (total_sent == msg_len)
+// 			break ;
+// 		total_sent += sent;
+// 	}
+// 	std::cout << GREEN << "Sending total: " << total_sent << RESET << "\r";
+// 	std::cout.flush();
+// 	std::cout << std::endl;
+// 	std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << "\n\n";
+// 	std::cout << MAGENTA << " --------------------------------- " << RESET << "\n\n";
+// 	close(clientSocket);
+// }
+
+void Server::sendResponse(std::string response, int clientSocket) {
+    const char *server_msg = response.c_str();
+    ssize_t msg_len = static_cast<ssize_t>(response.length());
+    ssize_t total_sent = 0;
+    ssize_t sent;
+
+    // std::cout << RED << response << RESET << std::endl;
+
+    while (total_sent < msg_len) {
+        sent = send(clientSocket, server_msg + total_sent, msg_len - total_sent, 0);
+        if (sent < 0) {
+            perror("send");
+            std::cerr << "Couldn't send message to client at socket " << clientSocket << std::endl;
+            close(clientSocket); // Close the socket in case of an error
+            return;
+        }
+        if (sent == 0) {
+            // Handle the case where the client disconnected prematurely
+            std::cerr << "Client disconnected prematurely at socket " << clientSocket << std::endl;
+            close(clientSocket);
+            return;
+        }
+        total_sent += sent;
+    }
+    std::cout << GREEN << "[ ✅ ] Msg sent to client!" << RESET << "\n\n";
+    std::cout << MAGENTA << " --------------------------------- " << RESET << "\n\n";
+    close(clientSocket); // Close the socket after sending the response
 }
 
 /***********************************
