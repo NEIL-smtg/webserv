@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:29:51 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/10/04 17:43:06 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/04 19:25:26 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ class	PostResponse
 		const HttpRequest&	_req;
 		const int&			_clientSocket;
 		const Location&	_sb;
-		Location			_location;
 		str					_response;
 
 	public:

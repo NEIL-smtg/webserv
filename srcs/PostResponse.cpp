@@ -6,13 +6,13 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 13:31:31 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/10/04 18:59:59 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/24 14:47:53 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PostResponse.hpp"
 
-int RequestHeaderChecking(const HttpRequest& req, std::string &boundary, const Location& sb)
+static int RequestHeaderChecking(const HttpRequest& req, std::string &boundary, const Location& sb)
 {
     std::map<std::string, std::string> header = req.getHeader();
 	std::map<std::string, std::string>::iterator it = header.find("Content-Type");
@@ -36,7 +36,7 @@ int RequestHeaderChecking(const HttpRequest& req, std::string &boundary, const L
     return (0);
 }
 
-int RequestBodyExtract(std::map<std::string, std::string> &body_extract, const HttpRequest& req, std::string boundary)
+static int RequestBodyExtract(std::map<std::string, std::string> &body_extract, const HttpRequest& req, std::string boundary)
 {
     std::string boundary_end = boundary.substr(0, boundary.length() - 1) + "--\r";
     size_t pos = 0;
@@ -80,7 +80,7 @@ int RequestBodyExtract(std::map<std::string, std::string> &body_extract, const H
     return (0);
 }
 
-int FilenameContentCheck(std::map<std::string, std::string> body_extract, std::string &path)
+static int FilenameContentCheck(std::map<std::string, std::string> body_extract, std::string &path)
 {
     std::map<std::string, std::string>::iterator file_key_it = body_extract.find("filename");
     if (file_key_it == body_extract.end())
@@ -92,7 +92,7 @@ int FilenameContentCheck(std::map<std::string, std::string> body_extract, std::s
     return (0);
 }
 
-int FileCheckingWriting(std::map<std::string, std::string> body_extract, std::string path, httpMethod method)
+static int FileCheckingWriting(std::map<std::string, std::string> body_extract, std::string path, httpMethod method)
 {
     std::ifstream infile;
     std::ofstream outfile;
@@ -108,7 +108,6 @@ int FileCheckingWriting(std::map<std::string, std::string> body_extract, std::st
         if (method == PUT)
             return (400); 
     }
-	std::cout << path.c_str() << std::endl;
     outfile.open(path.c_str());
     if (!outfile.is_open())
 	{

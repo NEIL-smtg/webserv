@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:55:41 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 18:51:17 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/24 14:49:06 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,14 @@
 
 bool	RequestErrorHandling::ErrorHandler()
 {
-	if (this->_req.getMethodEnum() == GET)
+	if (this->_req.getMethodEnum() == GET || this->_req.getMethodEnum() == HEAD)
 		return (urlPathFound() && allowMethod());
 	if (urlPathFound())
 	{
-		std::cout << "urlPathFound\n";
 		if (allowMethod())
 		{
-			std::cout << "allowMethod\n";
 			if (validContent())
 			{
-				std::cout << "validContent\n";
 				return (1);
 			}
 		}

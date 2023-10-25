@@ -6,7 +6,7 @@
 /*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:50:33 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 18:49:30 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/10/04 19:27:52 by lzi-xian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 # include "Webserv.hpp"
 # include "HttpRequest.hpp"
 # include "ServerBlock.hpp"
+
+class	HttpRequest;
 
 class RequestErrorHandling
 {
