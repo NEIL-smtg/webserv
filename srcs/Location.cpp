@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/10/01 23:26:03 by suchua           ###   ########.fr       */
+/*   Updated: 2023/11/06 18:16:42 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ Location::Location(std::vector<std::string>::iterator &i, std::vector<std::strin
 		// if (_conf == LC_INCLUDE)
 		// 	setInclude(*i);
 		if (_conf == LC_CGI_SCRIPT)
-			setCgiScript(*i);
+			addCgiScript(i);
 		// if (_conf == LC_UPLOAD)
 		// 	setUpload(*i);
 		if (_conf == LC_ERROR_PAGE)
@@ -130,7 +130,26 @@ void	Location::setIndex(std::string index) {this->index = index;}
 
 void	Location::setRoot(std::string root) {this->root = root;}
 
-void	Location::setCgiScript(std::string cgiScript) {this->cgiScript = cgiScript;}
+void	Location::addCgiScript(std::vector<std::string>::iterator &i)
+{
+	std::string file = (*i);
+	char *str;
+
+	try
+	{
+		str = (char *)file.c_str();
+		if (str[0] != '.')
+			throw InvalidFileException("");
+		i++;
+		cgiScript[file] = *i;
+	}
+	catch(std::exception &e)
+	{
+		throw InvalidFileException("Error : Invalid argument in error page }");
+	}
+}
+
+void	Location::setCgiScript(std::map<std::string, std::string> cgiScript) {this->cgiScript = cgiScript;}
 
 void	Location::setErrorPage(std::map<int, std::string> errorPage) {this->errorPage = errorPage;}
 
@@ -229,7 +248,7 @@ std::string	Location::getRoot() const {return this->root;}
 
 std::string	Location::getIndex() const {return this->index;}
 
-std::string	Location::getCgiScript() const {return this->cgiScript;}
+std::map<std::string, std::string>	Location::getCgiScript() const {return this->cgiScript;}
 
 std::vector<std::string>	Location::getMethods() const {return this->methods;}
 
@@ -266,8 +285,19 @@ std::ostream&	operator<<(std::ostream& out, Location& loc)
 		out << "ROOT : " << loc.getRoot() << std::endl;
 	if (!loc.getIndex().empty())
 		out << "INDEX : " << loc.getIndex() << std::endl;
-	if (!loc.getCgiScript().empty())
-		out << "CGI_SCRIPT : " << loc.getCgiScript() << std::endl;
+	// if (!loc.getCgiScript().empty())
+	// 	out << "CGI_SCRIPT : " << loc.getCgiScript() << std::endl;
+
+	std::vector<std::string>	cgi = loc.getMethods();
+	std::vector<std::string>::iterator it3;
+
+    for (it3 = cgi.begin(); it3 != cgi.end(); ++it3)
+	{
+		out << *it3;
+        if ((it3 + 1) != cgi.end())
+			out << ", ";
+    }
+	out << "\n";
 
 	std::vector<std::string>	met = loc.getMethods();
 	std::vector<std::string>::iterator it;

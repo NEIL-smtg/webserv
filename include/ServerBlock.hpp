@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerBlock.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: suchua <suchua@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:26:46 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 04:13:12 by suchua           ###   ########.fr       */
+/*   Updated: 2023/11/06 17:39:21 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ class ServerBlock
 		int		clientMaxBodySize;
 		int		clientMinBodySize;
 		bool	autoIndex;
-		str		cgiScript;
 		std::map<int, std::string>	error_page;
+		std::map<std::string, std::string>	cgiScript;
 		std::vector<str>			methods;
 		std::vector<Location>		location;
 
@@ -40,6 +40,7 @@ class ServerBlock
 
 		void	addMethod(str method);
 		void	addErrorPage(std::vector<std::string>::iterator &i);
+		void	setCgiScript(std::vector<std::string>::iterator &i);
 		void	addLocation(Location& location);
 		void	setName(str name);
 		void	setPort(int port);
@@ -48,7 +49,6 @@ class ServerBlock
 		void	setClientMaxBodySize(int size);
 		void	setClientMinBodySize(int size);
 		void	setAutoIndex(str info);
-		void	setCgiScript(str script);
 
 		str		getName() const;
 		int		getPort() const;
@@ -56,9 +56,9 @@ class ServerBlock
 		str		getIndex() const;
 		int		getClientMaxBodySize() const;
 		int		getClientMinBodySize() const;
-		str		getCgiScript() const;
 		bool	getAutoIndex() const;
 		std::map<int, std::string>	getErrorPage() const;
+		std::map<std::string, std::string>	getCgiScript() const;
 		std::vector<str>			getMethods() const;
 		std::vector<Location>		getLocation() const;
 

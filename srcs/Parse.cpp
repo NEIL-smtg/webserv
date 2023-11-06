@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parse.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lzi-xian <suchua@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 23:28:21 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/03 18:21:26 by lzi-xian         ###   ########.fr       */
+/*   Updated: 2023/11/06 17:38:08 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@ bool	isMethod(std::string method)
 
 bool	isHead(std::string line)
 {
-	const std::string head[7] = {"server_name", "listen", "root", "index", "allow_methods", "location", "error_page"};
+	const std::string head[8] = {"server_name", "listen", "root", "index", "allow_methods", "location", "error_page", "cgi_script"};
 
-	for (size_t i = 0; i < 7; i++)
+	for (size_t i = 0; i < 8; i++)
 	{
 		if (line == head[i])
 			return (true);
@@ -257,7 +257,7 @@ void	Parse::serverCheck(Parse::iterator &i)
 			block.addLocation(loc);
 		}
 		else if (_conf == CGI_SCRIPT)
-			block.setCgiScript(*i);
+			block.setCgiScript(i);
 		else if (_conf == AUTOINDEX)
 		{
 			if (isOnOff(*i))
@@ -303,18 +303,33 @@ void	Parse::pathValidation()
 		std::ifstream	in2(index.c_str());
 		std::ifstream	cgi;
 		bool			cgiExist = false;
+
+		std::map<std::string, std::string>	check = _sb.getCgiScript();
+		std::map<std::string, std::string>::iterator it;
 		
 		if (!_sb.getCgiScript().empty())
 		{
-			cgi.open(_sb.getCgiScript().c_str());
+			for (it = check.begin(); it != check.end(); ++it)
+			{
+				std::string filePath = it->second;
+
+				cgi.open(filePath.c_str());
+				if (cgi.is_open())
+					cgi.close();
+				else
+				{
+					errMsg = "cannot open file";
+					break ;
+				}
+			}
 			cgiExist = true;
 		}
 		if (!in)
 			errMsg = folder;
 		else if (!in2)
 			errMsg = index;
-		else if (cgiExist && !cgi)
-			errMsg = _sb.getCgiScript();
+		// else if (cgiExist && !cgi)
+		// 	errMsg = _sb.getCgiScript();
 		if (!errMsg.empty())	
 		{
 			std::cerr << "Error : no such file or directory : " << errMsg;

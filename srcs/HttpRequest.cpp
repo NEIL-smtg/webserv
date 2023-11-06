@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/24 19:00:10 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/11/06 19:00:10 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,14 @@ void	HttpRequest::parseHttpRequest(const str& req)
 		setBody(line);
 }
 
-bool	isCGI(const HttpRequest req)
+bool	isCGI(const HttpRequest req, const Location target)
 {
-	if (req.getPath().find(".bla") != std::string::npos)
+	size_t 		lastDotPos = req.getPath().find_last_of('.');
+	std::string fileExtension;
+
+    if (lastDotPos != std::string::npos)
+        fileExtension = req.getPath().substr(lastDotPos);
+	if (target.getCgiScript().find(fileExtension) != target.getCgiScript().end())
 	{
 		return (true);
 	}
@@ -74,7 +79,7 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 	Location	target(err.getTargetBlock());
 	str			response;
 
-	if (isCGI(*this))
+	if (isCGI(*this, target))
 	{
 		std::string		inFileName = TEMP_FILE_IN;
 		std::string		outFileName = TEMP_FILE_OUT;
@@ -84,23 +89,41 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 		write(tempFd, toWrite.c_str(), toWrite.size());
 		close(tempFd);
 
+		size_t 		lastDotPos = this->getPath().find_last_of('.');
+		std::string fileExtension = this->getPath().substr(lastDotPos);
+
+		std::string	cgi_script = target.getCgiScript()[fileExtension];
+
 		std::vector<const char*> env_vars;
+		std::string str1;
 
 		env_vars.push_back("HTTP_X_SECRET_HEADER_FOR_TEST=1");
 		env_vars.push_back("REDIRECT_STATUS=200");
-		env_vars.push_back("CONTENT_LENGTH=100000");
+		str1 = "CONTENT_LENGTHO=" + std::to_string(toWrite.size());
+		str1.clear();
+		env_vars.push_back(str1.c_str());
 		env_vars.push_back("CONTENT_TYPE=*/*");
 		env_vars.push_back("GATEWAY_INTERFACE=CGI/1.1");
-		env_vars.push_back("PATH_INFO=cgi_tester");
-		env_vars.push_back("PATH_TRANSLATED=cgi_tester");
+		str1 = "PATH_INFO=" + cgi_script;
+		env_vars.push_back(str1.c_str());
+		str1.clear();
+		str1 = "PATH_TRANSLATED=" + cgi_script;
+		env_vars.push_back(str1.c_str());
+		str1.clear();
 		env_vars.push_back("QUERY_STRING=");
 		env_vars.push_back("REMOTE_ADDR=127.0.0.1");
-		env_vars.push_back("REQUEST_URI=cgi_tester");
+		str1 = "REQUEST_URI=" + cgi_script;
+		env_vars.push_back(str1.c_str());
+		str1.clear();
 		env_vars.push_back("REQUEST_METHOD=POST");
-		env_vars.push_back("SCRIPT_NAME=cgi_tester");
+		str1 = "SCRIPT_NAME=" + cgi_script;
+		env_vars.push_back(str1.c_str());
+		str1.clear();
 		env_vars.push_back("SERVER_PROTOCOL=HTTP/1.1");
 		env_vars.push_back("SERVER_SOFTWARE=webserv");
-		env_vars.push_back("SERVER_PORT=8000");
+		str1 = "SERVER_PORT=" + std::to_string(sb.getPort());
+		env_vars.push_back(str1.c_str());
+		str1.clear();
 
 		char** envp = new char*[env_vars.size() + 1]; // +1 for the NULL terminator
 
@@ -130,7 +153,8 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 				perror("setrlimit");
 				exit(EXIT_FAILURE);
 			}
-			char	*args[3] = {(char *)"cgi_tester", (char *)"/YoupiBanane/youpi.bla", NULL};
+			std::string exe = this->getPath();
+			char	*args[3] = {(char *)cgi_script.c_str(), (char *)exe.c_str(), NULL};
 			execve(args[0], args, envp);
 			std::remove(inFileName.c_str());
 			std::remove(outFileName.c_str());

@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 22:28:55 by suchua            #+#    #+#             */
-/*   Updated: 2023/10/04 13:10:08 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/11/06 18:15:49 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,17 @@ std::ostream&	operator<<(std::ostream& out, ServerBlock& sb)
 	}
 	out << "\n";
 
+	std::map<std::string, std::string>	cgi = sb.getCgiScript();
+	std::map<std::string, std::string>::iterator	it4;
+	for (it4 = cgi.begin(); it4 != cgi.end(); it4++)
+	{
+		out << "file : " << (*it4).first << std::endl;
+		out << "script : " << (*it4).second;
+		if (it4 != cgi.end())
+			out << "\n";
+	}
+	out << "\n";
+
 	std::vector<Location>	loc = sb.getLocation();
 	std::vector<Location>::iterator	it3 = loc.begin();
 	for (; it3 != loc.end(); it3++)
@@ -135,6 +146,25 @@ empty	ServerBlock::somethingEmpty()
 	else					return (FILLED);
 }
 
+void	ServerBlock::setCgiScript(std::vector<std::string>::iterator &i)
+{
+	std::string file = (*i);
+	char *str;
+
+	try
+	{
+		str = (char *)file.c_str();
+		if (str[0] != '.')
+			throw InvalidFileException("");
+		i++;
+		cgiScript[file] = *i;
+	}
+	catch(std::exception &e)
+	{
+		throw InvalidFileException("Error : Invalid argument in error page }");
+	}
+}
+
 std::map<int, std::string>	ServerBlock::getErrorPage() const {return this->error_page;}
 
 void	ServerBlock::addMethod(str method) {this->methods.push_back(method);}
@@ -155,8 +185,6 @@ void	ServerBlock::setClientMinBodySize(int size) {this->clientMinBodySize = size
 
 void	ServerBlock::setAutoIndex(str info) {this->autoIndex = (info == "on") ? true : false;}
 
-void	ServerBlock::setCgiScript(str script) {this->cgiScript = script;}
-
 std::string	ServerBlock::getName() const {return this->name;}
 
 int	ServerBlock::getPort() const {return this->port;}
@@ -173,6 +201,6 @@ int	ServerBlock::getClientMaxBodySize() const {return this->clientMaxBodySize;}
 
 int	ServerBlock::getClientMinBodySize() const {return this->clientMinBodySize;}
 
-std::string	ServerBlock::getCgiScript() const {return this->cgiScript;}
+std::map<std::string, std::string>	ServerBlock::getCgiScript() const {return this->cgiScript;}
 
 bool	ServerBlock::getAutoIndex() const {return this->autoIndex;}
