@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 23:33:01 by suchua            #+#    #+#             */
-/*   Updated: 2023/11/06 19:00:10 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/11/07 19:09:59 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,18 +55,27 @@ void	HttpRequest::parseHttpRequest(const str& req)
 		setBody(line);
 }
 
-bool	isCGI(const HttpRequest req, const Location target)
+bool isCGI(const HttpRequest req, const Location target)
 {
-	size_t 		lastDotPos = req.getPath().find_last_of('.');
-	std::string fileExtension;
+    size_t lastDotPos = req.getPath().find_last_of('.');
+    std::string fileExtension;
 
-    if (lastDotPos != std::string::npos)
-        fileExtension = req.getPath().substr(lastDotPos);
-	if (target.getCgiScript().find(fileExtension) != target.getCgiScript().end())
-	{
-		return (true);
-	}
-	return (false);
+    if (lastDotPos == std::string::npos)
+        return false;
+
+    fileExtension = req.getPath().substr(lastDotPos);
+
+    // Iterate through the map and check if any key matches the fileExtension
+    std::map<std::string, std::string>::const_iterator it;
+    for (it = target.getCgiScript().begin(); it != target.getCgiScript().end(); ++it)
+    {
+        if (it->first == fileExtension)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSocket, const ServerBlock sb)
@@ -78,6 +87,8 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 	
 	Location	target(err.getTargetBlock());
 	str			response;
+
+	// std::cout << target << std::endl;
 
 	if (isCGI(*this, target))
 	{
@@ -92,20 +103,23 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 		size_t 		lastDotPos = this->getPath().find_last_of('.');
 		std::string fileExtension = this->getPath().substr(lastDotPos);
 
-		std::string	cgi_script = target.getCgiScript()[fileExtension];
+
+		std::string cgi_script = target.getCgiScript().find(fileExtension)->second;
+		cgi_script = cgi_script.substr(2);
 
 		std::vector<const char*> env_vars;
 		std::string str1;
 
 		env_vars.push_back("HTTP_X_SECRET_HEADER_FOR_TEST=1");
 		env_vars.push_back("REDIRECT_STATUS=200");
-		str1 = "CONTENT_LENGTHO=" + std::to_string(toWrite.size());
+		str1 = "CONTENT_LENGTH=" + std::to_string(toWrite.size());
 		str1.clear();
 		env_vars.push_back(str1.c_str());
 		env_vars.push_back("CONTENT_TYPE=*/*");
 		env_vars.push_back("GATEWAY_INTERFACE=CGI/1.1");
-		str1 = "PATH_INFO=" + cgi_script;
+		str1 = "PATH_INFO=cgi_tester";
 		env_vars.push_back(str1.c_str());
+		// std::cout << str1.c_str() << std::endl;
 		str1.clear();
 		str1 = "PATH_TRANSLATED=" + cgi_script;
 		env_vars.push_back(str1.c_str());
@@ -137,6 +151,8 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 		int	stdinFd = dup(STDIN_FILENO);
 		int	stdoutFd = dup(STDOUT_FILENO);
 		pid_t pid = fork();
+		std::string exe = this->getPath();
+		exe = target.getRoot() + exe;
 		if (pid == 0)
 		{
 			int inFd = open(inFileName.c_str(), O_RDONLY, 0777);
@@ -153,7 +169,6 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 				perror("setrlimit");
 				exit(EXIT_FAILURE);
 			}
-			std::string exe = this->getPath();
 			char	*args[3] = {(char *)cgi_script.c_str(), (char *)exe.c_str(), NULL};
 			execve(args[0], args, envp);
 			std::remove(inFileName.c_str());
@@ -187,9 +202,9 @@ std::string	HttpRequest::generateHttpResponse(const str& req, const int clientSo
 		{
 			startPos += std::strlen("\r\n\r\n");
 			std::string newOutput = output.substr(startPos);
-			response= "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+			response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
 			response += newOutput;
-			std::cout << GREEN << "CGI ran successfully!" << RESET << std::endl;
+			std::cout << GREEN << "CGI ran successfully!" << RESET << "\n\n";
 			std::remove(inFileName.c_str());
 			std::remove(outFileName.c_str());
 			dup2(stdinFd, STDIN_FILENO);

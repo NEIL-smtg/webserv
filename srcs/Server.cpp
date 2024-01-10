@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 21:28:08 by suchua            #+#    #+#             */
-/*   Updated: 2023/11/06 19:03:52 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/11/07 17:17:14 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,19 +121,22 @@ void receiveData(int clientSocket, std::string& receivedData)
     std::vector<char> client_message(100001);
 
     while (true) {
+    	std::memset(client_message.data(), 0, 100001);
         ssize_t receivedBytes = recv(clientSocket, client_message.data(), 100001, 0);
 
         if (receivedBytes <= 0) {
-            perror("Couldn't receive");
+            if (receivedBytes == -1) {
+                perror("Couldn't receive");
+            }
             std::cerr << "Couldn't receive message at " << clientSocket << " client fd socket" << std::endl;
             close(clientSocket);
             return;
         } else {
             // Append received data to the string
             receivedData.append(client_message.data(), receivedBytes);
-			std::memset(client_message.data(), 0, 100001);
-			if (receivedBytes < 100001)
-				break;
+
+            if (receivedBytes < 100001)
+                break;
         }
     }
 }
@@ -149,11 +152,11 @@ void	Server::runRequest(struct sockaddr_in&	clientAddr, int clientSocket, Server
 	receiveData(clientSocket, receivedData);
 
 	std::cout << YELLOW << "[ * ]  Msg from client: \n\n" << RESET << std::endl;
-	// std::cout << receivedData << std::endl;
+	std::cout << receivedData << std::endl;
 	
 	
 	std::string	httpResponse = this->_httpReq.generateHttpResponse(receivedData, clientSocket, sb);
-	receivedData.erase();
+	// receivedData.erase();
 	if	(httpResponse == "")
 	{
 		std::cout << RED << "[ ❌ ] Msg not sent to client!" << RESET << std::endl;

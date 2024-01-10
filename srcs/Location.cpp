@@ -6,7 +6,7 @@
 /*   By: mmuhamad <suchua@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 17:43:02 by lzi-xian          #+#    #+#             */
-/*   Updated: 2023/11/06 18:16:42 by mmuhamad         ###   ########.fr       */
+/*   Updated: 2023/11/07 16:39:57 by mmuhamad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,15 +288,15 @@ std::ostream&	operator<<(std::ostream& out, Location& loc)
 	// if (!loc.getCgiScript().empty())
 	// 	out << "CGI_SCRIPT : " << loc.getCgiScript() << std::endl;
 
-	std::vector<std::string>	cgi = loc.getMethods();
-	std::vector<std::string>::iterator it3;
-
-    for (it3 = cgi.begin(); it3 != cgi.end(); ++it3)
+	std::map<std::string, std::string>	cgi = loc.getCgiScript();
+	std::map<std::string, std::string>::iterator	it3;
+	for (it3 = cgi.begin(); it3 != cgi.end(); it3++)
 	{
-		out << *it3;
-        if ((it3 + 1) != cgi.end())
-			out << ", ";
-    }
+		out << "file : " << (*it3).first << std::endl;
+		out << "script : " << (*it3).second;
+		if (it3 != cgi.end())
+			out << "\n";
+	}
 	out << "\n";
 
 	std::vector<std::string>	met = loc.getMethods();
